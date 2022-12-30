@@ -8,14 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
+    let tabList = ["Tab1", "Tab2", "Tab3"].map{Tab(name: $0, content: "This is the content for \($0). A bunch of content would go here")}
+    
+    @StateObject private var model = ViewModel()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        NavigationView {
+            List {
+                ForEach(model.tabs.indices) {idx in
+                    let item = model.tabs[idx]
+                    NavigationLink(item.name, destination: TabView(tab: $model.tabs[idx]))
+                }
+            }
+            .listStyle(.sidebar)
         }
-        .padding()
+        .onAppear{ model.tabs = tabList }
     }
 }
 
