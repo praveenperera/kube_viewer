@@ -15,7 +15,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
-                ForEach(model.tabs.indices) {idx in
+                ForEach(model.tabs.indices, id: \.self) {idx in
                     let item = model.tabs[idx]
                     NavigationLink(item.name, destination: TabView(tab: $model.tabs[idx]))
                 }
