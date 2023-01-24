@@ -8,25 +8,22 @@
 import SwiftUI
 
 struct MainView: View {
-    let tabList = ["Tab1", "Tab2", "Tab3"].map{Tab(name: $0, content: "This is the content for \($0). A bunch of content would go here")}
-    
     @StateObject private var model = ViewModel()
     
     var body: some View {
         NavigationStack {
             TabView(selection: $model.selectedTab) {
-                ForEach(model.tabs) { tab in
-                    Text(tab.content)
+                ForEach(Array(model.tabs.values)) { tab in
+                    tab.content
                         .tabItem {
                             Label(tab.name, systemImage: "list.dash")
                         }.onTapGesture {
-                            model.selectedTab = tab
-                        }.tag(tab)
+                            model.selectedTab = tab.id
+                        }.tag(tab.id)
                     
                 }
-        }.navigationTitle(model.selectedTab.name)
+            }.navigationTitle(model.tabs[model.selectedTab]!.name)
           }
-        .onAppear{ model.tabs = tabList }
     }
 }
 

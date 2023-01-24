@@ -9,21 +9,22 @@ import Foundation
 import SwiftUI
 
 
-struct Tab: Identifiable, Hashable {
-    let id = UUID().uuidString
+struct MainTab: Identifiable {
+    let id = UUID()
     let name: String
-    let content: String
+    let content: TabContentView
     var dummyData: Int = 0
 }
 
 class ViewModel: ObservableObject {
-    @Published var tabs: [Tab]
-    @Published var selectedTab: Tab
+    @Published var tabs: Dictionary<UUID, MainTab>
+    @Published var selectedTab: UUID
     
-    static let defaultTabs = ["Tab1", "Tab2", "Tab3"].map{Tab(name: $0, content: "default content")}
+    static let defaultTabsList: [MainTab] = ["Tab1", "Tab2", "Tab3"].map{ MainTab(name: $0, content: TabContentView(text: "Default content")) }
+    static let defaultTabs:  Dictionary<UUID, MainTab> = defaultTabsList.reduce(into: [UUID: MainTab]()) { $0[$1.id] = $1 }
     
-    init(sidebarTabs: [Tab] = ViewModel.defaultTabs) {
+    init(sidebarTabs: Dictionary<UUID, MainTab> = ViewModel.defaultTabs) {
         self.tabs = sidebarTabs
-        self.selectedTab = sidebarTabs[0]
+        self.selectedTab = sidebarTabs.first!.key
     }
 }

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621E629803DFB00FE2CE2 /* MainView.swift */; };
+		ACD621E92980404700FE2CE2 /* SideBarTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621E82980404700FE2CE2 /* SideBarTabView.swift */; };
+		ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621EA2980415E00FE2CE2 /* TabContentView.swift */; };
 		DADF4C7E295E6DB9006CA792 /* KubeViewerAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADF4C7D295E6DB9006CA792 /* KubeViewerAppApp.swift */; };
 		DADF4C80295E6DB9006CA792 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADF4C7F295E6DB9006CA792 /* ContentView.swift */; };
 		DADF4C82295E6DBB006CA792 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DADF4C81295E6DBB006CA792 /* Assets.xcassets */; };
@@ -17,6 +19,8 @@
 
 /* Begin PBXFileReference section */
 		ACD621E629803DFB00FE2CE2 /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		ACD621E82980404700FE2CE2 /* SideBarTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBarTabView.swift; sourceTree = "<group>"; };
+		ACD621EA2980415E00FE2CE2 /* TabContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabContentView.swift; sourceTree = "<group>"; };
 		DADF4C7A295E6DB9006CA792 /* KubeViewerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KubeViewerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DADF4C7D295E6DB9006CA792 /* KubeViewerAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KubeViewerAppApp.swift; sourceTree = "<group>"; };
 		DADF4C7F295E6DB9006CA792 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -56,6 +60,8 @@
 		DADF4C7C295E6DB9006CA792 /* KubeViewerApp */ = {
 			isa = PBXGroup;
 			children = (
+				ACD621EA2980415E00FE2CE2 /* TabContentView.swift */,
+				ACD621E82980404700FE2CE2 /* SideBarTabView.swift */,
 				DADF4C7D295E6DB9006CA792 /* KubeViewerAppApp.swift */,
 				DADF4C8E295E7D7E006CA792 /* ViewModel.swift */,
 				DADF4C7F295E6DB9006CA792 /* ContentView.swift */,
@@ -146,8 +152,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				DADF4C80295E6DB9006CA792 /* ContentView.swift in Sources */,
+				ACD621E92980404700FE2CE2 /* SideBarTabView.swift in Sources */,
 				ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */,
 				DADF4C8F295E7D7E006CA792 /* ViewModel.swift in Sources */,
+				ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */,
 				DADF4C7E295E6DB9006CA792 /* KubeViewerAppApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
