@@ -11,7 +11,7 @@ import SwiftUI
 struct KubeViewerAppApp: App {
     var body: some Scene {
         let mainWindow = WindowGroup {
-            ContentView()
+            MainView()
         }
         mainWindow.commands {
             CommandGroup(after: .newItem) {

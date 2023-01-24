@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 
-struct Tab: Identifiable {
+struct Tab: Identifiable, Hashable {
     let id = UUID().uuidString
     let name: String
     let content: String
@@ -18,10 +18,12 @@ struct Tab: Identifiable {
 
 class ViewModel: ObservableObject {
     @Published var tabs: [Tab]
+    @Published var selectedTab: Tab
     
     static let defaultTabs = ["Tab1", "Tab2", "Tab3"].map{Tab(name: $0, content: "default content")}
     
     init(sidebarTabs: [Tab] = ViewModel.defaultTabs) {
         self.tabs = sidebarTabs
+        self.selectedTab = sidebarTabs[0]
     }
 }
