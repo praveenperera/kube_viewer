@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MainView: View {
-    @StateObject private var model = ViewModel()
+    @StateObject private var model = MainViewModel()
     
     var body: some View {
         NavigationStack {
@@ -23,12 +23,12 @@ struct MainView: View {
                     
                 }
             }.navigationTitle(model.tabs[model.selectedTab]!.name)
-          }
+        }
     }
 }
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        MainView()
     }
 }
