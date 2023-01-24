@@ -13,7 +13,7 @@ struct MainView: View {
     var body: some View {
         NavigationStack {
             TabView(selection: $model.selectedTab) {
-                ForEach(Array(model.tabs.values)) { tab in
+                ForEach(model.tabs.values.sorted(by: { s1, s2 in s1.name < s2.name })) { tab in
                     tab.content
                         .tabItem {
                             Label(tab.name, systemImage: "list.dash")
