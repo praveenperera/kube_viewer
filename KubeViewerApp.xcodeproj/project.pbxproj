@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621E629803DFB00FE2CE2 /* MainView.swift */; };
-		ACD621E92980404700FE2CE2 /* SideBarTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621E82980404700FE2CE2 /* SideBarTabView.swift */; };
 		ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621EA2980415E00FE2CE2 /* TabContentView.swift */; };
 		ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621ED2980569500FE2CE2 /* MainViewModel.swift */; };
 		ACD621F2298057D400FE2CE2 /* TabViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621F1298057D400FE2CE2 /* TabViewModel.swift */; };
@@ -19,7 +18,6 @@
 
 /* Begin PBXFileReference section */
 		ACD621E629803DFB00FE2CE2 /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
-		ACD621E82980404700FE2CE2 /* SideBarTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBarTabView.swift; sourceTree = "<group>"; };
 		ACD621EA2980415E00FE2CE2 /* TabContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabContentView.swift; sourceTree = "<group>"; };
 		ACD621ED2980569500FE2CE2 /* MainViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 		ACD621F1298057D400FE2CE2 /* TabViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabViewModel.swift; sourceTree = "<group>"; };
@@ -44,7 +42,6 @@
 		ACD621F02980573E00FE2CE2 /* TabContent */ = {
 			isa = PBXGroup;
 			children = (
-				ACD621E82980404700FE2CE2 /* SideBarTabView.swift */,
 				ACD621F1298057D400FE2CE2 /* TabViewModel.swift */,
 			);
 			path = TabContent;
@@ -159,7 +156,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ACD621E92980404700FE2CE2 /* SideBarTabView.swift in Sources */,
 				ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */,
 				ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */,
 				DADF4C7E295E6DB9006CA792 /* KubeViewerAppApp.swift in Sources */,

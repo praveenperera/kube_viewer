@@ -21,11 +21,11 @@ class MainViewModel: ObservableObject {
     @Published var tabs: Dictionary<UUID, MainTab>
     @Published var selectedTab: UUID
     
-    static let defaultTabsList: [MainTab] = ["Tab1", "Tab2", "Tab3"].map{ MainTab(name: $0, content: TabContentView(text: "Default content"), viewModel: TabViewModel.init()) }
+    static let defaultTabsList: [MainTab] = ["Tab1", "Tab2", "Tab3"].map{ MainTab(name: $0, content: TabContentView(text: "Default content for \($0)"), viewModel: TabViewModel.init()) }
     static let defaultTabs:  Dictionary<UUID, MainTab> = defaultTabsList.reduce(into: [UUID: MainTab]()) { $0[$1.id] = $1 }
     
-    init(sidebarTabs: Dictionary<UUID, MainTab> = MainViewModel.defaultTabs) {
-        self.tabs = sidebarTabs
-        self.selectedTab = sidebarTabs.first!.key
+    init(tabs: Dictionary<UUID, MainTab> = MainViewModel.defaultTabs) {
+        self.tabs = tabs
+        self.selectedTab = tabs.first!.key
     }
 }

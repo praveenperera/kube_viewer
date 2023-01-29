@@ -12,17 +12,30 @@ struct MainView: View {
     
     var body: some View {
         NavigationStack {
-            TabView(selection: $model.selectedTab) {
-                ForEach(model.tabs.values.sorted(by: { s1, s2 in s1.name < s2.name })) { tab in
-                    tab.content
-                        .tabItem {
-                            Label(tab.name, systemImage: "list.dash")
-                        }.onTapGesture {
-                            model.selectedTab = tab.id
-                        }.tag(tab.id)
+            GeometryReader {geo in
+                HStack(spacing: 0) {
+                    List {
+                        ForEach(model.tabs.values.sorted(by: { s1, s2 in s1.name < s2.name })) { tab in
+                            Button {
+                                model.selectedTab = tab.id
+                            }
+                            label: {
+                                HStack {
+                                    Text(">")
+                                    Text(tab.name)
+                                }
+                            }
+                            .buttonStyle(.borderless)
+                        }
+                        .listStyle(.sidebar)
+                    }.navigationTitle(model.tabs[model.selectedTab]!.name)
+                        .frame(width: geo.size.width * (1/6))
                     
+                    model.tabs[model.selectedTab]!.content.padding(10)
+                    
+                    Spacer()
                 }
-            }.navigationTitle(model.tabs[model.selectedTab]!.name)
+            }
         }
     }
 }
