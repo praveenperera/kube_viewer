@@ -30,15 +30,21 @@ struct MainView: View {
                                 HStack {
                                     Text(">")
                                     Text(tab.name)
-                                }
+                                }.frame(maxWidth: .infinity)
                             }
-                            .frame(width: geo.frame(in: .local).width)
                             .background(Color(red: 0, green: 0, blue: 0.5))
                             .buttonStyle(SideBarButton())
-                        }
-                    }.listStyle(.sidebar)
-                        .navigationTitle(model.tabs[model.selectedTab]!.name)
-                        .frame(width: geo.size.width * (1/6))
+                            
+                        }.listRowBackground(Color(.red))
+                            .listRowInsets(EdgeInsets(top: -20, leading: 0, bottom: -20, trailing: 0))
+                        
+                    }
+                    .listStyle(PlainListStyle())
+                    .padding(EdgeInsets(top: 0, leading: -10, bottom: -10, trailing: -10))
+                    .clipShape(Rectangle())
+                    .navigationTitle(model.tabs[model.selectedTab]!.name)
+                    .frame(width: geo.size.width * (1/6))
+                    .background(Color(.red))
                     
                     model.tabs[model.selectedTab]!.content.padding(10)
                     
