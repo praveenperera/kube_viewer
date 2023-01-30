@@ -17,7 +17,7 @@ struct SideBarButtonLabel: ButtonStyle {
 }
 
 struct MainView: View {
-    @StateObject private var model = MainViewModel();
+    @ObservedObject var model: MainViewModel;
     @State private var hoverRow: UUID?;
     
     var body: some View {
@@ -64,7 +64,7 @@ struct MainView: View {
         }
     }
     
-    func tabBackgroundColor(_ tab: MainTab) -> Color {
+    func tabBackgroundColor(_ tab: SideBarTab) -> Color {
         if (tab.id == model.selectedTab) {
             return Theme.Color.blue900
         }
@@ -77,6 +77,6 @@ struct MainView: View {
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView()
+        MainView(model: MainViewModel())
     }
 }
