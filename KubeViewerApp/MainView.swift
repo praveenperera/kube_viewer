@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct SideBarButton: ButtonStyle {
+struct SideBarButtonLabel: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .padding(30)
+            .padding()
             .foregroundColor(.white)
             .clipShape(Rectangle())
     }
@@ -32,11 +32,24 @@ struct MainView: View {
                                     Text(tab.name)
                                 }.frame(maxWidth: .infinity)
                             }
-                            .background(hoverRow == tab.id ? Theme.Color.blue800 : Theme.Color.blue600)
-                            .buttonStyle(SideBarButton())
-                            .onHover{ _ in hoverRow = tab.id }
-                        }.listRowBackground(Color(.red))
-                            .listRowInsets(EdgeInsets(top: -20, leading: 0, bottom: -20, trailing: 0))
+                            .background(tabBackgroundColor(tab))
+                            .buttonStyle(SideBarButtonLabel())
+                            .onTapGesture {
+                                model.selectedTab = tab.id
+                            }
+                            .onHover{ hovering in
+                                hoverRow = hovering ? tab.id : nil
+                                DispatchQueue.main.async {
+                                    if (hovering) {
+                                        NSCursor.pointingHand.push()
+                                    } else {
+                                        NSCursor.pop()
+                                    }
+                                }
+                                
+                            }
+                        }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
                     }
                     .listStyle(PlainListStyle())
                     .padding(EdgeInsets(top: 0, leading: -10, bottom: -10, trailing: -10))
@@ -50,7 +63,16 @@ struct MainView: View {
             }
         }
     }
+    
+    func tabBackgroundColor(_ tab: MainTab) -> Color {
+        if (tab.id == model.selectedTab) {
+            return Theme.Color.blue900
+        }
+        
+        return hoverRow == tab.id ? Theme.Color.blue800 : Theme.Color.blue600
+    }
 }
+
 
 
 struct MainView_Previews: PreviewProvider {
