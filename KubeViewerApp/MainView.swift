@@ -10,15 +10,15 @@ import SwiftUI
 struct SideBarButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .padding()
-            .background(Color(red: 0, green: 0, blue: 0.5))
+            .padding(30)
             .foregroundColor(.white)
             .clipShape(Rectangle())
     }
 }
 
 struct MainView: View {
-    @StateObject private var model = MainViewModel()
+    @StateObject private var model = MainViewModel();
+    @State private var hoverRow: UUID?;
     
     var body: some View {
         NavigationStack {
@@ -32,19 +32,17 @@ struct MainView: View {
                                     Text(tab.name)
                                 }.frame(maxWidth: .infinity)
                             }
-                            .background(Color(red: 0, green: 0, blue: 0.5))
+                            .background(hoverRow == tab.id ? Theme.Color.blue800 : Theme.Color.blue600)
                             .buttonStyle(SideBarButton())
-                            
+                            .onHover{ _ in hoverRow = tab.id }
                         }.listRowBackground(Color(.red))
                             .listRowInsets(EdgeInsets(top: -20, leading: 0, bottom: -20, trailing: 0))
-                        
                     }
                     .listStyle(PlainListStyle())
                     .padding(EdgeInsets(top: 0, leading: -10, bottom: -10, trailing: -10))
                     .clipShape(Rectangle())
                     .navigationTitle(model.tabs[model.selectedTab]!.name)
-                    .frame(width: geo.size.width * (1/6))
-                    .background(Color(.red))
+                    .frame(maxWidth: max(250, geo.size.width * (1/6)))
                     
                     model.tabs[model.selectedTab]!.content.padding(10)
                     
