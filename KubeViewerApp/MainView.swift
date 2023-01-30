@@ -17,7 +17,7 @@ struct SideBarButtonLabel: ButtonStyle {
 }
 
 struct MainView: View {
-    @ObservedObject var model: MainViewModel;
+    @StateObject private var model: MainViewModel = MainViewModel();
     @State private var hoverRow: UUID?;
     
     var body: some View {
@@ -59,9 +59,11 @@ struct MainView: View {
                     
                     model.tabs[model.selectedTab]!.content.padding(10)
                     
+                    Text(String(model.window?.tabbedWindows?.count ?? 0))
+                    
                     Spacer()}
             }
-        }
+        }.background(WindowAccessor(window: $model.window))
     }
     
     func tabBackgroundColor(_ tab: SideBarTab) -> Color {
@@ -75,8 +77,23 @@ struct MainView: View {
 
 
 
+struct WindowAccessor: NSViewRepresentable {
+    @Binding var window: NSWindow?
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async {
+            self.window = view.window
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+    }
+}
+
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView(model: MainViewModel())
+        MainView()
     }
 }

@@ -19,6 +19,7 @@ struct SideBarTab: Identifiable {
 
 
 class MainViewModel: ObservableObject {
+    @Published var window: NSWindow?;
     @Published var tabs: Dictionary<UUID, SideBarTab>
     @Published var selectedTab: UUID
     @Published var selectedMainTab: NSWindow?
