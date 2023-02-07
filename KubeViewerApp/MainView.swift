@@ -12,7 +12,6 @@ struct SideBarButtonLabel: ButtonStyle {
         configuration.label
             .padding()
             .foregroundColor(.white)
-            .clipShape(Rectangle())
     }
 }
 
@@ -30,10 +29,8 @@ struct MainView: View {
                                 HStack {
                                     Text(">")
                                     Text(tab.name)
-                                }.frame(maxWidth: .infinity)
+                                }
                             }
-                            .background(tabBackgroundColor(tab))
-                            .buttonStyle(SideBarButtonLabel())
                             .onTapGesture {
                                 model.selectedTab = tab.id
                             }
@@ -64,6 +61,8 @@ struct MainView: View {
                     Spacer()}
             }
         }.background(WindowAccessor(window: $model.window))
+        .background(BlurWindow())
+
     }
     
     func tabBackgroundColor(_ tab: SideBarTab) -> Color {
