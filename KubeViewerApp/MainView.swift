@@ -59,21 +59,7 @@ struct MainView: View {
                     .frame(width: sidebarWidth(geo))
                     
                     // resize bar
-                    Rectangle().frame(width: 2)
-                        .gesture(
-                            DragGesture()
-                                .onChanged { gesture in
-                                    customSideBarWidth = sidebarWidth(geo) + gesture.translation.width
-                                }
-                        ).onHover { hovering in
-                            DispatchQueue.main.async {
-                                if hovering {
-                                    NSCursor.resizeLeftRight.push()
-                                } else {
-                                    NSCursor.pop()
-                                }
-                            }
-                        }.offset(x: -1)
+                    ResizerBar(sideBarWidth: sidebarWidth(geo), customSideBarWidth: $customSideBarWidth)
                     
                     model.tabs[model.selectedTab]!.content.padding(10)
                     
@@ -112,5 +98,29 @@ struct WindowAccessor: NSViewRepresentable {
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         MainView()
+    }
+}
+
+struct ResizerBar: View {
+    var sideBarWidth: CGFloat
+    @Binding var customSideBarWidth: CGFloat?
+    
+    var body: some View {
+        Rectangle().frame(width: 2)
+            .gesture(
+                DragGesture()
+                    .onChanged { gesture in
+                        customSideBarWidth = sideBarWidth + gesture.translation.width
+                    }
+            ).onHover { hovering in
+                DispatchQueue.main.async {
+                    if hovering {
+                        NSCursor.resizeLeftRight.push()
+                    } else {
+                        NSCursor.pop()
+                    }
+                }
+            }.offset(x: -1)
+            .foregroundColor(Color.secondary.opacity(1))
     }
 }
