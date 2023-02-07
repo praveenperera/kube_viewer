@@ -28,38 +28,51 @@ struct MainView: View {
         NavigationStack {
             GeometryReader { geo in
                 HStack(spacing: 0) {
-                    List {
-                        ForEach(model.tabs.values.sorted(by: { s1, s2 in s1.name < s2.name })) { tab in
-                            Button(action: { model.selectedTab = tab.id }) {
-                                HStack {
-                                    Text(">")
-                                    Text(tab.name)
+                    VStack {
+                        List {
+                            ForEach(model.tabs.values.sorted(by: { s1, s2 in s1.name < s2.name })) { tab in
+                                Button(action: { model.selectedTab = tab.id }) {
+                                    HStack {
+                                        Text(">")
+                                        Text(tab.name)
+                                    }
                                 }
-                            }
-                            .onTapGesture {
-                                model.selectedTab = tab.id
-                            }
-                            .onHover { hovering in
-                                hoverRow = hovering ? tab.id : nil
-                                DispatchQueue.main.async {
-                                    if hovering {
-                                        NSCursor.pointingHand.push()
-                                    } else {
-                                        NSCursor.pop()
+                                .onTapGesture {
+                                    model.selectedTab = tab.id
+                                }
+                                .onHover { hovering in
+                                    hoverRow = hovering ? tab.id : nil
+                                    DispatchQueue.main.async {
+                                        if hovering {
+                                            NSCursor.pointingHand.push()
+                                        } else {
+                                            NSCursor.pop()
+                                        }
                                     }
                                 }
                             }
                         }
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                        .listStyle(PlainListStyle())
+                        .navigationTitle(model.tabs[model.selectedTab]!.name)
                     }
-                    .listStyle(PlainListStyle())
-                    .padding(EdgeInsets(top: 0, leading: -10, bottom: -10, trailing: -10))
-                    .clipShape(RoundedRectangle(cornerRadius: 5))
-                    .navigationTitle(model.tabs[model.selectedTab]!.name)
+                    .overlay(ResizerBar(customSideBarWidth: customSideBarWidth))
+                    .gesture(
+                        DragGesture()
+                            .onChanged {
+                                debugPrint("translation", $0.translation.width)
+                                self.customSideBarWidth = $0.location.x
+                            }
+                            .onEnded { _ in
+                                withAnimation(.spring()) {
+                                    if let customSideBarWidth = self.customSideBarWidth, customSideBarWidth < 150 {
+                                        self.customSideBarWidth = 0
+                                    }
+                                }
+                            }
+                    )
                     .frame(width: sidebarWidth(geo))
                     
                     // resize bar
-                    ResizerBar(sideBarWidth: sidebarWidth(geo), customSideBarWidth: $customSideBarWidth)
                     
                     model.tabs[model.selectedTab]!.content.padding(10)
                     
@@ -102,40 +115,30 @@ struct MainView_Previews: PreviewProvider {
 }
 
 struct ResizerBar: View {
-    var sideBarWidth: CGFloat
-    @Binding var customSideBarWidth: CGFloat?
+    var customSideBarWidth: CGFloat?
     
     func width() -> CGFloat {
         if let x = customSideBarWidth, x == 0 {
-            return 0
+            return 1
         } else {
-            return 2
+            return 5
         }
     }
     
     var body: some View {
-        Rectangle().frame(width: width())
-            .gesture(
-                DragGesture()
-                    .onChanged {
-                        self.customSideBarWidth = sideBarWidth + $0.translation.width
-                    }
-                    .onEnded { _ in
-                        withAnimation(.spring()) {
-                            if let customSideBarWidth = self.customSideBarWidth, customSideBarWidth < 150 {
-                                self.customSideBarWidth = 0
-                            }
+        HStack(spacing: 0) {
+            Spacer()
+            Rectangle().frame(width: width())
+                .foregroundColor(Color.red.opacity(0))
+                .onHover { hovering in
+                    DispatchQueue.main.async {
+                        if hovering {
+                            NSCursor.resizeLeftRight.push()
+                        } else {
+                            NSCursor.pop()
                         }
                     }
-            ).onHover { hovering in
-                DispatchQueue.main.async {
-                    if hovering {
-                        NSCursor.resizeLeftRight.push()
-                    } else {
-                        NSCursor.pop()
-                    }
                 }
-            }.offset(x: -1)
-            .foregroundColor(Color.secondary.opacity(1))
+        }
     }
 }
