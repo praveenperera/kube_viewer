@@ -12,13 +12,18 @@ struct SideBarButtonLabel: ButtonStyle {
         configuration.label
             .padding()
             .foregroundColor(.white)
-            .clipShape(Rectangle())
     }
 }
 
 struct MainView: View {
-    @StateObject private var model = MainViewModel();
+    @StateObject private var model: MainViewModel = MainViewModel();
     @State private var hoverRow: UUID?;
+    @State private var customSideBarWidth: CGFloat?;
+    
+    func sidebarWidth(_ geo: GeometryProxy) -> CGFloat {
+        max(150, customSideBarWidth ?? max(150, geo.size.width * (1/8)))
+    }
+    
     
     var body: some View {
         NavigationStack {
@@ -30,10 +35,8 @@ struct MainView: View {
                                 HStack {
                                     Text(">")
                                     Text(tab.name)
-                                }.frame(maxWidth: .infinity)
+                                }
                             }
-                            .background(tabBackgroundColor(tab))
-                            .buttonStyle(SideBarButtonLabel())
                             .onTapGesture {
                                 model.selectedTab = tab.id
                             }
@@ -55,16 +58,35 @@ struct MainView: View {
                     .padding(EdgeInsets(top: 0, leading: -10, bottom: -10, trailing: -10))
                     .clipShape(Rectangle())
                     .navigationTitle(model.tabs[model.selectedTab]!.name)
-                    .frame(maxWidth: max(250, geo.size.width * (1/6)))
+                    .frame(width: sidebarWidth(geo) )
+                    
+                    Rectangle().frame(width: 2).gesture(
+                        DragGesture()
+                            .onChanged { gesture in
+                                customSideBarWidth = sidebarWidth(geo) + gesture.translation.width
+                            }
+                    ).onHover{hovering in
+                        DispatchQueue.main.async {
+                            if (hovering) {
+                                NSCursor.resizeLeftRight.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                    }
                     
                     model.tabs[model.selectedTab]!.content.padding(10)
                     
+                    Text(String(model.window?.tabbedWindows?.count ?? 0))
+                    
                     Spacer()}
             }
-        }
+        }.background(WindowAccessor(window: $model.window))
+            .background(BlurWindow())
+        
     }
     
-    func tabBackgroundColor(_ tab: MainTab) -> Color {
+    func tabBackgroundColor(_ tab: SideBarTab) -> Color {
         if (tab.id == model.selectedTab) {
             return Theme.Color.blue900
         }
@@ -74,6 +96,21 @@ struct MainView: View {
 }
 
 
+
+struct WindowAccessor: NSViewRepresentable {
+    @Binding var window: NSWindow?
+    
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async {
+            self.window = view.window
+        }
+        return view
+    }
+    
+    func updateNSView(_ nsView: NSView, context: Context) {
+    }
+}
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {

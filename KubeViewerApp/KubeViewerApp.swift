@@ -8,20 +8,25 @@
 import SwiftUI
 
 @main
-struct KubeViewerAppApp: App {
+struct KubeViewerApp: App {
+    
     var body: some Scene {
         let mainWindow = WindowGroup {
             MainView()
         }
+        
+        
         mainWindow.commands {
             CommandGroup(after: .newItem) {
                 Button(action: {
                     if let currentWindow = NSApp.keyWindow,
                        let windowController = currentWindow.windowController {
                         windowController.newWindowForTab(nil)
+                        
                         if let newWindow = NSApp.keyWindow,
                            currentWindow != newWindow {
                             currentWindow.addTabbedWindow(newWindow, ordered: .above)
+                            currentWindow.tabbingMode = .preferred
                         }
                     }
                 }) {
@@ -30,5 +35,6 @@ struct KubeViewerAppApp: App {
                 .keyboardShortcut("t", modifiers: [.command])
             }
         }
+        
     }
 }
