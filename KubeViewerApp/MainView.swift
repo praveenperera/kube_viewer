@@ -16,22 +16,21 @@ struct SideBarButtonLabel: ButtonStyle {
 }
 
 struct MainView: View {
-    @StateObject private var model: MainViewModel = MainViewModel();
-    @State private var hoverRow: UUID?;
-    @State private var customSideBarWidth: CGFloat?;
+    @StateObject private var model: MainViewModel = .init()
+    @State private var hoverRow: UUID?
+    @State private var customSideBarWidth: CGFloat?
     
     func sidebarWidth(_ geo: GeometryProxy) -> CGFloat {
-        max(150, customSideBarWidth ?? max(150, geo.size.width * (1/8)))
+        max(150, customSideBarWidth ?? max(150, geo.size.width * (1 / 8)))
     }
-    
     
     var body: some View {
         NavigationStack {
-            GeometryReader {geo in
+            GeometryReader { geo in
                 HStack(spacing: 0) {
                     List {
                         ForEach(model.tabs.values.sorted(by: { s1, s2 in s1.name < s2.name })) { tab in
-                            Button(action: {model.selectedTab = tab.id} ) {
+                            Button(action: { model.selectedTab = tab.id }) {
                                 HStack {
                                     Text(">")
                                     Text(tab.name)
@@ -40,62 +39,61 @@ struct MainView: View {
                             .onTapGesture {
                                 model.selectedTab = tab.id
                             }
-                            .onHover{ hovering in
+                            .onHover { hovering in
                                 hoverRow = hovering ? tab.id : nil
                                 DispatchQueue.main.async {
-                                    if (hovering) {
+                                    if hovering {
                                         NSCursor.pointingHand.push()
                                     } else {
                                         NSCursor.pop()
                                     }
                                 }
-                                
                             }
                         }
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
                     }
                     .listStyle(PlainListStyle())
                     .padding(EdgeInsets(top: 0, leading: -10, bottom: -10, trailing: -10))
-                    .clipShape(Rectangle())
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
                     .navigationTitle(model.tabs[model.selectedTab]!.name)
-                    .frame(width: sidebarWidth(geo) )
+                    .frame(width: sidebarWidth(geo))
                     
-                    Rectangle().frame(width: 2).gesture(
-                        DragGesture()
-                            .onChanged { gesture in
-                                customSideBarWidth = sidebarWidth(geo) + gesture.translation.width
+                    // resize bar
+                    Rectangle().frame(width: 2)
+                        .gesture(
+                            DragGesture()
+                                .onChanged { gesture in
+                                    customSideBarWidth = sidebarWidth(geo) + gesture.translation.width
+                                }
+                        ).onHover { hovering in
+                            DispatchQueue.main.async {
+                                if hovering {
+                                    NSCursor.resizeLeftRight.push()
+                                } else {
+                                    NSCursor.pop()
+                                }
                             }
-                    ).onHover{hovering in
-                        DispatchQueue.main.async {
-                            if (hovering) {
-                                NSCursor.resizeLeftRight.push()
-                            } else {
-                                NSCursor.pop()
-                            }
-                        }
-                    }
+                        }.offset(x: -1)
                     
                     model.tabs[model.selectedTab]!.content.padding(10)
                     
                     Text(String(model.window?.tabbedWindows?.count ?? 0))
                     
-                    Spacer()}
+                    Spacer()
+                }
             }
         }.background(WindowAccessor(window: $model.window))
             .background(BlurWindow())
-        
     }
     
     func tabBackgroundColor(_ tab: SideBarTab) -> Color {
-        if (tab.id == model.selectedTab) {
+        if tab.id == model.selectedTab {
             return Theme.Color.blue900
         }
         
         return hoverRow == tab.id ? Theme.Color.blue800 : Theme.Color.blue600
     }
 }
-
-
 
 struct WindowAccessor: NSViewRepresentable {
     @Binding var window: NSWindow?
@@ -108,8 +106,7 @@ struct WindowAccessor: NSViewRepresentable {
         return view
     }
     
-    func updateNSView(_ nsView: NSView, context: Context) {
-    }
+    func updateNSView(_ nsView: NSView, context: Context) {}
 }
 
 struct MainView_Previews: PreviewProvider {

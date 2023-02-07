@@ -10,7 +10,7 @@ import SwiftUI
 
 struct TabContentView: View {
     var text: String
-    
+
     var body: some View {
         Text(text)
     }
