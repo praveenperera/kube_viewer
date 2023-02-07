@@ -21,7 +21,7 @@ struct MainView: View {
     @State private var customSideBarWidth: CGFloat?
     
     func sidebarWidth(_ geo: GeometryProxy) -> CGFloat {
-        max(150, customSideBarWidth ?? max(150, geo.size.width * (1 / 8)))
+        customSideBarWidth ?? max(150, geo.size.width * (1 / 8))
     }
     
     var body: some View {
@@ -105,12 +105,27 @@ struct ResizerBar: View {
     var sideBarWidth: CGFloat
     @Binding var customSideBarWidth: CGFloat?
     
+    func width() -> CGFloat {
+        if let x = customSideBarWidth, x == 0 {
+            return 0
+        } else {
+            return 2
+        }
+    }
+    
     var body: some View {
-        Rectangle().frame(width: 2)
+        Rectangle().frame(width: width())
             .gesture(
                 DragGesture()
-                    .onChanged { gesture in
-                        customSideBarWidth = sideBarWidth + gesture.translation.width
+                    .onChanged {
+                        self.customSideBarWidth = sideBarWidth + $0.translation.width
+                    }
+                    .onEnded { _ in
+                        withAnimation(.spring()) {
+                            if let customSideBarWidth = self.customSideBarWidth, customSideBarWidth < 150 {
+                                self.customSideBarWidth = 0
+                            }
+                        }
                     }
             ).onHover { hovering in
                 DispatchQueue.main.async {
