@@ -21,7 +21,7 @@ struct MainView: View {
     @State private var customSideBarWidth: CGFloat?
     
     func sidebarWidth(_ geo: GeometryProxy) -> CGFloat {
-        customSideBarWidth ?? max(150, geo.size.width * (1 / 8))
+        max(0, customSideBarWidth ?? max(150, geo.size.width * (1 / 8)))
     }
     
     var body: some View {
@@ -58,21 +58,21 @@ struct MainView: View {
                     .overlay(ResizerBar(customSideBarWidth: customSideBarWidth))
                     .gesture(
                         DragGesture()
-                            .onChanged {
-                                debugPrint("translation", $0.translation.width)
-                                self.customSideBarWidth = $0.location.x
-                            }
+                            .onChanged { self.customSideBarWidth = $0.location.x }
                             .onEnded { _ in
                                 withAnimation(.spring()) {
-                                    if let customSideBarWidth = self.customSideBarWidth, customSideBarWidth < 150 {
+                                    switch self.customSideBarWidth {
+                                    case .some(let x) where x < 85:
                                         self.customSideBarWidth = 0
+                                    case .some(let x) where x < 150:
+                                        self.customSideBarWidth = 150
+                                    default:
+                                        ()
                                     }
                                 }
                             }
                     )
                     .frame(width: sidebarWidth(geo))
-                    
-                    // resize bar
                     
                     model.tabs[model.selectedTab]!.content.padding(10)
                     
@@ -119,7 +119,7 @@ struct ResizerBar: View {
     
     func width() -> CGFloat {
         if let x = customSideBarWidth, x == 0 {
-            return 1
+            return 2
         } else {
             return 5
         }
