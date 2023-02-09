@@ -46,7 +46,8 @@ struct MainView: View {
                                             }
                                         }
                                     }
-                            }.frame(maxWidth: sidebarWidth(geo) - 20, alignment: .trailing)
+                                    .transition(.opacity)
+                            }.frame(maxWidth: max(0, sidebarWidth(geo) - 20), alignment: .trailing)
                             
                             ForEach(model.tabs.values.sorted(by: { s1, s2 in s1.name < s2.name })) { tab in
                                 Button(action: { model.selectedTab = tab.id }) {
@@ -107,6 +108,7 @@ struct MainView: View {
                                         }
                                     }
                                 }
+                                .transition(.opacity)
                         }
                         
                         model.tabs[model.selectedTab]!.content

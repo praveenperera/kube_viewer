@@ -12,7 +12,7 @@ struct KubeViewerApp: App {
     var body: some Scene {
         let mainWindow = WindowGroup {
             MainView()
-        }
+        }.windowStyle(.hiddenTitleBar)
 
         mainWindow.commands {
             CommandGroup(after: .newItem) {
