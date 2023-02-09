@@ -29,7 +29,25 @@ struct MainView: View {
             GeometryReader { geo in
                 HStack(spacing: 0) {
                     VStack {
+                        // MARK: sidebar
+
                         List {
+                            VStack(alignment: .trailing) {
+                                Image(systemName: "sidebar.right")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 18, height: 18, alignment: .trailing)
+                                    .onTapGesture {
+                                        withAnimation(.spring()) {
+                                            if customSideBarWidth == 0 {
+                                                customSideBarWidth = 150
+                                            } else {
+                                                customSideBarWidth = 0
+                                            }
+                                        }
+                                    }
+                            }.frame(maxWidth: sidebarWidth(geo) - 20, alignment: .trailing)
+                            
                             ForEach(model.tabs.values.sorted(by: { s1, s2 in s1.name < s2.name })) { tab in
                                 Button(action: { model.selectedTab = tab.id }) {
                                     HStack {
@@ -74,11 +92,29 @@ struct MainView: View {
                     )
                     .frame(width: sidebarWidth(geo))
                     
-                    model.tabs[model.selectedTab]!.content.padding(10)
-                    
-                    Text(String(model.window?.tabbedWindows?.count ?? 0))
-                    
-                    Spacer()
+                    VStack(alignment: .leading) {
+                        if let x = customSideBarWidth, x == 0 {
+                            Image(systemName: "sidebar.right")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                                .onTapGesture {
+                                    withAnimation(.spring()) {
+                                        if customSideBarWidth == 0 {
+                                            customSideBarWidth = 150
+                                        } else {
+                                            customSideBarWidth = 0
+                                        }
+                                    }
+                                }
+                        }
+                        
+                        model.tabs[model.selectedTab]!.content
+                            
+                        Text(String(model.window?.tabbedWindows?.count ?? 0))
+                            
+                        Spacer()
+                    }.padding(.leading, 15).padding(.top, 5)
                 }
             }
         }.background(WindowAccessor(window: $model.window))
@@ -133,12 +169,19 @@ struct ResizerBar: View {
                 .onHover { hovering in
                     DispatchQueue.main.async {
                         if hovering {
-                            NSCursor.resizeLeftRight.push()
+                            customSideBarWidth == 0 ? NSCursor.resizeRight.push()
+                                : NSCursor.resizeLeftRight.push()
                         } else {
                             NSCursor.pop()
                         }
                     }
                 }
         }
+    }
+}
+
+struct Previews_MainView_Previews: PreviewProvider {
+    static var previews: some View {
+        /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
     }
 }

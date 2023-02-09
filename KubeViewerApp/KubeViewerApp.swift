@@ -13,7 +13,7 @@ struct KubeViewerApp: App {
         let mainWindow = WindowGroup {
             MainView()
         }
-        
+
         mainWindow.commands {
             CommandGroup(after: .newItem) {
                 Button(action: {
@@ -21,12 +21,12 @@ struct KubeViewerApp: App {
                        let windowController = currentWindow.windowController
                     {
                         windowController.newWindowForTab(nil)
-                        
+
                         if let newWindow = NSApp.keyWindow,
                            currentWindow != newWindow
                         {
                             currentWindow.addTabbedWindow(newWindow, ordered: .above)
-                            currentWindow.tabbingMode = .preferred
+                            // currentWindow.tabbingMode = .preferred
                         }
                     }
                 }) {
