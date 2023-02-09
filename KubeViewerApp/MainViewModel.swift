@@ -11,31 +11,55 @@ import SwiftUI
 struct SideBarTab: Identifiable {
     let id = UUID()
     let name: String
+    let icon: String
     let content: TabContentView
     let viewModel: TabViewModel
     var dummyData: Int = 0
 }
 
+enum TabGroupType {
+    case general
+}
+
+extension TabGroupType {
+    func name() -> String {
+        switch self {
+        case .general:
+            return "General"
+        }
+    }
+}
+
+struct TabGroup {
+    let name: TabGroupType
+    let tabs: [SideBarTab]
+}
+
+struct TabGroups {
+    let general: TabGroup
+}
+
+let defaultTabGroups = TabGroups(general:
+    TabGroup(name: .general, tabs: [
+        SideBarTab(name: "Cluster", icon: "steeringwheel", content: TabContentView(text: "I am in cluster content"), viewModel: TabViewModel()),
+        SideBarTab(name: "Nodes", icon: "server.rack", content: TabContentView(text: "I am in nodes content"), viewModel: TabViewModel()),
+    ]))
+
 class MainViewModel: ObservableObject {
     @Published var window: NSWindow?
-    @Published var tabs: [UUID: SideBarTab]
+    @Published var tabGroups: TabGroups
     @Published var selectedTab: UUID
     @Published var selectedMainTab: NSWindow?
 
-    static let defaultTabsList: [SideBarTab] = ["Tab1", "Tab2", "Tab3"]
-        .map {
-            SideBarTab(
-                name: $0, content: TabContentView(text: "Default content for \($0)"),
-                viewModel: TabViewModel())
-        }
-
-    static let defaultTabs: [UUID: SideBarTab] = defaultTabsList.reduce(into: [UUID: SideBarTab]()) {
-        $0[$1.id] = $1
+    init() {
+        self.tabGroups = defaultTabGroups
+        self.selectedTab = defaultTabGroups.general.tabs[0].id
     }
 
-    init(tabs: [UUID: SideBarTab] = MainViewModel.defaultTabs) {
-        self.tabs = tabs
-        self.selectedTab = tabs.first!.key
+    var tabs: [UUID: SideBarTab] {
+        self.tabGroups.general.tabs.reduce(into: [UUID: SideBarTab]()) {
+            $0[$1.id] = $1
+        }
     }
 }
 

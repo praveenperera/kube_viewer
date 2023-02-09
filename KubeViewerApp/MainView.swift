@@ -1,19 +1,11 @@
 //
-//  ContentView.swift
+//  MainView.swift
 //  KubeViewerApp
 //
 //  Created by Thavish Perera on 2022-12-29.
 //
 
 import SwiftUI
-
-struct SideBarButtonLabel: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .padding()
-            .foregroundColor(.white)
-    }
-}
 
 struct MainView: View {
     @StateObject private var model: MainViewModel = .init()
@@ -33,13 +25,14 @@ struct MainView: View {
                         VStack {
                             DisclosureGroup(isExpanded: $expanded, content: {
                                 VStack {
-                                    SidebarButton(text: "Cluster", imageName: "steeringwheel")
-                                    SidebarButton(text: "Nodes", imageName: "server.rack")
+                                    ForEach(model.tabGroups.general.tabs) { tab in
+                                        SidebarButton(selectedTab: $model.selectedTab, tab: tab)
+                                    }
                                 }
                                 .padding([.top, .leading], 5)
                             }, label: {
                                 SidebarTitle()
-                                
+
                             })
                             Spacer()
                         }
@@ -117,27 +110,43 @@ struct Previews_MainView_Previews: PreviewProvider {
 }
 
 struct SidebarButton: View {
-    var text: String
-    var imageName: String
+    @Binding var selectedTab: UUID
+    @State private var isHover = false
+
+    var tab: SideBarTab
 
     var body: some View {
         HStack {
-            Button(action: {}) {
+            Button(action: { selectedTab = tab.id }) {
                 Label {
-                    Text(text)
+                    Text(tab.name)
                 } icon: {
-                    Image(systemName: imageName)
+                    Image(systemName: tab.icon)
                         .foregroundColor(Color.blue)
                 }
             }.buttonStyle(.plain).padding(.leading, 10)
+                .onHover { hovering in
+                    isHover = hovering
+                }
+
             Spacer()
         }
+
         .padding([.top, .bottom], 5)
-        .background(Color.secondary.opacity(0.25))
-        .background(.ultraThinMaterial)
+        .if(selectedTab == tab.id) { view in
+            view.background(Color.secondary.opacity(0.25))
+                .background(.ultraThinMaterial)
+        }
+        .if(isHover) { view in
+            view.background(Color.secondary.opacity(0.25))
+                .background(.ultraThinMaterial)
+        }
         .clipShape(RoundedRectangle(cornerRadius: 4))
         .frame(maxWidth: .infinity)
         .padding(.trailing, 15)
+        .onTapGesture {
+            selectedTab = tab.id
+        }
     }
 }
 
