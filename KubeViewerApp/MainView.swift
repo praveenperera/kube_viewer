@@ -26,10 +26,19 @@ struct MainView: View {
                                 }
                                 .padding([.top, .leading], 5)
                             }, label: {
-                                SidebarTitle()
-
+                                SidebarTitle(type: .general)
                             })
-                            Spacer()
+
+                            DisclosureGroup(isExpanded: $expanded, content: {
+                                VStack {
+                                    ForEach(model.tabGroups.workloads.tabs) { tab in
+                                        SidebarButton(selectedTab: $model.selectedTab, tab: tab)
+                                    }
+                                }
+                                .padding([.top, .leading], 5)
+                            }, label: {
+                                SidebarTitle(type: .workloads)
+                            })
                         }
                         .padding(.leading, 10)
                         .navigationTitle(model.tabs[model.selectedTab]!.name)
@@ -107,9 +116,11 @@ struct SidebarButton: View {
 }
 
 struct SidebarTitle: View {
+    var type: TabGroupType
+
     var body: some View {
         HStack {
-            Text("General")
+            Text(type.title())
                 .foregroundColor(.secondary)
                 .font(.system(size: 11, weight: .semibold))
         }
