@@ -1,0 +1,14 @@
+[package]
+edition = "2021"
+name = "kube_viewer"
+version = "0.1.0"
+
+[dependencies]
+uniffi = {version = "0.23"}
+
+[build-dependencies]
+uniffi = {version = "0.23", features = ["build"]}
+
+[lib]
+crate-type = ["cdylib"]
+name = "kube_viewer"
