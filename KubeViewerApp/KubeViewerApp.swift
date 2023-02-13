@@ -12,8 +12,8 @@ struct KubeViewerApp: App {
     var body: some Scene {
         let mainWindow = WindowGroup {
             MainView()
-        }
-        
+        }.windowStyle(.hiddenTitleBar)
+
         mainWindow.commands {
             CommandGroup(after: .newItem) {
                 Button(action: {
@@ -21,12 +21,12 @@ struct KubeViewerApp: App {
                        let windowController = currentWindow.windowController
                     {
                         windowController.newWindowForTab(nil)
-                        
+
                         if let newWindow = NSApp.keyWindow,
                            currentWindow != newWindow
                         {
                             currentWindow.addTabbedWindow(newWindow, ordered: .above)
-                            currentWindow.tabbingMode = .preferred
+                            // currentWindow.tabbingMode = .preferred
                         }
                     }
                 }) {
@@ -35,5 +35,11 @@ struct KubeViewerApp: App {
                 .keyboardShortcut("t", modifiers: [.command])
             }
         }
+    }
+}
+
+struct Previews_KubeViewerApp_Previews: PreviewProvider {
+    static var previews: some View {
+        /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
     }
 }

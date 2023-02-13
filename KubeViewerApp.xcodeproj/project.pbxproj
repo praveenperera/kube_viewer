@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		AC1651B829874DB000CBC220 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1651B729874DB000CBC220 /* Theme.swift */; };
 		AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */; };
+		ACC45D532995AE480063B358 /* If.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D522995AE480063B358 /* If.swift */; };
+		ACC45D552995EFA00063B358 /* WhenHovered.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D542995EFA00063B358 /* WhenHovered.swift */; };
 		ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621E629803DFB00FE2CE2 /* MainView.swift */; };
 		ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621EA2980415E00FE2CE2 /* TabContentView.swift */; };
 		ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621ED2980569500FE2CE2 /* MainViewModel.swift */; };
@@ -21,6 +23,8 @@
 /* Begin PBXFileReference section */
 		AC1651B729874DB000CBC220 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurWindow.swift; sourceTree = "<group>"; };
+		ACC45D522995AE480063B358 /* If.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = If.swift; sourceTree = "<group>"; };
+		ACC45D542995EFA00063B358 /* WhenHovered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenHovered.swift; sourceTree = "<group>"; };
 		ACD621E629803DFB00FE2CE2 /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		ACD621EA2980415E00FE2CE2 /* TabContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabContentView.swift; sourceTree = "<group>"; };
 		ACD621ED2980569500FE2CE2 /* MainViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
@@ -43,6 +47,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		ACC45D512995AE2E0063B358 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				ACC45D562995EFDF0063B358 /* View */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		ACC45D562995EFDF0063B358 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				ACC45D522995AE480063B358 /* If.swift */,
+				ACC45D542995EFA00063B358 /* WhenHovered.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		ACD621F02980573E00FE2CE2 /* TabContent */ = {
 			isa = PBXGroup;
 			children = (
@@ -54,6 +75,7 @@
 		DADF4C71295E6DB9006CA792 = {
 			isa = PBXGroup;
 			children = (
+				ACC45D512995AE2E0063B358 /* Extensions */,
 				DADF4C7C295E6DB9006CA792 /* KubeViewerApp */,
 				DADF4C7B295E6DB9006CA792 /* Products */,
 			);
@@ -162,6 +184,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ACC45D552995EFA00063B358 /* WhenHovered.swift in Sources */,
+				ACC45D532995AE480063B358 /* If.swift in Sources */,
 				ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */,
 				ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */,
 				DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */,
