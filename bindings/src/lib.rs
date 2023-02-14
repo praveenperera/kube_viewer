@@ -31,8 +31,8 @@ pub struct TabGroup {
 }
 pub struct TabGroups(HashMap<TabGroupType, TabGroup>);
 
-pub struct MainViewModel(RwLock<MainViewModelInner>);
-pub struct MainViewModelInner {
+pub struct RustMainViewModel(RwLock<MainViewModel>);
+pub struct MainViewModel {
     tab_groups: TabGroups,
     selected_tab: TabId,
 }
@@ -52,9 +52,9 @@ impl TabGroup {
     }
 }
 
-impl MainViewModel {
+impl RustMainViewModel {
     pub fn new() -> Self {
-        Self(RwLock::new(MainViewModelInner::new()))
+        Self(RwLock::new(MainViewModel::new()))
     }
 
     pub fn select_tab(&self, selected_tab: TabId) {
@@ -62,7 +62,7 @@ impl MainViewModel {
     }
 }
 
-impl MainViewModelInner {
+impl MainViewModel {
     pub fn new() -> Self {
         let general = TabGroup::new(
             TabGroupType::General,
@@ -99,13 +99,13 @@ impl MainViewModelInner {
     }
 }
 
-impl Default for MainViewModel {
+impl Default for RustMainViewModel {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Default for MainViewModelInner {
+impl Default for MainViewModel {
     fn default() -> Self {
         Self::new()
     }

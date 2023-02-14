@@ -1,6 +1,6 @@
 namespace kube_viewer {};
 
-interface MainViewModel {
+interface RustMainViewModel {
   constructor();
   void select_tab(TabId tab_id);
 };
