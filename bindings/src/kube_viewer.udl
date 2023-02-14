@@ -2,13 +2,4 @@ namespace kube_viewer {};
 
 interface RustMainViewModel {
   constructor();
-  TabId selected_tab();
-  void select_tab(TabId tab_id);
-};
-
-enum TabId {
-  "Cluster",
-  "Nodes",
-  "NameSpaces",
-  "Overview"
 };
