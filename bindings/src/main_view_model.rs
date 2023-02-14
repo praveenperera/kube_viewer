@@ -2,14 +2,14 @@ use std::{collections::HashMap, sync::RwLock};
 
 use crate::{
     tab::{Tab, TabId},
-    tab_group::{TabGroup, TabGroupType, TabGroups},
+    tab_group::{TabGroup, TabGroupId},
 };
 
 pub struct RustMainViewModel(RwLock<MainViewModel>);
 pub struct MainViewModel {
     tabs_map: HashMap<TabId, Tab>,
     tabs: Vec<Tab>,
-    tab_groups: TabGroups,
+    tab_groups: Vec<TabGroup>,
     selected_tab: TabId,
 }
 
@@ -36,12 +36,22 @@ impl RustMainViewModel {
     pub fn tabs_map(&self) -> HashMap<TabId, Tab> {
         self.0.read().unwrap().tabs_map.clone()
     }
+
+    pub fn tab_groups(&self) -> Vec<TabGroup> {
+        self.0
+            .read()
+            .unwrap()
+            .tab_groups
+            .clone()
+            .into_iter()
+            .collect()
+    }
 }
 
 impl MainViewModel {
     pub fn new() -> Self {
         let general = TabGroup::new(
-            TabGroupType::General,
+            TabGroupId::General,
             vec![
                 Tab::new(TabId::Cluster, "steeringwheel"),
                 Tab::new(TabId::Nodes, "server.rack"),
@@ -50,23 +60,18 @@ impl MainViewModel {
         );
 
         let workloads = TabGroup::new(
-            TabGroupType::Workloads,
+            TabGroupId::Workloads,
             vec![Tab::new(TabId::Overview, "circle")],
         );
 
-        let config = TabGroup::new(TabGroupType::Config, vec![]);
-        let network = TabGroup::new(TabGroupType::Network, vec![]);
+        let config = TabGroup::new(TabGroupId::Config, vec![]);
+        let network = TabGroup::new(TabGroupId::Network, vec![]);
 
-        let tab_groups_map = maplit::hashmap! {
-            TabGroupType::General => general,
-            TabGroupType::Workloads => workloads,
-            TabGroupType::Config => config,
-            TabGroupType::Network => network
-        };
+        let tab_groups = vec![general, workloads, config, network];
 
-        let tabs: Vec<Tab> = tab_groups_map
+        let tabs: Vec<Tab> = tab_groups
             .iter()
-            .flat_map(|(_, tab_group)| tab_group.tabs.clone())
+            .flat_map(|tab_group| tab_group.tabs.clone())
             .collect();
 
         let tabs_map = tabs
@@ -77,7 +82,7 @@ impl MainViewModel {
         Self {
             tabs_map,
             tabs,
-            tab_groups: TabGroups(tab_groups_map),
+            tab_groups,
             selected_tab: TabId::Cluster,
         }
     }

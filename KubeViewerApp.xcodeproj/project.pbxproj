@@ -37,7 +37,7 @@
 				"$(INPUT_FILE_DIR)/generated/$(INPUT_FILE_BASE)FFI.h",
 			);
 			runOncePerArchitecture = 0;
-			script = "$HOME/.cargo/bin/uniffi-bindgen generate \"$INPUT_FILE_PATH\" --language swift --out-dir $INPUT_FILE_DIR/generated\n";
+			script = "$HOME/.cargo/bin/uniffi-bindgen generate \"$INPUT_FILE_PATH\" --language swift --out-dir $INPUT_FILE_DIR/generated --lib-file $SRCROOT/bindings/target/aarch64-apple-darwin/debug/libkube_viewer.a\n";
 		};
 /* End PBXBuildRule section */
 
@@ -161,7 +161,7 @@
 			buildConfigurationList = DADF4C89295E6DBB006CA792 /* Build configuration list for PBXNativeTarget "KubeViewerApp" */;
 			buildPhases = (
 				ACE6DFFD299C16500094C1DC /* Headers */,
-				ACE6DFFE299C16530094C1DC /* ShellScript */,
+				ACE6DFFE299C16530094C1DC /* Run Script */,
 				DADF4C76295E6DB9006CA792 /* Sources */,
 				DADF4C77295E6DB9006CA792 /* Frameworks */,
 				DADF4C78295E6DB9006CA792 /* Resources */,
@@ -223,7 +223,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		ACE6DFFE299C16530094C1DC /* ShellScript */ = {
+		ACE6DFFE299C16530094C1DC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -232,6 +232,7 @@
 			);
 			inputPaths = (
 			);
+			name = "Run Script";
 			outputFileListPaths = (
 			);
 			outputPaths = (

@@ -46,35 +46,47 @@ typedef struct RustCallStatus {
 // ⚠️ increment the version suffix in all instances of UNIFFI_SHARED_HEADER_V4 in this file.           ⚠️
 #endif // def UNIFFI_SHARED_H
 
-void ffi_kube_viewer_fcc4_RustMainViewModel_object_free(
+void ffi_kube_viewer_54fe_RustMainViewModel_object_free(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void*_Nonnull kube_viewer_fcc4_RustMainViewModel_new(
+void*_Nonnull kube_viewer_54fe_RustMainViewModel_new(
       
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer kube_viewer_fcc4_RustMainViewModel_selected_tab(
+void _uniffi_kube_viewer_impl_RustMainViewModel_select_tab_cfb9(
+      void*_Nonnull ptr,RustBuffer selected_tab,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_selected_tab_9ae(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void kube_viewer_fcc4_RustMainViewModel_select_tab(
-      void*_Nonnull ptr,RustBuffer tab_id,
+RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_tab_groups_f31a(
+      void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_kube_viewer_fcc4_rustbuffer_alloc(
+RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_tabs_57ab(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_tabs_map_4669(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer ffi_kube_viewer_54fe_rustbuffer_alloc(
       int32_t size,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_kube_viewer_fcc4_rustbuffer_from_bytes(
+RustBuffer ffi_kube_viewer_54fe_rustbuffer_from_bytes(
       ForeignBytes bytes,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_kube_viewer_fcc4_rustbuffer_free(
+void ffi_kube_viewer_54fe_rustbuffer_free(
       RustBuffer buf,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_kube_viewer_fcc4_rustbuffer_reserve(
+RustBuffer ffi_kube_viewer_54fe_rustbuffer_reserve(
       RustBuffer buf,int32_t additional,
     RustCallStatus *_Nonnull out_status
     );

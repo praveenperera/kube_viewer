@@ -10,14 +10,29 @@ import Foundation
 import SwiftUI
 
 class MainViewModel: ObservableObject {
-    var model: RustMainViewModel
+    var data: RustMainViewModel
+    var tabs: [Tab]
+    var tabsMap: [TabId: Tab]
+    var tabGroups: [TabGroup]
+
     @Published var window: NSWindow?
     @Published var selectedMainTab: NSWindow?
+
+    @Published var tabContentViews: [TabId: TabContentView]
+    @Published var tabViewModels: [TabId: TabViewModel]
+
     @RustPublished var selectedTab: TabId
 
     init() {
-        self.model = RustMainViewModel()
-        self.selectedTab = self.model.selectedTab()
+        self.data = RustMainViewModel()
+        self.tabs = self.data.tabs()
+        self.tabsMap = self.data.tabsMap()
+        self.tabGroups = self.data.tabGroups()
+
+        self.tabContentViews = self.tabsMap.mapValues { tab in TabContentView(text: tab.name) }
+        self.tabViewModels = self.tabsMap.mapValues { _ in TabViewModel() }
+
+        self.selectedTab = self.data.selectedTab()
     }
 }
 
@@ -26,3 +41,6 @@ struct Previews_MainViewModel_Previews: PreviewProvider {
         /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
     }
 }
+
+extension Tab: Identifiable {}
+extension TabGroup: Identifiable {}

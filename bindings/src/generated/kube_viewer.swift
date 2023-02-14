@@ -19,13 +19,13 @@ fileprivate extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_kube_viewer_fcc4_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_kube_viewer_54fe_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_kube_viewer_fcc4_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_kube_viewer_54fe_rustbuffer_free(self, $0) }
     }
 }
 
@@ -320,8 +320,11 @@ fileprivate struct FfiConverterString: FfiConverter {
 
 
 public protocol RustMainViewModelProtocol {
+    func `selectTab`(`selectedTab`: TabId) 
     func `selectedTab`()  -> TabId
-    func `selectTab`(`tabId`: TabId) 
+    func `tabGroups`()  -> [TabGroup]
+    func `tabs`()  -> [Tab]
+    func `tabsMap`()  -> [TabId: Tab]
     
 }
 
@@ -339,35 +342,65 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_fcc4_RustMainViewModel_new($0)
+    kube_viewer_54fe_RustMainViewModel_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_fcc4_RustMainViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_54fe_RustMainViewModel_object_free(pointer, $0) }
     }
 
     
 
     
+    public func `selectTab`(`selectedTab`: TabId)  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_select_tab_cfb9(self.pointer, 
+        FfiConverterTypeTabId.lower(`selectedTab`), $0
+    )
+}
+    }
     public func `selectedTab`()  -> TabId {
         return try! FfiConverterTypeTabId.lift(
             try!
     rustCall() {
     
-    kube_viewer_fcc4_RustMainViewModel_selected_tab(self.pointer, $0
+    _uniffi_kube_viewer_impl_RustMainViewModel_selected_tab_9ae(self.pointer, $0
     )
 }
         )
     }
-    public func `selectTab`(`tabId`: TabId)  {
-        try!
+    public func `tabGroups`()  -> [TabGroup] {
+        return try! FfiConverterSequenceTypeTabGroup.lift(
+            try!
     rustCall() {
     
-    kube_viewer_fcc4_RustMainViewModel_select_tab(self.pointer, 
-        FfiConverterTypeTabId.lower(`tabId`), $0
+    _uniffi_kube_viewer_impl_RustMainViewModel_tab_groups_f31a(self.pointer, $0
     )
 }
+        )
+    }
+    public func `tabs`()  -> [Tab] {
+        return try! FfiConverterSequenceTypeTab.lift(
+            try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_tabs_57ab(self.pointer, $0
+    )
+}
+        )
+    }
+    public func `tabsMap`()  -> [TabId: Tab] {
+        return try! FfiConverterDictionaryTypeTabIdTypeTab.lift(
+            try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_tabs_map_4669(self.pointer, $0
+    )
+}
+        )
     }
     
 }
@@ -402,6 +435,197 @@ public struct FfiConverterTypeRustMainViewModel: FfiConverter {
         return value.pointer
     }
 }
+
+
+public struct Tab {
+    public var `id`: TabId
+    public var `icon`: String
+    public var `name`: String
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`id`: TabId, `icon`: String, `name`: String) {
+        self.`id` = `id`
+        self.`icon` = `icon`
+        self.`name` = `name`
+    }
+}
+
+
+extension Tab: Equatable, Hashable {
+    public static func ==(lhs: Tab, rhs: Tab) -> Bool {
+        if lhs.`id` != rhs.`id` {
+            return false
+        }
+        if lhs.`icon` != rhs.`icon` {
+            return false
+        }
+        if lhs.`name` != rhs.`name` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`id`)
+        hasher.combine(`icon`)
+        hasher.combine(`name`)
+    }
+}
+
+
+public struct FfiConverterTypeTab: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Tab {
+        return try Tab(
+            `id`: FfiConverterTypeTabId.read(from: &buf), 
+            `icon`: FfiConverterString.read(from: &buf), 
+            `name`: FfiConverterString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: Tab, into buf: inout [UInt8]) {
+        FfiConverterTypeTabId.write(value.`id`, into: &buf)
+        FfiConverterString.write(value.`icon`, into: &buf)
+        FfiConverterString.write(value.`name`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeTab_lift(_ buf: RustBuffer) throws -> Tab {
+    return try FfiConverterTypeTab.lift(buf)
+}
+
+public func FfiConverterTypeTab_lower(_ value: Tab) -> RustBuffer {
+    return FfiConverterTypeTab.lower(value)
+}
+
+
+public struct TabGroup {
+    public var `id`: TabGroupId
+    public var `name`: String
+    public var `tabs`: [Tab]
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`id`: TabGroupId, `name`: String, `tabs`: [Tab]) {
+        self.`id` = `id`
+        self.`name` = `name`
+        self.`tabs` = `tabs`
+    }
+}
+
+
+extension TabGroup: Equatable, Hashable {
+    public static func ==(lhs: TabGroup, rhs: TabGroup) -> Bool {
+        if lhs.`id` != rhs.`id` {
+            return false
+        }
+        if lhs.`name` != rhs.`name` {
+            return false
+        }
+        if lhs.`tabs` != rhs.`tabs` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`id`)
+        hasher.combine(`name`)
+        hasher.combine(`tabs`)
+    }
+}
+
+
+public struct FfiConverterTypeTabGroup: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> TabGroup {
+        return try TabGroup(
+            `id`: FfiConverterTypeTabGroupId.read(from: &buf), 
+            `name`: FfiConverterString.read(from: &buf), 
+            `tabs`: FfiConverterSequenceTypeTab.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: TabGroup, into buf: inout [UInt8]) {
+        FfiConverterTypeTabGroupId.write(value.`id`, into: &buf)
+        FfiConverterString.write(value.`name`, into: &buf)
+        FfiConverterSequenceTypeTab.write(value.`tabs`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeTabGroup_lift(_ buf: RustBuffer) throws -> TabGroup {
+    return try FfiConverterTypeTabGroup.lift(buf)
+}
+
+public func FfiConverterTypeTabGroup_lower(_ value: TabGroup) -> RustBuffer {
+    return FfiConverterTypeTabGroup.lower(value)
+}
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+public enum TabGroupId {
+    
+    case `general`
+    case `workloads`
+    case `config`
+    case `network`
+}
+
+public struct FfiConverterTypeTabGroupId: FfiConverterRustBuffer {
+    typealias SwiftType = TabGroupId
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> TabGroupId {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .`general`
+        
+        case 2: return .`workloads`
+        
+        case 3: return .`config`
+        
+        case 4: return .`network`
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: TabGroupId, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .`general`:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .`workloads`:
+            writeInt(&buf, Int32(2))
+        
+        
+        case .`config`:
+            writeInt(&buf, Int32(3))
+        
+        
+        case .`network`:
+            writeInt(&buf, Int32(4))
+        
+        }
+    }
+}
+
+
+public func FfiConverterTypeTabGroupId_lift(_ buf: RustBuffer) throws -> TabGroupId {
+    return try FfiConverterTypeTabGroupId.lift(buf)
+}
+
+public func FfiConverterTypeTabGroupId_lower(_ value: TabGroupId) -> RustBuffer {
+    return FfiConverterTypeTabGroupId.lower(value)
+}
+
+
+extension TabGroupId: Equatable, Hashable {}
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
@@ -467,6 +691,73 @@ public func FfiConverterTypeTabId_lower(_ value: TabId) -> RustBuffer {
 
 extension TabId: Equatable, Hashable {}
 
+
+fileprivate struct FfiConverterSequenceTypeTab: FfiConverterRustBuffer {
+    typealias SwiftType = [Tab]
+
+    public static func write(_ value: [Tab], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeTab.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [Tab] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [Tab]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeTab.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+fileprivate struct FfiConverterSequenceTypeTabGroup: FfiConverterRustBuffer {
+    typealias SwiftType = [TabGroup]
+
+    public static func write(_ value: [TabGroup], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeTabGroup.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [TabGroup] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [TabGroup]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeTabGroup.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+fileprivate struct FfiConverterDictionaryTypeTabIdTypeTab: FfiConverterRustBuffer {
+    public static func write(_ value: [TabId: Tab], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for (key, value) in value {
+            FfiConverterTypeTabId.write(key, into: &buf)
+            FfiConverterTypeTab.write(value, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [TabId: Tab] {
+        let len: Int32 = try readInt(&buf)
+        var dict = [TabId: Tab]()
+        dict.reserveCapacity(Int(len))
+        for _ in 0..<len {
+            let key = try FfiConverterTypeTabId.read(from: &buf)
+            let value = try FfiConverterTypeTab.read(from: &buf)
+            dict[key] = value
+        }
+        return dict
+    }
+}
 
 /**
  * Top level initializers and tear down methods.
