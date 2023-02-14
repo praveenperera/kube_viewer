@@ -57,6 +57,10 @@ impl RustMainViewModel {
         Self(RwLock::new(MainViewModel::new()))
     }
 
+    pub fn selected_tab(&self) -> TabId {
+        self.0.read().unwrap().selected_tab.clone()
+    }
+
     pub fn select_tab(&self, selected_tab: TabId) {
         self.0.write().unwrap().select_tab(selected_tab);
     }

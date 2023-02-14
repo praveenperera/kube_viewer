@@ -10,12 +10,14 @@ import Foundation
 import SwiftUI
 
 class MainViewModel: ObservableObject {
+    var model: RustMainViewModel
     @Published var window: NSWindow?
     @Published var selectedMainTab: NSWindow?
     @RustPublished var selectedTab: TabId
 
     init() {
-        self.selectedTab = defaultTabGroups.general.tabs[0].id
+        self.model = RustMainViewModel()
+        self.selectedTab = self.model.selectedTab()
     }
 }
 

@@ -19,13 +19,13 @@ fileprivate extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_kube_viewer_cf9e_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_kube_viewer_fcc4_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_kube_viewer_cf9e_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_kube_viewer_fcc4_rustbuffer_free(self, $0) }
     }
 }
 
@@ -320,6 +320,7 @@ fileprivate struct FfiConverterString: FfiConverter {
 
 
 public protocol RustMainViewModelProtocol {
+    func `selectedTab`()  -> TabId
     func `selectTab`(`tabId`: TabId) 
     
 }
@@ -338,22 +339,32 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_cf9e_RustMainViewModel_new($0)
+    kube_viewer_fcc4_RustMainViewModel_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_cf9e_RustMainViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_fcc4_RustMainViewModel_object_free(pointer, $0) }
     }
 
     
 
     
+    public func `selectedTab`()  -> TabId {
+        return try! FfiConverterTypeTabId.lift(
+            try!
+    rustCall() {
+    
+    kube_viewer_fcc4_RustMainViewModel_selected_tab(self.pointer, $0
+    )
+}
+        )
+    }
     public func `selectTab`(`tabId`: TabId)  {
         try!
     rustCall() {
     
-    kube_viewer_cf9e_RustMainViewModel_select_tab(self.pointer, 
+    kube_viewer_fcc4_RustMainViewModel_select_tab(self.pointer, 
         FfiConverterTypeTabId.lower(`tabId`), $0
     )
 }

@@ -2,7 +2,7 @@
 //  MainView.swift
 //  KubeViewerApp
 //
-//  Created by Thavish Perera on 2022-12-29.
+//  Created by Praveen Perera on 2023-02-14.
 //
 
 import SwiftUI
@@ -20,7 +20,7 @@ struct MainView: View {
                         VStack {
                             DisclosureGroup(isExpanded: $expanded, content: {
                                 VStack {
-                                    ForEach(model.tabGroups.general.tabs) { tab in
+                                    ForEach(model.tabs) { tab in
                                         SidebarButton(selectedTab: $model.selectedTab, tab: tab)
                                     }
                                 }
@@ -73,8 +73,6 @@ struct SidebarButton: View {
     @Binding var selectedTab: UUID
     @State private var isHover = false
 
-    var tab: SideBarTab
-
     var body: some View {
         HStack {
             Button(action: { selectedTab = tab.id }) {
@@ -116,8 +114,6 @@ struct SidebarButton: View {
 }
 
 struct SidebarTitle: View {
-    var type: TabGroupType
-
     var body: some View {
         HStack {
             Text(type.title())
