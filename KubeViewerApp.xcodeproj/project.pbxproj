@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AC1651B829874DB000CBC220 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1651B729874DB000CBC220 /* Theme.swift */; };
+		AC3F4D65299B29F100429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D64299B29F100429CDB /* RustPublished.swift */; };
 		AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */; };
 		ACC45D532995AE480063B358 /* If.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D522995AE480063B358 /* If.swift */; };
 		ACC45D552995EFA00063B358 /* WhenHovered.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D542995EFA00063B358 /* WhenHovered.swift */; };
@@ -22,6 +23,7 @@
 
 /* Begin PBXFileReference section */
 		AC1651B729874DB000CBC220 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		AC3F4D64299B29F100429CDB /* RustPublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustPublished.swift; sourceTree = "<group>"; };
 		AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurWindow.swift; sourceTree = "<group>"; };
 		ACC45D522995AE480063B358 /* If.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = If.swift; sourceTree = "<group>"; };
 		ACC45D542995EFA00063B358 /* WhenHovered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenHovered.swift; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 				AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */,
 				ACD621EA2980415E00FE2CE2 /* TabContentView.swift */,
 				ACD621ED2980569500FE2CE2 /* MainViewModel.swift */,
+				AC3F4D64299B29F100429CDB /* RustPublished.swift */,
 				DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */,
 				DADF4C81295E6DBB006CA792 /* Assets.xcassets */,
 				DADF4C86295E6DBB006CA792 /* KubeViewerApp.entitlements */,
@@ -186,6 +189,7 @@
 			files = (
 				ACC45D552995EFA00063B358 /* WhenHovered.swift in Sources */,
 				ACC45D532995AE480063B358 /* If.swift in Sources */,
+				AC3F4D65299B29F100429CDB /* RustPublished.swift in Sources */,
 				ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */,
 				ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */,
 				DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */,

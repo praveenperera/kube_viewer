@@ -50,7 +50,7 @@ let defaultTabGroups = TabGroups(
 
 class MainViewModel: ObservableObject {
     @Published var window: NSWindow?
-    @Published var tabGroups: TabGroups
+    @RustPublished var tabGroups: TabGroups
     @Published var selectedTab: UUID
     @Published var selectedMainTab: NSWindow?
 
