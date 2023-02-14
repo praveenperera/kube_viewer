@@ -17,6 +17,7 @@
 		ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621ED2980569500FE2CE2 /* MainViewModel.swift */; };
 		ACD621F2298057D400FE2CE2 /* TabViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621F1298057D400FE2CE2 /* TabViewModel.swift */; };
 		ACE6E003299C204F0094C1DC /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = ACEE8F42299C0A3A0088F309 /* kube_viewer.udl */; };
+		ACE6E00B299C23260094C1DC /* libkube_viewer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ACE6E00A299C23260094C1DC /* libkube_viewer.a */; };
 		DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */; };
 		DADF4C82295E6DBB006CA792 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DADF4C81295E6DBB006CA792 /* Assets.xcassets */; };
 		DADF4C85295E6DBB006CA792 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DADF4C84295E6DBB006CA792 /* Preview Assets.xcassets */; };
@@ -53,6 +54,7 @@
 		ACD621F1298057D400FE2CE2 /* TabViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabViewModel.swift; sourceTree = "<group>"; };
 		ACE6DFFA299C11520094C1DC /* KubeViewerApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KubeViewerApp-Bridging-Header.h"; sourceTree = "<group>"; };
 		ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "xc-universal-binary.sh"; sourceTree = "<group>"; };
+		ACE6E00A299C23260094C1DC /* libkube_viewer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkube_viewer.a; path = bindings/target/universal/libkube_viewer.a; sourceTree = SOURCE_ROOT; };
 		ACEE8F42299C0A3A0088F309 /* kube_viewer.udl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = kube_viewer.udl; path = bindings/src/kube_viewer.udl; sourceTree = "<group>"; };
 		DADF4C7A295E6DB9006CA792 /* KubeViewerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KubeViewerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KubeViewerApp.swift; sourceTree = "<group>"; };
@@ -66,6 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ACE6E00B299C23260094C1DC /* libkube_viewer.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,9 +100,18 @@
 			path = TabContent;
 			sourceTree = "<group>";
 		};
+		ACE6E007299C22C10094C1DC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				ACE6E00A299C23260094C1DC /* libkube_viewer.a */,
+			);
+			path = Frameworks;
+			sourceTree = "<group>";
+		};
 		DADF4C71295E6DB9006CA792 = {
 			isa = PBXGroup;
 			children = (
+				ACE6E007299C22C10094C1DC /* Frameworks */,
 				ACEE8F42299C0A3A0088F309 /* kube_viewer.udl */,
 				ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */,
 				ACC45D512995AE2E0063B358 /* Extensions */,
@@ -397,9 +409,9 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/bindings/target/universal/",
+					"$(PROJECT_DIR)/bindings/target/universal/",
 					"$(PROJECT_DIR)/bindings/target/universal",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=*]" = "$(SRCROOT)/bindings/target/universal/";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.perera.thavish.KubeViewerApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -430,9 +442,9 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/bindings/target/universal/",
+					"$(PROJECT_DIR)/bindings/target/universal/",
 					"$(PROJECT_DIR)/bindings/target/universal",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=*]" = "$(SRCROOT)/bindings/target/universal/";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.perera.thavish.KubeViewerApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
