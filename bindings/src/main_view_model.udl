@@ -1,11 +1,13 @@
-namespace main_view_model{}
+namespace rust_main_view_model {};
 
-interface RustMainViewModel {
+interface MainViewModel {
   constructor();
-  void run(DecibelResponder decibel_responder);
-  void stop();
+  void select_tab(TabId tab_id);
 };
 
-callback interface DecibelResponder {
-  void decibel(i32 decibel, Color color);
+enum TabId {
+  "Cluster",
+  "Nodes",
+  "NameSpaces",
+  "Overview"
 };

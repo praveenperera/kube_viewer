@@ -1,3 +1,3 @@
 fn main() {
-    uniffi::generate_scaffolding("./src/decibel.udl").unwrap();
+    uniffi::generate_scaffolding("./src/main_view_model.udl").unwrap();
 }
