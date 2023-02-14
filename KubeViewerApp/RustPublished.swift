@@ -16,30 +16,27 @@ struct RustPublished<Value> {
         storage storageKeyPath: ReferenceWritableKeyPath<EnclosingSelf, RustPublished<Value>>
     ) -> Value {
         get {
-            return object[keyPath: storageKeyPath].wrappedValue
+            return object[keyPath: storageKeyPath].innervalue
         }
         set {
-            object[keyPath: storageKeyPath].wrappedValue = newValue
+            object[keyPath: storageKeyPath].innervalue = newValue
             object[keyPath: storageKeyPath].publisher.send(newValue)
             (object.objectWillChange as? ObservableObjectPublisher)?.send()
         }
     }
 
     private let publisher = PassthroughSubject<Value, Never>()
-    private var value: Value
+    private var innervalue: Value
 
     init(wrappedValue value: Value) {
-        self.value = value
+        self.innervalue = value
     }
 
+    @available(*, unavailable,
+               message: "@Published can only be applied to classes")
     var wrappedValue: Value {
-        get {
-            return self.value
-        }
-        set {
-            self.value = newValue
-            self.publisher.send(self.value)
-        }
+        get { fatalError() }
+        set { fatalError() }
     }
 
     var projectedValue: AnyPublisher<Value, Never> {
