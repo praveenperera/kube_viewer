@@ -1,0 +1,11 @@
+namespace main_view_model{}
+
+interface RustMainViewModel {
+  constructor();
+  void run(DecibelResponder decibel_responder);
+  void stop();
+};
+
+callback interface DecibelResponder {
+  void decibel(i32 decibel, Color color);
+};

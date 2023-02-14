@@ -5,6 +5,7 @@
 //  Created by Thavish Perera on 2022-12-29.
 //
 
+import Combine
 import Foundation
 import SwiftUI
 
@@ -50,9 +51,9 @@ let defaultTabGroups = TabGroups(
 
 class MainViewModel: ObservableObject {
     @Published var window: NSWindow?
-    @RustPublished var tabGroups: TabGroups
-    @Published var selectedTab: UUID
     @Published var selectedMainTab: NSWindow?
+    @Published var tabGroups: TabGroups
+    @RustPublished var selectedTab: UUID
 
     init() {
         self.tabGroups = defaultTabGroups
