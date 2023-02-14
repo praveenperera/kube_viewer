@@ -1,4 +1,4 @@
-uniffi::include_scaffolding!("main_view_model");
+uniffi::include_scaffolding!("kube_viewer");
 
 use std::{collections::HashMap, sync::RwLock};
 

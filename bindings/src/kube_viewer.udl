@@ -1,4 +1,4 @@
-namespace rust_main_view_model {};
+namespace kube_viewer {};
 
 interface MainViewModel {
   constructor();
