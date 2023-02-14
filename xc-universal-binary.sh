@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eEuvx
+set -eEu
 
 function error_help()
 {
