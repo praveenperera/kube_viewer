@@ -11,6 +11,7 @@
 		AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D66299B325000429CDB /* RustPublished.swift */; };
 		AC3F4D69299C778600429CDB /* xc-universal-binary.sh in Resources */ = {isa = PBXBuildFile; fileRef = ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */; };
 		AC3F4D6B299C789100429CDB /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6A299C789100429CDB /* kube_viewer.udl */; };
+		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
 		AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */; };
 		ACC45D532995AE480063B358 /* If.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D522995AE480063B358 /* If.swift */; };
 		ACC45D552995EFA00063B358 /* WhenHovered.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D542995EFA00063B358 /* WhenHovered.swift */; };
@@ -47,6 +48,7 @@
 		AC1651B729874DB000CBC220 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		AC3F4D66299B325000429CDB /* RustPublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustPublished.swift; sourceTree = "<group>"; };
 		AC3F4D6A299C789100429CDB /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = bindings/src/kube_viewer.udl; sourceTree = "<group>"; };
+		AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalBinding.swift; sourceTree = "<group>"; };
 		AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurWindow.swift; sourceTree = "<group>"; };
 		ACC45D522995AE480063B358 /* If.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = If.swift; sourceTree = "<group>"; };
 		ACC45D542995EFA00063B358 /* WhenHovered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenHovered.swift; sourceTree = "<group>"; };
@@ -80,6 +82,8 @@
 			isa = PBXGroup;
 			children = (
 				ACC45D562995EFDF0063B358 /* View */,
+				AC3F4D66299B325000429CDB /* RustPublished.swift */,
+				AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -139,7 +143,6 @@
 				AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */,
 				ACD621EA2980415E00FE2CE2 /* TabContentView.swift */,
 				ACD621ED2980569500FE2CE2 /* MainViewModel.swift */,
-				AC3F4D66299B325000429CDB /* RustPublished.swift */,
 				DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */,
 				DADF4C81295E6DBB006CA792 /* Assets.xcassets */,
 				DADF4C86295E6DBB006CA792 /* KubeViewerApp.entitlements */,
@@ -263,6 +266,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AC3F4D6B299C789100429CDB /* kube_viewer.udl in Sources */,
+				AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */,
 				ACC45D552995EFA00063B358 /* WhenHovered.swift in Sources */,
 				ACC45D532995AE480063B358 /* If.swift in Sources */,
 				AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */,

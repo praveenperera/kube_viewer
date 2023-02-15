@@ -343,6 +343,7 @@ fileprivate struct FfiConverterString: FfiConverter {
 public protocol RustMainViewModelProtocol {
     func `selectTab`(`selectedTab`: TabId) 
     func `selectedTab`()  -> TabId
+    func `setTabGroupExpansions`(`tabGroupExpansions`: [TabGroupId: Bool]) 
     func `tabGroupExpansions`()  -> [TabGroupId: Bool]
     func `tabGroups`()  -> [TabGroup]
     func `tabs`()  -> [Tab]
@@ -393,6 +394,15 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     )
 }
         )
+    }
+    public func `setTabGroupExpansions`(`tabGroupExpansions`: [TabGroupId: Bool])  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_set_tab_group_expansions_ac8c(self.pointer, 
+        FfiConverterDictionaryTypeTabGroupIdBool.lower(`tabGroupExpansions`), $0
+    )
+}
     }
     public func `tabGroupExpansions`()  -> [TabGroupId: Bool] {
         return try! FfiConverterDictionaryTypeTabGroupIdBool.lift(

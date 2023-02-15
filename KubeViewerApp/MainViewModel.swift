@@ -33,6 +33,7 @@ class MainViewModel: ObservableObject {
 
         self.tabGroupExpantions = self.data.tabGroupExpansions()
         self._tabGroupExpantions.getter = self.data.tabGroupExpansions
+        self._tabGroupExpantions.setter = self.data.setTabGroupExpansions
 
         self.selectedTab = self.data.selectedTab()
     }

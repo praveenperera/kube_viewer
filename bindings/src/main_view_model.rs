@@ -52,6 +52,10 @@ impl RustMainViewModel {
     pub fn tab_group_expansions(&self) -> HashMap<TabGroupId, bool> {
         self.0.read().unwrap().tab_group_expansions.clone()
     }
+
+    pub fn set_tab_group_expansions(&self, tab_group_expansions: HashMap<TabGroupId, bool>) {
+        self.0.write().unwrap().tab_group_expansions = tab_group_expansions
+    }
 }
 
 impl MainViewModel {

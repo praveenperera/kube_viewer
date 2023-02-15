@@ -11,6 +11,7 @@ import Foundation
 @propertyWrapper
 struct RustPublished<Value> {
     var getter: (() -> Value)?
+    var setter: ((Value) -> ())?
 
     public static subscript<EnclosingSelf: ObservableObject>(
         _enclosingInstance object: EnclosingSelf,
@@ -23,13 +24,20 @@ struct RustPublished<Value> {
             if let getter = current.getter {
                 return getter()
             } else {
-                return object[keyPath: storageKeyPath].innervalue
+                return current.innervalue
             }
         }
         set {
-            object[keyPath: storageKeyPath].innervalue = newValue
-            object[keyPath: storageKeyPath].publisher.send(newValue)
+            // current.publisher.send(newValue)
             (object.objectWillChange as? ObservableObjectPublisher)?.send()
+
+            var current = object[keyPath: storageKeyPath]
+
+            if let setter = current.setter {
+                setter(newValue)
+            } else {
+                object[keyPath: storageKeyPath].innervalue = newValue
+            }
         }
     }
 
