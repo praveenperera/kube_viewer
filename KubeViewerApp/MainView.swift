@@ -26,10 +26,12 @@ struct MainView: View {
                                                 SidebarButton(tab: tab, selectedTab: $model.selectedTab)
                                             }
                                         }
-                                        .padding([.top, .leading], 5)
+                                        .padding(.leading, 5)
                                     }, label: {
                                         SidebarTitle(name: tabGroup.name)
                                     })
+                                    .disclosureGroupStyle(SidebarDisclosureGroup())
+                                    .padding(.top, 5)
                                 }
                             }
                         }
@@ -111,10 +113,37 @@ struct SidebarTitle: View {
     var name: String
 
     var body: some View {
-        HStack {
-            Text(name)
-                .foregroundColor(.secondary)
-                .font(.system(size: 11, weight: .semibold))
+        Text(name)
+            .foregroundColor(.secondary)
+            .font(.system(size: 11, weight: .semibold))
+    }
+}
+
+struct SidebarDisclosureGroup: DisclosureGroupStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        VStack {
+            Button {
+                withAnimation {
+                    configuration.isExpanded.toggle()
+                }
+            } label: {
+                HStack(alignment: .firstTextBaseline) {
+                    configuration.label.animation(nil, value: configuration.isExpanded)
+                    Spacer()
+                    Text(configuration.isExpanded ? "hide" : "show")
+                        .foregroundColor(.accentColor)
+                        .font(.caption.lowercaseSmallCaps())
+                        .animation(nil, value: configuration.isExpanded)
+                }
+                .padding(.bottom, 0)
+                .contentShape(Rectangle())
+            }
+            .padding(.bottom, 0)
+            .buttonStyle(.plain)
+
+            if configuration.isExpanded {
+                configuration.content
+            }
         }
     }
 }
