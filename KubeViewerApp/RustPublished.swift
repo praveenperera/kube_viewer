@@ -10,13 +10,21 @@ import Foundation
 
 @propertyWrapper
 struct RustPublished<Value> {
+    var getter: (() -> Value)?
+
     public static subscript<EnclosingSelf: ObservableObject>(
         _enclosingInstance object: EnclosingSelf,
         wrapped wrappedKeyPath: ReferenceWritableKeyPath<EnclosingSelf, Value>,
         storage storageKeyPath: ReferenceWritableKeyPath<EnclosingSelf, RustPublished<Value>>
     ) -> Value {
         get {
-            return object[keyPath: storageKeyPath].innervalue
+            let current = object[keyPath: storageKeyPath]
+
+            if let getter = current.getter {
+                return getter()
+            } else {
+                return object[keyPath: storageKeyPath].innervalue
+            }
         }
         set {
             object[keyPath: storageKeyPath].innervalue = newValue

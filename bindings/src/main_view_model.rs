@@ -10,6 +10,8 @@ pub struct MainViewModel {
     tabs_map: HashMap<TabId, Tab>,
     tabs: Vec<Tab>,
     tab_groups: Vec<TabGroup>,
+
+    tab_group_expansions: HashMap<TabGroupId, bool>,
     selected_tab: TabId,
 }
 
@@ -46,6 +48,10 @@ impl RustMainViewModel {
             .into_iter()
             .collect()
     }
+
+    pub fn tab_group_expansions(&self) -> HashMap<TabGroupId, bool> {
+        self.0.read().unwrap().tab_group_expansions.clone()
+    }
 }
 
 impl MainViewModel {
@@ -79,10 +85,16 @@ impl MainViewModel {
             .map(|tab| (tab.id.clone(), tab.clone()))
             .collect();
 
+        let tab_group_expansions = tab_groups
+            .iter()
+            .map(|tap_group| (tap_group.id.clone(), true))
+            .collect::<HashMap<TabGroupId, bool>>();
+
         Self {
             tabs_map,
             tabs,
             tab_groups,
+            tab_group_expansions,
             selected_tab: TabId::Cluster,
         }
     }

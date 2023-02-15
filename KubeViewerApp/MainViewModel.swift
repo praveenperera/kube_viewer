@@ -20,7 +20,7 @@ class MainViewModel: ObservableObject {
 
     @Published var tabContentViews: [TabId: TabContentView]
     @Published var tabViewModels: [TabId: TabViewModel]
-
+    @RustPublished var tabGroupExpantions: [TabGroupId: Bool]
     @RustPublished var selectedTab: TabId
 
     init() {
@@ -31,6 +31,8 @@ class MainViewModel: ObservableObject {
 
         self.tabContentViews = self.tabsMap.mapValues { tab in TabContentView(text: tab.name) }
         self.tabViewModels = self.tabsMap.mapValues { _ in TabViewModel() }
+
+        self.tabGroupExpantions = self.data.tabGroupExpansions()
 
         self.selectedTab = self.data.selectedTab()
     }

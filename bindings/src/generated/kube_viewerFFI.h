@@ -62,6 +62,10 @@ RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_selected_tab_9ae(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
+RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_tab_group_expansions_8bbf(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
 RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_tab_groups_f31a(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status

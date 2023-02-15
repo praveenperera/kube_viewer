@@ -280,6 +280,27 @@ private func makeRustCall<T>(_ callback: (UnsafeMutablePointer<RustCallStatus>) 
 // Public interface members begin here.
 
 
+fileprivate struct FfiConverterBool : FfiConverter {
+    typealias FfiType = Int8
+    typealias SwiftType = Bool
+
+    public static func lift(_ value: Int8) throws -> Bool {
+        return value != 0
+    }
+
+    public static func lower(_ value: Bool) -> Int8 {
+        return value ? 1 : 0
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Bool {
+        return try lift(readInt(&buf))
+    }
+
+    public static func write(_ value: Bool, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
 fileprivate struct FfiConverterString: FfiConverter {
     typealias SwiftType = String
     typealias FfiType = RustBuffer
@@ -322,6 +343,7 @@ fileprivate struct FfiConverterString: FfiConverter {
 public protocol RustMainViewModelProtocol {
     func `selectTab`(`selectedTab`: TabId) 
     func `selectedTab`()  -> TabId
+    func `tabGroupExpansions`()  -> [TabGroupId: Bool]
     func `tabGroups`()  -> [TabGroup]
     func `tabs`()  -> [Tab]
     func `tabsMap`()  -> [TabId: Tab]
@@ -368,6 +390,16 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     rustCall() {
     
     _uniffi_kube_viewer_impl_RustMainViewModel_selected_tab_9ae(self.pointer, $0
+    )
+}
+        )
+    }
+    public func `tabGroupExpansions`()  -> [TabGroupId: Bool] {
+        return try! FfiConverterDictionaryTypeTabGroupIdBool.lift(
+            try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_tab_group_expansions_8bbf(self.pointer, $0
     )
 }
         )
@@ -733,6 +765,29 @@ fileprivate struct FfiConverterSequenceTypeTabGroup: FfiConverterRustBuffer {
             seq.append(try FfiConverterTypeTabGroup.read(from: &buf))
         }
         return seq
+    }
+}
+
+fileprivate struct FfiConverterDictionaryTypeTabGroupIdBool: FfiConverterRustBuffer {
+    public static func write(_ value: [TabGroupId: Bool], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for (key, value) in value {
+            FfiConverterTypeTabGroupId.write(key, into: &buf)
+            FfiConverterBool.write(value, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [TabGroupId: Bool] {
+        let len: Int32 = try readInt(&buf)
+        var dict = [TabGroupId: Bool]()
+        dict.reserveCapacity(Int(len))
+        for _ in 0..<len {
+            let key = try FfiConverterTypeTabGroupId.read(from: &buf)
+            let value = try FfiConverterBool.read(from: &buf)
+            dict[key] = value
+        }
+        return dict
     }
 }
 
