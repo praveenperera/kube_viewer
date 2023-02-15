@@ -120,6 +120,8 @@ struct SidebarTitle: View {
 }
 
 struct SidebarDisclosureGroup: DisclosureGroupStyle {
+    @State var isHovering = false
+
     func makeBody(configuration: Configuration) -> some View {
         VStack {
             Button {
@@ -130,18 +132,28 @@ struct SidebarDisclosureGroup: DisclosureGroupStyle {
                 HStack(alignment: .firstTextBaseline) {
                     configuration.label.animation(nil, value: configuration.isExpanded)
                     Spacer()
-                    Image(systemName: configuration.isExpanded ? "chevron.down" : "chevron.right")
-                        .font(.caption)
-                        .animation(nil, value: configuration.isExpanded)
+
+                    if isHovering {
+                        Image(systemName: configuration.isExpanded ? "chevron.down" : "chevron.right")
+                            .font(.caption)
+                            .animation(nil, value: configuration.isExpanded)
+                            .animation(.easeIn, value: isHovering)
+                            .transition(.opacity)
+                    }
                 }
                 .padding(.bottom, 0)
                 .contentShape(Rectangle())
             }
             .padding(.bottom, 0)
             .buttonStyle(.plain)
+            .onHover { isHovering in
+                withAnimation {
+                    self.isHovering = isHovering
+                }
+            }
 
             if configuration.isExpanded {
-                configuration.content
+                configuration.content.padding(.leading, -5)
             }
         }
     }
