@@ -27,7 +27,7 @@ impl RustMainViewModel {
         self.0.read().unwrap().selected_tab.clone()
     }
 
-    pub fn select_tab(&self, selected_tab: TabId) {
+    pub fn set_selected_tab(&self, selected_tab: TabId) {
         self.0.write().unwrap().select_tab(selected_tab);
     }
 

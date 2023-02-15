@@ -54,12 +54,12 @@ void*_Nonnull kube_viewer_54fe_RustMainViewModel_new(
       
     RustCallStatus *_Nonnull out_status
     );
-void _uniffi_kube_viewer_impl_RustMainViewModel_select_tab_cfb9(
-      void*_Nonnull ptr,RustBuffer selected_tab,
-    RustCallStatus *_Nonnull out_status
-    );
 RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_selected_tab_9ae(
       void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void _uniffi_kube_viewer_impl_RustMainViewModel_set_selected_tab_48a9(
+      void*_Nonnull ptr,RustBuffer selected_tab,
     RustCallStatus *_Nonnull out_status
     );
 void _uniffi_kube_viewer_impl_RustMainViewModel_set_tab_group_expansions_ac8c(

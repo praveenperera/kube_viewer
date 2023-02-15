@@ -31,7 +31,7 @@ struct RustPublished<Value> {
             // current.publisher.send(newValue)
             (object.objectWillChange as? ObservableObjectPublisher)?.send()
 
-            var current = object[keyPath: storageKeyPath]
+            let current = object[keyPath: storageKeyPath]
 
             if let setter = current.setter {
                 setter(newValue)

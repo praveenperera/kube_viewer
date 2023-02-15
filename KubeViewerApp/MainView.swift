@@ -20,7 +20,7 @@ struct MainView: View {
                         VStack {
                             List {
                                 ForEach(model.tabGroups) { tabGroup in
-                                    DisclosureGroup(isExpanded: $model.tabGroupExpantions[tabGroup.id] ?? true, content: {
+                                    DisclosureGroup(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true, content: {
                                         VStack {
                                             ForEach(tabGroup.tabs) { tab in
                                                 SidebarButton(tab: tab, selectedTab: $model.selectedTab)
