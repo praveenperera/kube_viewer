@@ -82,7 +82,6 @@
 			isa = PBXGroup;
 			children = (
 				ACC45D562995EFDF0063B358 /* View */,
-				AC3F4D66299B325000429CDB /* RustPublished.swift */,
 				AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */,
 			);
 			path = Extensions;
@@ -113,11 +112,20 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		ACE6E01D299D45350094C1DC /* FFIHelpers */ = {
+			isa = PBXGroup;
+			children = (
+				AC3F4D66299B325000429CDB /* RustPublished.swift */,
+			);
+			path = FFIHelpers;
+			sourceTree = "<group>";
+		};
 		DADF4C71295E6DB9006CA792 = {
 			isa = PBXGroup;
 			children = (
 				AC3F4D6A299C789100429CDB /* kube_viewer.udl */,
 				ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */,
+				ACE6E01D299D45350094C1DC /* FFIHelpers */,
 				ACC45D512995AE2E0063B358 /* Extensions */,
 				DADF4C7C295E6DB9006CA792 /* KubeViewerApp */,
 				DADF4C7B295E6DB9006CA792 /* Products */,

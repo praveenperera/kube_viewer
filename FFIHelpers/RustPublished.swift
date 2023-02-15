@@ -39,6 +39,12 @@ struct RustPublished<Value> {
         }
     }
 
+    mutating func refresh() {
+        if let getter = getter {
+            self.innervalue = getter()
+        }
+    }
+
     private let publisher = PassthroughSubject<Value, Never>()
     private var innervalue: Value
 
