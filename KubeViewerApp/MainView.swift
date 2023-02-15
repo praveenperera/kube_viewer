@@ -130,9 +130,8 @@ struct SidebarDisclosureGroup: DisclosureGroupStyle {
                 HStack(alignment: .firstTextBaseline) {
                     configuration.label.animation(nil, value: configuration.isExpanded)
                     Spacer()
-                    Text(configuration.isExpanded ? "hide" : "show")
-                        .foregroundColor(.accentColor)
-                        .font(.caption.lowercaseSmallCaps())
+                    Image(systemName: configuration.isExpanded ? "chevron.down" : "chevron.right")
+                        .font(.caption)
                         .animation(nil, value: configuration.isExpanded)
                 }
                 .padding(.bottom, 0)
