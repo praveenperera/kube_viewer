@@ -19,13 +19,7 @@ struct RustPublished<Value> {
         storage storageKeyPath: ReferenceWritableKeyPath<EnclosingSelf, RustPublished<Value>>
     ) -> Value {
         get {
-            let current = object[keyPath: storageKeyPath]
-
-            if let getter = current.getter {
-                return getter()
-            } else {
-                return current.innervalue
-            }
+            return object[keyPath: storageKeyPath].innervalue
         }
         set {
             // current.publisher.send(newValue)
@@ -37,6 +31,10 @@ struct RustPublished<Value> {
                 setter(newValue)
             } else {
                 object[keyPath: storageKeyPath].innervalue = newValue
+            }
+
+            if let getter = current.getter {
+                object[keyPath: storageKeyPath].innervalue = getter()
             }
         }
     }
