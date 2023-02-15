@@ -8,12 +8,4 @@
 import Foundation
 import SwiftUI
 
-class TabViewModel: ObservableObject {
-    @Published var tabs: [Int32];
-    static var defaultTabs: [Int32] = [];
-    
-   
-    init(tabs: [Int32] = TabViewModel.defaultTabs) {
-        self.tabs = tabs
-    }
-}
+class TabViewModel: ObservableObject {}

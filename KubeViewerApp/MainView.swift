@@ -2,7 +2,7 @@
 //  MainView.swift
 //  KubeViewerApp
 //
-//  Created by Thavish Perera on 2022-12-29.
+//  Created by Praveen Perera on 2023-02-14.
 //
 
 import SwiftUI
@@ -18,32 +18,25 @@ struct MainView: View {
                 NavigationSplitView(
                     sidebar: {
                         VStack {
-                            DisclosureGroup(isExpanded: $expanded, content: {
-                                VStack {
-                                    ForEach(model.tabGroups.general.tabs) { tab in
-                                        SidebarButton(selectedTab: $model.selectedTab, tab: tab)
-                                    }
+                            List {
+                                ForEach(model.tabGroups) { tabGroup in
+                                    DisclosureGroup(isExpanded: $expanded, content: {
+                                        VStack {
+                                            ForEach(tabGroup.tabs) { tab in
+                                                SidebarButton(tab: tab, selectedTab: $model.selectedTab)
+                                            }
+                                        }
+                                        .padding([.top, .leading], 5)
+                                    }, label: {
+                                        SidebarTitle(name: tabGroup.name)
+                                    })
                                 }
-                                .padding([.top, .leading], 5)
-                            }, label: {
-                                SidebarTitle(type: .general)
-                            })
-
-                            DisclosureGroup(isExpanded: $expanded, content: {
-                                VStack {
-                                    ForEach(model.tabGroups.workloads.tabs) { tab in
-                                        SidebarButton(selectedTab: $model.selectedTab, tab: tab)
-                                    }
-                                }
-                                .padding([.top, .leading], 5)
-                            }, label: {
-                                SidebarTitle(type: .workloads)
-                            })
+                            }
                         }
                         .padding(.leading, 10)
-                        .navigationTitle(model.tabs[model.selectedTab]!.name)
+                        .navigationTitle(model.tabsMap[model.selectedTab]?.name ?? "Unknown tab")
                     },
-                    detail: { model.tabs[model.selectedTab]!.content })
+                    detail: { model.tabContentViews[model.selectedTab]! })
             }
         }.background(WindowAccessor(window: $model.window).background(BlurWindow()))
     }
@@ -70,10 +63,9 @@ struct MainView_Previews: PreviewProvider {
 }
 
 struct SidebarButton: View {
-    @Binding var selectedTab: UUID
+    var tab: Tab
+    @Binding var selectedTab: TabId
     @State private var isHover = false
-
-    var tab: SideBarTab
 
     var body: some View {
         HStack {
@@ -116,11 +108,11 @@ struct SidebarButton: View {
 }
 
 struct SidebarTitle: View {
-    var type: TabGroupType
+    var name: String
 
     var body: some View {
         HStack {
-            Text(type.title())
+            Text(name)
                 .foregroundColor(.secondary)
                 .font(.system(size: 11, weight: .semibold))
         }
