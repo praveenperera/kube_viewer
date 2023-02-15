@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 class MainViewModel: ObservableObject {
-    var data: RustMainViewModel
+    var data: RustMainViewModel = .init()
     var tabs: [Tab]
     var tabsMap: [TabId: Tab]
     var tabGroups: [TabGroup]
@@ -24,7 +24,6 @@ class MainViewModel: ObservableObject {
     @RustPublished var selectedTab: TabId
 
     init() {
-        self.data = RustMainViewModel()
         self.tabs = self.data.tabs()
         self.tabsMap = self.data.tabsMap()
         self.tabGroups = self.data.tabGroups()
@@ -33,6 +32,7 @@ class MainViewModel: ObservableObject {
         self.tabViewModels = self.tabsMap.mapValues { _ in TabViewModel() }
 
         self.tabGroupExpantions = self.data.tabGroupExpansions()
+        self._tabGroupExpantions.getter = self.data.tabGroupExpansions
 
         self.selectedTab = self.data.selectedTab()
     }
