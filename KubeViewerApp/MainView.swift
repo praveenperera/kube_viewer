@@ -11,13 +11,15 @@ struct MainView: View {
     @StateObject private var model: MainViewModel = .init()
     @State private var hoverRow: UUID?
     @State private var expanded: Bool = true
+    @State private var search: String = ""
 
     var body: some View {
         NavigationStack {
             GeometryReader { _ in
                 NavigationSplitView(
                     sidebar: {
-                        VStack {
+                        ScrollView {
+                            SearchBar(text: $search).padding(.top, 15).padding(.horizontal, 10)
                             ForEach(model.tabGroups) { tabGroup in
                                 CollapsibleList(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
                                     VStack {
@@ -31,11 +33,10 @@ struct MainView: View {
                                 }
                                 .padding(.top, 5)
                             }
-                            .padding([.top, .bottom, .leading], 10)
-                            .padding([.trailing], 15)
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 10)
                             Spacer()
                         }
-                        .padding(.leading, 10)
                         .navigationTitle(model.tabsMap[model.selectedTab]?.name ?? "Unknown tab")
                     },
                     detail: { model.tabContentViews[model.selectedTab]! })
@@ -82,17 +83,17 @@ struct SidebarButton: View {
                 .if(isHover) { view in
                     view.scaleEffect(1.015)
                 }.animation(.default, value: isHover)
-
             Spacer()
         }
         .padding([.top, .bottom], 5)
+        .padding(.trailing, 15)
         .frame(maxWidth: .infinity)
         .if(selectedTab == tab.id) { view in
             view.background(Color.secondary.opacity(0.25))
                 .background(.ultraThinMaterial)
         }
         .if(isHover) { view in
-            view.background(Color.secondary.opacity(0.10))
+            view.background(Color.secondary.opacity(0.15))
                 .background(.ultraThinMaterial)
         }
         .clipShape(RoundedRectangle(cornerRadius: 4))
@@ -103,9 +104,10 @@ struct SidebarButton: View {
             }
         }
         .whenHovered { hovering in
-            self.isHover = hovering
+            withAnimation {
+                self.isHover = hovering
+            }
         }
-        .padding(.trailing, 15)
     }
 }
 
