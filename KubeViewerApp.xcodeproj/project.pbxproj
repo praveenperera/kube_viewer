@@ -13,6 +13,7 @@
 		AC3F4D6B299C789100429CDB /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6A299C789100429CDB /* kube_viewer.udl */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
 		AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */; };
+		ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */; };
 		ACC45D532995AE480063B358 /* If.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D522995AE480063B358 /* If.swift */; };
 		ACC45D552995EFA00063B358 /* WhenHovered.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D542995EFA00063B358 /* WhenHovered.swift */; };
 		ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621E629803DFB00FE2CE2 /* MainView.swift */; };
@@ -50,6 +51,7 @@
 		AC3F4D6A299C789100429CDB /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = bindings/src/kube_viewer.udl; sourceTree = "<group>"; };
 		AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalBinding.swift; sourceTree = "<group>"; };
 		AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurWindow.swift; sourceTree = "<group>"; };
+		ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleList.swift; sourceTree = "<group>"; };
 		ACC45D522995AE480063B358 /* If.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = If.swift; sourceTree = "<group>"; };
 		ACC45D542995EFA00063B358 /* WhenHovered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenHovered.swift; sourceTree = "<group>"; };
 		ACD621E629803DFB00FE2CE2 /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
@@ -78,6 +80,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		ACAAA9FD299EA71F00FABEF5 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		ACC45D512995AE2E0063B358 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -125,6 +135,7 @@
 			children = (
 				AC3F4D6A299C789100429CDB /* kube_viewer.udl */,
 				ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */,
+				ACAAA9FD299EA71F00FABEF5 /* View */,
 				ACE6E01D299D45350094C1DC /* FFIHelpers */,
 				ACC45D512995AE2E0063B358 /* Extensions */,
 				DADF4C7C295E6DB9006CA792 /* KubeViewerApp */,
@@ -284,6 +295,7 @@
 				AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */,
 				AC1651B829874DB000CBC220 /* Theme.swift in Sources */,
 				ACD621F2298057D400FE2CE2 /* TabViewModel.swift in Sources */,
+				ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */,
 				ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

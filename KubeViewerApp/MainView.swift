@@ -19,7 +19,7 @@ struct MainView: View {
                     sidebar: {
                         VStack {
                             ForEach(model.tabGroups) { tabGroup in
-                                SidebarDisclosureGroup(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
+                                CollapsibleList(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
                                     VStack {
                                         ForEach(tabGroup.tabs) { tab in
                                             SidebarButton(tab: tab, selectedTab: $model.selectedTab)
@@ -116,49 +116,6 @@ struct SidebarTitle: View {
         Text(name)
             .foregroundColor(.secondary)
             .font(.system(size: 11, weight: .semibold))
-    }
-}
-
-struct SidebarDisclosureGroup<Content: View, Label: View>: View {
-    @Binding var isExpanded: Bool
-    @State var isHovering = false
-    @ViewBuilder var content: Content
-    @ViewBuilder var label: Label
-
-    var body: some View {
-        VStack {
-            Button {
-                withAnimation {
-                    self.isExpanded.toggle()
-                }
-            } label: {
-                HStack(alignment: .firstTextBaseline) {
-                    self.label.animation(nil, value: self.isExpanded)
-                    Spacer()
-
-                    if isHovering {
-                        Image(systemName: self.isExpanded ? "chevron.down" : "chevron.right")
-                            .font(.caption)
-                            .animation(nil, value: self.isExpanded)
-                            .animation(.easeIn, value: isHovering)
-                            .transition(.opacity)
-                    }
-                }
-                .padding(.bottom, 0)
-                .contentShape(Rectangle())
-            }
-            .padding(.bottom, 0)
-            .buttonStyle(.plain)
-            .onHover { isHovering in
-                withAnimation {
-                    self.isHovering = isHovering
-                }
-            }
-
-            if self.isExpanded {
-                self.content.padding(.leading, -5)
-            }
-        }
     }
 }
 
