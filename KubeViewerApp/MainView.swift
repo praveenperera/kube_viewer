@@ -18,22 +18,22 @@ struct MainView: View {
                 NavigationSplitView(
                     sidebar: {
                         VStack {
-                            List {
-                                ForEach(model.tabGroups) { tabGroup in
-                                    DisclosureGroup(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true, content: {
-                                        VStack {
-                                            ForEach(tabGroup.tabs) { tab in
-                                                SidebarButton(tab: tab, selectedTab: $model.selectedTab)
-                                            }
+                            ForEach(model.tabGroups) { tabGroup in
+                                SidebarDisclosureGroup(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
+                                    VStack {
+                                        ForEach(tabGroup.tabs) { tab in
+                                            SidebarButton(tab: tab, selectedTab: $model.selectedTab)
                                         }
-                                        .padding(.leading, 5)
-                                    }, label: {
-                                        SidebarTitle(name: tabGroup.name)
-                                    })
-                                    .disclosureGroupStyle(SidebarDisclosureGroup())
-                                    .padding(.top, 5)
+                                    }
+                                    .padding(.leading, 5)
+                                } label: {
+                                    SidebarTitle(name: tabGroup.name)
                                 }
+                                .padding(.top, 5)
                             }
+                            .padding([.top, .bottom, .leading], 10)
+                            .padding([.trailing], 15)
+                            Spacer()
                         }
                         .padding(.leading, 10)
                         .navigationTitle(model.tabsMap[model.selectedTab]?.name ?? "Unknown tab")
@@ -119,24 +119,27 @@ struct SidebarTitle: View {
     }
 }
 
-struct SidebarDisclosureGroup: DisclosureGroupStyle {
+struct SidebarDisclosureGroup<Content: View, Label: View>: View {
+    @Binding var isExpanded: Bool
     @State var isHovering = false
+    @ViewBuilder var content: Content
+    @ViewBuilder var label: Label
 
-    func makeBody(configuration: Configuration) -> some View {
+    var body: some View {
         VStack {
             Button {
                 withAnimation {
-                    configuration.isExpanded.toggle()
+                    self.isExpanded.toggle()
                 }
             } label: {
                 HStack(alignment: .firstTextBaseline) {
-                    configuration.label.animation(nil, value: configuration.isExpanded)
+                    self.label.animation(nil, value: self.isExpanded)
                     Spacer()
 
                     if isHovering {
-                        Image(systemName: configuration.isExpanded ? "chevron.down" : "chevron.right")
+                        Image(systemName: self.isExpanded ? "chevron.down" : "chevron.right")
                             .font(.caption)
-                            .animation(nil, value: configuration.isExpanded)
+                            .animation(nil, value: self.isExpanded)
                             .animation(.easeIn, value: isHovering)
                             .transition(.opacity)
                     }
@@ -152,8 +155,8 @@ struct SidebarDisclosureGroup: DisclosureGroupStyle {
                 }
             }
 
-            if configuration.isExpanded {
-                configuration.content.padding(.leading, -5)
+            if self.isExpanded {
+                self.content.padding(.leading, -5)
             }
         }
     }
