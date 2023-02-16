@@ -612,6 +612,9 @@ public enum TabGroupId {
     case `workloads`
     case `config`
     case `network`
+    case `storage`
+    case `accessControl`
+    case `helm`
 }
 
 public struct FfiConverterTypeTabGroupId: FfiConverterRustBuffer {
@@ -628,6 +631,12 @@ public struct FfiConverterTypeTabGroupId: FfiConverterRustBuffer {
         case 3: return .`config`
         
         case 4: return .`network`
+        
+        case 5: return .`storage`
+        
+        case 6: return .`accessControl`
+        
+        case 7: return .`helm`
         
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -651,6 +660,18 @@ public struct FfiConverterTypeTabGroupId: FfiConverterRustBuffer {
         
         case .`network`:
             writeInt(&buf, Int32(4))
+        
+        
+        case .`storage`:
+            writeInt(&buf, Int32(5))
+        
+        
+        case .`accessControl`:
+            writeInt(&buf, Int32(6))
+        
+        
+        case .`helm`:
+            writeInt(&buf, Int32(7))
         
         }
     }
@@ -676,7 +697,40 @@ public enum TabId {
     case `cluster`
     case `nodes`
     case `nameSpaces`
+    case `events`
     case `overview`
+    case `pods`
+    case `deployments`
+    case `daemonSets`
+    case `statefulSets`
+    case `replicaSets`
+    case `jobs`
+    case `cronJobs`
+    case `configMaps`
+    case `secrets`
+    case `resourceQuotas`
+    case `limitRanges`
+    case `horizontalPodAutoscalers`
+    case `podDisruptionBudgets`
+    case `priorityClasses`
+    case `runtimeClasses`
+    case `leases`
+    case `services`
+    case `endpoints`
+    case `ingresses`
+    case `networkPolicies`
+    case `portForwarding`
+    case `persistentVolumeClaims`
+    case `persistentVolumes`
+    case `storageClasses`
+    case `serviceAccounts`
+    case `clusterRoles`
+    case `roles`
+    case `clusterRoleBindings`
+    case `roleBindings`
+    case `podSecurityPolicies`
+    case `charts`
+    case `releases`
 }
 
 public struct FfiConverterTypeTabId: FfiConverterRustBuffer {
@@ -692,7 +746,73 @@ public struct FfiConverterTypeTabId: FfiConverterRustBuffer {
         
         case 3: return .`nameSpaces`
         
-        case 4: return .`overview`
+        case 4: return .`events`
+        
+        case 5: return .`overview`
+        
+        case 6: return .`pods`
+        
+        case 7: return .`deployments`
+        
+        case 8: return .`daemonSets`
+        
+        case 9: return .`statefulSets`
+        
+        case 10: return .`replicaSets`
+        
+        case 11: return .`jobs`
+        
+        case 12: return .`cronJobs`
+        
+        case 13: return .`configMaps`
+        
+        case 14: return .`secrets`
+        
+        case 15: return .`resourceQuotas`
+        
+        case 16: return .`limitRanges`
+        
+        case 17: return .`horizontalPodAutoscalers`
+        
+        case 18: return .`podDisruptionBudgets`
+        
+        case 19: return .`priorityClasses`
+        
+        case 20: return .`runtimeClasses`
+        
+        case 21: return .`leases`
+        
+        case 22: return .`services`
+        
+        case 23: return .`endpoints`
+        
+        case 24: return .`ingresses`
+        
+        case 25: return .`networkPolicies`
+        
+        case 26: return .`portForwarding`
+        
+        case 27: return .`persistentVolumeClaims`
+        
+        case 28: return .`persistentVolumes`
+        
+        case 29: return .`storageClasses`
+        
+        case 30: return .`serviceAccounts`
+        
+        case 31: return .`clusterRoles`
+        
+        case 32: return .`roles`
+        
+        case 33: return .`clusterRoleBindings`
+        
+        case 34: return .`roleBindings`
+        
+        case 35: return .`podSecurityPolicies`
+        
+        case 36: return .`charts`
+        
+        case 37: return .`releases`
         
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -714,8 +834,140 @@ public struct FfiConverterTypeTabId: FfiConverterRustBuffer {
             writeInt(&buf, Int32(3))
         
         
-        case .`overview`:
+        case .`events`:
             writeInt(&buf, Int32(4))
+        
+        
+        case .`overview`:
+            writeInt(&buf, Int32(5))
+        
+        
+        case .`pods`:
+            writeInt(&buf, Int32(6))
+        
+        
+        case .`deployments`:
+            writeInt(&buf, Int32(7))
+        
+        
+        case .`daemonSets`:
+            writeInt(&buf, Int32(8))
+        
+        
+        case .`statefulSets`:
+            writeInt(&buf, Int32(9))
+        
+        
+        case .`replicaSets`:
+            writeInt(&buf, Int32(10))
+        
+        
+        case .`jobs`:
+            writeInt(&buf, Int32(11))
+        
+        
+        case .`cronJobs`:
+            writeInt(&buf, Int32(12))
+        
+        
+        case .`configMaps`:
+            writeInt(&buf, Int32(13))
+        
+        
+        case .`secrets`:
+            writeInt(&buf, Int32(14))
+        
+        
+        case .`resourceQuotas`:
+            writeInt(&buf, Int32(15))
+        
+        
+        case .`limitRanges`:
+            writeInt(&buf, Int32(16))
+        
+        
+        case .`horizontalPodAutoscalers`:
+            writeInt(&buf, Int32(17))
+        
+        
+        case .`podDisruptionBudgets`:
+            writeInt(&buf, Int32(18))
+        
+        
+        case .`priorityClasses`:
+            writeInt(&buf, Int32(19))
+        
+        
+        case .`runtimeClasses`:
+            writeInt(&buf, Int32(20))
+        
+        
+        case .`leases`:
+            writeInt(&buf, Int32(21))
+        
+        
+        case .`services`:
+            writeInt(&buf, Int32(22))
+        
+        
+        case .`endpoints`:
+            writeInt(&buf, Int32(23))
+        
+        
+        case .`ingresses`:
+            writeInt(&buf, Int32(24))
+        
+        
+        case .`networkPolicies`:
+            writeInt(&buf, Int32(25))
+        
+        
+        case .`portForwarding`:
+            writeInt(&buf, Int32(26))
+        
+        
+        case .`persistentVolumeClaims`:
+            writeInt(&buf, Int32(27))
+        
+        
+        case .`persistentVolumes`:
+            writeInt(&buf, Int32(28))
+        
+        
+        case .`storageClasses`:
+            writeInt(&buf, Int32(29))
+        
+        
+        case .`serviceAccounts`:
+            writeInt(&buf, Int32(30))
+        
+        
+        case .`clusterRoles`:
+            writeInt(&buf, Int32(31))
+        
+        
+        case .`roles`:
+            writeInt(&buf, Int32(32))
+        
+        
+        case .`clusterRoleBindings`:
+            writeInt(&buf, Int32(33))
+        
+        
+        case .`roleBindings`:
+            writeInt(&buf, Int32(34))
+        
+        
+        case .`podSecurityPolicies`:
+            writeInt(&buf, Int32(35))
+        
+        
+        case .`charts`:
+            writeInt(&buf, Int32(36))
+        
+        
+        case .`releases`:
+            writeInt(&buf, Int32(37))
         
         }
     }

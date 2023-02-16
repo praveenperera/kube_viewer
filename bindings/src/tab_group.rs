@@ -8,6 +8,9 @@ pub enum TabGroupId {
     Workloads,
     Config,
     Network,
+    Storage,
+    AccessControl,
+    Helm,
 }
 
 impl TabGroupId {
@@ -17,6 +20,9 @@ impl TabGroupId {
             TabGroupId::Workloads => "Workloads".to_string(),
             TabGroupId::Config => "Config".to_string(),
             TabGroupId::Network => "Network".to_string(),
+            TabGroupId::Storage => "Storage".to_string(),
+            TabGroupId::AccessControl => "Access Control".to_string(),
+            TabGroupId::Helm => "Helm".to_string(),
         }
     }
 }

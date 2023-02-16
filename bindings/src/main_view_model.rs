@@ -63,21 +63,75 @@ impl MainViewModel {
         let general = TabGroup::new(
             TabGroupId::General,
             vec![
-                Tab::new(TabId::Cluster, "steeringwheel"),
+                Tab::new(TabId::Cluster, "helm"),
                 Tab::new(TabId::Nodes, "server.rack"),
                 Tab::new(TabId::NameSpaces, "list.dash"),
+                Tab::new(TabId::Events, "clock.arrow.circlepath"),
             ],
         );
 
         let workloads = TabGroup::new(
             TabGroupId::Workloads,
-            vec![Tab::new(TabId::Overview, "circle")],
+            vec![
+                Tab::new(TabId::Overview, "circle"),
+                Tab::new(TabId::Pods, "circle"),
+                Tab::new(TabId::Deployments, "circle"),
+                Tab::new(TabId::DaemonSets, "circle"),
+                Tab::new(TabId::StatefulSets, "circle"),
+                Tab::new(TabId::ReplicaSets, "circle"),
+                Tab::new(TabId::Jobs, "circle"),
+                Tab::new(TabId::CronJobs, "circle"),
+            ],
         );
 
-        let config = TabGroup::new(TabGroupId::Config, vec![]);
-        let network = TabGroup::new(TabGroupId::Network, vec![]);
+        let config = TabGroup::new(
+            TabGroupId::Config,
+            vec![
+                Tab::new(TabId::ConfigMaps, "gear"),
+                Tab::new(TabId::Secrets, "gear"),
+                Tab::new(TabId::ResourceQuotas, "gear"),
+                Tab::new(TabId::LimitRanges, "gear"),
+                Tab::new(TabId::HorizontalPodAutoscalers, "gear"),
+                Tab::new(TabId::PodDisruptionBudgets, "gear"),
+                Tab::new(TabId::PriorityClasses, "gear"),
+                Tab::new(TabId::RuntimeClasses, "gear"),
+                Tab::new(TabId::Leases, "gear"),
+            ],
+        );
 
-        let tab_groups = vec![general, workloads, config, network];
+        let network = TabGroup::new(
+            TabGroupId::Network,
+            vec![
+                Tab::new(TabId::Services, "network"),
+                Tab::new(TabId::Endpoints, "network"),
+                Tab::new(TabId::Ingresses, "network"),
+                Tab::new(TabId::NetworkPolicies, "network"),
+                Tab::new(TabId::PortForwarding, "network"),
+            ],
+        );
+
+        let storage = TabGroup::new(
+            TabGroupId::Storage,
+            vec![
+                Tab::new(TabId::PersistentVolumes, "externaldrive"),
+                Tab::new(TabId::PersistentVolumeClaims, "externaldrive"),
+                Tab::new(TabId::StorageClasses, "externaldrive"),
+            ],
+        );
+
+        let access_control = TabGroup::new(
+            TabGroupId::AccessControl,
+            vec![
+                Tab::new(TabId::Roles, "shield.lefthalf.filled"),
+                Tab::new(TabId::RoleBindings, "shield.lefthalf.filled"),
+                Tab::new(TabId::ClusterRoles, "shield.lefthalf.filled"),
+                Tab::new(TabId::ClusterRoleBindings, "shield.lefthalf.filled"),
+                Tab::new(TabId::ServiceAccounts, "shield.lefthalf.filled"),
+                Tab::new(TabId::PodSecurityPolicies, "shield.lefthalf.filled"),
+            ],
+        );
+
+        let tab_groups = vec![general, workloads, config, network, storage, access_control];
 
         let tabs: Vec<Tab> = tab_groups
             .iter()
