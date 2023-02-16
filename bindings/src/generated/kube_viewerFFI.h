@@ -74,6 +74,10 @@ RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_tab_groups_f31a(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
+RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_tab_groups_filtered_4d4b(
+      void*_Nonnull ptr,RustBuffer search,
+    RustCallStatus *_Nonnull out_status
+    );
 RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_tabs_57ab(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status

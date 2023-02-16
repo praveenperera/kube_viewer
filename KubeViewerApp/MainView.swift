@@ -20,7 +20,7 @@ struct MainView: View {
                     sidebar: {
                         ScrollView {
                             SearchBar(text: $search).padding(.top, 15).padding(.horizontal, 10)
-                            ForEach(model.tabGroups) { tabGroup in
+                            ForEach(model.data.tabGroupsFiltered(search: search)) { tabGroup in
                                 CollapsibleList(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
                                     VStack {
                                         ForEach(tabGroup.tabs) { tab in

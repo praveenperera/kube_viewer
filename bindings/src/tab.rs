@@ -88,8 +88,8 @@ impl TabId {
 #[derive(Debug, Clone, Eq, Hash, PartialEq, Record)]
 pub struct Tab {
     pub id: TabId,
-    icon: String,
-    name: String,
+    pub icon: String,
+    pub name: String,
 }
 
 impl Tab {

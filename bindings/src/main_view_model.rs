@@ -49,6 +49,36 @@ impl RustMainViewModel {
             .collect()
     }
 
+    pub fn tab_groups_filtered(&self, search: String) -> Vec<TabGroup> {
+        if search.is_empty() {
+            return self.tab_groups();
+        }
+
+        self.0
+            .read()
+            .unwrap()
+            .tab_groups
+            .iter()
+            .filter_map(|tab_group| {
+                let tabs = tab_group
+                    .tabs
+                    .iter()
+                    .filter(|tab| tab.name.to_lowercase().contains(&search.to_lowercase()))
+                    .cloned()
+                    .collect::<Vec<Tab>>();
+
+                if tabs.is_empty() {
+                    return None;
+                };
+
+                Some(TabGroup {
+                    tabs,
+                    ..tab_group.clone()
+                })
+            })
+            .collect()
+    }
+
     pub fn tab_group_expansions(&self) -> HashMap<TabGroupId, bool> {
         self.0.read().unwrap().tab_group_expansions.clone()
     }

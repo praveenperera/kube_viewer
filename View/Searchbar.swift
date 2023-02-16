@@ -53,6 +53,7 @@ struct SearchBar: View {
                             .buttonStyle(PlainButtonStyle())
                             .padding(.trailing, 10)
                             .transition(.scale)
+                            .keyboardShortcut(.escape, modifiers: [])
                         }
                     }
                 }
@@ -62,6 +63,7 @@ struct SearchBar: View {
                         isFocused = false
                     }
                 }
+                .keyboardShortcut(.escape)
         }
     }
 }

@@ -346,6 +346,7 @@ public protocol RustMainViewModelProtocol {
     func `setTabGroupExpansions`(`tabGroupExpansions`: [TabGroupId: Bool]) 
     func `tabGroupExpansions`()  -> [TabGroupId: Bool]
     func `tabGroups`()  -> [TabGroup]
+    func `tabGroupsFiltered`(`search`: String)  -> [TabGroup]
     func `tabs`()  -> [Tab]
     func `tabsMap`()  -> [TabId: Tab]
     
@@ -420,6 +421,17 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     rustCall() {
     
     _uniffi_kube_viewer_impl_RustMainViewModel_tab_groups_f31a(self.pointer, $0
+    )
+}
+        )
+    }
+    public func `tabGroupsFiltered`(`search`: String)  -> [TabGroup] {
+        return try! FfiConverterSequenceTypeTabGroup.lift(
+            try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_tab_groups_filtered_4d4b(self.pointer, 
+        FfiConverterString.lower(`search`), $0
     )
 }
         )
