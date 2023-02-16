@@ -3,6 +3,9 @@ edition = "2021"
 name = "kube_viewer"
 version = "0.1.0"
 
+[features]
+cli = ["uniffi/cli"]
+
 [dependencies]
 derive_more = "0.99.17"
 indexmap = "1.9.2"
@@ -16,3 +19,7 @@ uniffi = {version = "0.23", features = ["build"]}
 [lib]
 crate-type = ["staticlib", "cdylib", "lib"]
 name = "kube_viewer"
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"

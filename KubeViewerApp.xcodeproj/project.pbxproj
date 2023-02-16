@@ -42,7 +42,7 @@
 				"$(INPUT_FILE_DIR)/generated/$(INPUT_FILE_BASE)FFI.h",
 			);
 			runOncePerArchitecture = 0;
-			script = "$HOME/.cargo/bin/uniffi-bindgen generate \"$INPUT_FILE_PATH\" --language swift --out-dir $INPUT_FILE_DIR/generated --lib-file $SRCROOT/bindings/target/aarch64-apple-darwin/debug/libkube_viewer.a\n";
+			script = "#!/bin/sh\ncd $SRCROOT/bindings\n\n$HOME/.cargo/bin/cargo run --features=cli --bin uniffi-bindgen \\\n    generate \"$INPUT_FILE_PATH\" \\\n    --language swift \\\n    --out-dir $INPUT_FILE_DIR/generated \\\n    --lib-file target/aarch64-apple-darwin/debug/libkube_viewer.a\n";
 		};
 /* End PBXBuildRule section */
 
