@@ -23,8 +23,8 @@ struct SearchBar: View {
             TextField("Search", text: $text)
                 .textFieldStyle(PlainTextFieldStyle())
                 .focused($isFocused)
-                .padding(.vertical, 5)
-                .padding(.horizontal, 30)
+                .padding(.vertical, 7)
+                .padding(.horizontal, 35)
                 .background(Color.gray.opacity(0.12))
                 .cornerRadius(4)
                 .overlay {
@@ -36,9 +36,9 @@ struct SearchBar: View {
                 .overlay {
                     HStack {
                         Image(systemName: "magnifyingglass")
-                            .foregroundColor(.black)
+                            .foregroundColor(Color.primary)
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, 10)
+                            .padding(.leading, 11)
                             .opacity(0.9)
 
                         if isEditing {
