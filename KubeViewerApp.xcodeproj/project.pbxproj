@@ -163,8 +163,6 @@
 			children = (
 				AC3F4D6A299C789100429CDB /* kube_viewer.udl */,
 				ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */,
-				ACE6E01D299D45350094C1DC /* FFIHelpers */,
-				ACC45D512995AE2E0063B358 /* Extensions */,
 				DADF4C7C295E6DB9006CA792 /* KubeViewerApp */,
 				DADF4C7B295E6DB9006CA792 /* Products */,
 				ACE6DFFA299C11520094C1DC /* KubeViewerApp-Bridging-Header.h */,
@@ -183,6 +181,8 @@
 		DADF4C7C295E6DB9006CA792 /* KubeViewerApp */ = {
 			isa = PBXGroup;
 			children = (
+				ACE6E01D299D45350094C1DC /* FFIHelpers */,
+				ACC45D512995AE2E0063B358 /* Extensions */,
 				ACBEA255299FEBC400ACB131 /* Styles */,
 				ACAAA9FD299EA71F00FABEF5 /* View */,
 				AC1651B729874DB000CBC220 /* Theme.swift */,
