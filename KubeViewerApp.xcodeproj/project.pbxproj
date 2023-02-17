@@ -12,6 +12,8 @@
 		AC3F4D69299C778600429CDB /* xc-universal-binary.sh in Resources */ = {isa = PBXBuildFile; fileRef = ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */; };
 		AC3F4D6B299C789100429CDB /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6A299C789100429CDB /* kube_viewer.udl */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
+		AC8ABA0429A01BF300C7F6D5 /* SidebarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */; };
+		AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */; };
 		AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */; };
 		ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */; };
 		ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */; };
@@ -54,6 +56,8 @@
 		AC3F4D66299B325000429CDB /* RustPublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustPublished.swift; sourceTree = "<group>"; };
 		AC3F4D6A299C789100429CDB /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = bindings/src/kube_viewer.udl; sourceTree = "<group>"; };
 		AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalBinding.swift; sourceTree = "<group>"; };
+		AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarButton.swift; sourceTree = "<group>"; };
+		AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTitle.swift; sourceTree = "<group>"; };
 		AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurWindow.swift; sourceTree = "<group>"; };
 		ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleList.swift; sourceTree = "<group>"; };
 		ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Searchbar.swift; sourceTree = "<group>"; };
@@ -88,9 +92,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AC8ABA0529A01C6600C7F6D5 /* Sidebar */ = {
+			isa = PBXGroup;
+			children = (
+				AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */,
+				AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */,
+			);
+			path = Sidebar;
+			sourceTree = "<group>";
+		};
 		ACAAA9FD299EA71F00FABEF5 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				AC8ABA0529A01C6600C7F6D5 /* Sidebar */,
 				ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */,
 				ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */,
 			);
@@ -320,12 +334,14 @@
 				ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */,
 				AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */,
 				ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */,
+				AC8ABA0429A01BF300C7F6D5 /* SidebarButton.swift in Sources */,
 				ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */,
 				ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */,
 				DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */,
 				AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */,
 				AC1651B829874DB000CBC220 /* Theme.swift in Sources */,
 				ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */,
+				AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */,
 				ACD621F2298057D400FE2CE2 /* TabViewModel.swift in Sources */,
 				ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */,
 				ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */,

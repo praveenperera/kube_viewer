@@ -40,7 +40,7 @@ struct SidebarDisclosureGroupStyle: DisclosureGroupStyle {
                 withAnimation {
                     self.isHovering = isHovering
                 }
-            }.zIndex(1)
+            }
 
             if configuration.isExpanded {
                 configuration.content.padding(.leading, -5)
