@@ -46,7 +46,7 @@ impl TabId {
         match self {
             TabId::Cluster => "Cluster".to_string(),
             TabId::Nodes => "Nodes".to_string(),
-            TabId::NameSpaces => "NameSpaces".to_string(),
+            TabId::NameSpaces => "Namespaces".to_string(),
             TabId::Events => "Events".to_string(),
             TabId::Overview => "Overview".to_string(),
             TabId::Pods => "Pods".to_string(),
