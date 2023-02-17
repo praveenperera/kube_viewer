@@ -77,7 +77,7 @@ struct SidebarButton: View {
                     Text(tab.name)
                 } icon: {
                     Image(systemName: tab.icon)
-                        .foregroundColor(Color.blue)
+                        .foregroundColor(Color.accentColor)
                 }
             }.buttonStyle(.plain).padding(.leading, 10)
                 .if(isHover) { view in
