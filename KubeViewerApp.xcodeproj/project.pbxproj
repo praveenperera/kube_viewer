@@ -15,8 +15,11 @@
 		AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */; };
 		ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */; };
 		ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */; };
-		ACC45D532995AE480063B358 /* If.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D522995AE480063B358 /* If.swift */; };
-		ACC45D552995EFA00063B358 /* WhenHovered.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D542995EFA00063B358 /* WhenHovered.swift */; };
+		ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */; };
+		ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA25829A00BD300ACB131 /* readSize.swift */; };
+		ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */; };
+		ACC45D532995AE480063B358 /* if.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D522995AE480063B358 /* if.swift */; };
+		ACC45D552995EFA00063B358 /* whenHovered.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D542995EFA00063B358 /* whenHovered.swift */; };
 		ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621E629803DFB00FE2CE2 /* MainView.swift */; };
 		ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621EA2980415E00FE2CE2 /* TabContentView.swift */; };
 		ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621ED2980569500FE2CE2 /* MainViewModel.swift */; };
@@ -54,8 +57,11 @@
 		AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurWindow.swift; sourceTree = "<group>"; };
 		ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleList.swift; sourceTree = "<group>"; };
 		ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Searchbar.swift; sourceTree = "<group>"; };
-		ACC45D522995AE480063B358 /* If.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = If.swift; sourceTree = "<group>"; };
-		ACC45D542995EFA00063B358 /* WhenHovered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenHovered.swift; sourceTree = "<group>"; };
+		ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarDisclosureGroupStyle.swift; sourceTree = "<group>"; };
+		ACBEA25829A00BD300ACB131 /* readSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = readSize.swift; sourceTree = "<group>"; };
+		ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideUpDown.swift; sourceTree = "<group>"; };
+		ACC45D522995AE480063B358 /* if.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = if.swift; sourceTree = "<group>"; };
+		ACC45D542995EFA00063B358 /* whenHovered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = whenHovered.swift; sourceTree = "<group>"; };
 		ACD621E629803DFB00FE2CE2 /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		ACD621EA2980415E00FE2CE2 /* TabContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabContentView.swift; sourceTree = "<group>"; };
 		ACD621ED2980569500FE2CE2 /* MainViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
@@ -91,9 +97,26 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		ACBEA255299FEBC400ACB131 /* Styles */ = {
+			isa = PBXGroup;
+			children = (
+				ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */,
+			);
+			path = Styles;
+			sourceTree = "<group>";
+		};
+		ACBEA25A29A00D3600ACB131 /* Transitions */ = {
+			isa = PBXGroup;
+			children = (
+				ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */,
+			);
+			path = Transitions;
+			sourceTree = "<group>";
+		};
 		ACC45D512995AE2E0063B358 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				ACBEA25A29A00D3600ACB131 /* Transitions */,
 				ACC45D562995EFDF0063B358 /* View */,
 				AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */,
 			);
@@ -103,8 +126,9 @@
 		ACC45D562995EFDF0063B358 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				ACC45D522995AE480063B358 /* If.swift */,
-				ACC45D542995EFA00063B358 /* WhenHovered.swift */,
+				ACC45D522995AE480063B358 /* if.swift */,
+				ACC45D542995EFA00063B358 /* whenHovered.swift */,
+				ACBEA25829A00BD300ACB131 /* readSize.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -159,6 +183,7 @@
 		DADF4C7C295E6DB9006CA792 /* KubeViewerApp */ = {
 			isa = PBXGroup;
 			children = (
+				ACBEA255299FEBC400ACB131 /* Styles */,
 				ACAAA9FD299EA71F00FABEF5 /* View */,
 				AC1651B729874DB000CBC220 /* Theme.swift */,
 				ACD621F02980573E00FE2CE2 /* TabContent */,
@@ -289,15 +314,18 @@
 			files = (
 				AC3F4D6B299C789100429CDB /* kube_viewer.udl in Sources */,
 				AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */,
-				ACC45D552995EFA00063B358 /* WhenHovered.swift in Sources */,
-				ACC45D532995AE480063B358 /* If.swift in Sources */,
+				ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */,
+				ACC45D552995EFA00063B358 /* whenHovered.swift in Sources */,
+				ACC45D532995AE480063B358 /* if.swift in Sources */,
 				ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */,
 				AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */,
 				ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */,
 				ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */,
+				ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */,
 				DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */,
 				AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */,
 				AC1651B829874DB000CBC220 /* Theme.swift in Sources */,
+				ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */,
 				ACD621F2298057D400FE2CE2 /* TabViewModel.swift in Sources */,
 				ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */,
 				ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */,

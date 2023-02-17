@@ -21,7 +21,7 @@ struct MainView: View {
                         ScrollView {
                             SearchBar(text: $search).padding(.top, 15).padding(.horizontal, 10)
                             ForEach(model.data.tabGroupsFiltered(search: search)) { tabGroup in
-                                CollapsibleList(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
+                                DisclosureGroup(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
                                     VStack {
                                         ForEach(tabGroup.tabs) { tab in
                                             SidebarButton(tab: tab, selectedTab: $model.selectedTab)
@@ -31,10 +31,12 @@ struct MainView: View {
                                 } label: {
                                     SidebarTitle(name: tabGroup.name)
                                 }
+                                .disclosureGroupStyle(SidebarDisclosureGroupStyle())
                                 .padding(.top, 5)
                             }
                             .padding(.vertical, 10)
                             .padding(.horizontal, 10)
+
                             Spacer()
                         }
                         .navigationTitle(model.tabsMap[model.selectedTab]?.name ?? "Unknown tab")
