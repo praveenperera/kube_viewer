@@ -27,7 +27,7 @@ struct SidebarButton: View {
                         .foregroundColor(tabIsSelected ? Color.white : Color.accentColor)
                 }
             }.buttonStyle(.plain).padding(.leading, 10)
-                .if(isHover) { view in
+                .if(isHover && !tabIsSelected) { view in
                     view.scaleEffect(1.015)
                 }.animation(.default, value: isHover)
             Spacer()
@@ -39,7 +39,7 @@ struct SidebarButton: View {
             view.background(Color.accentColor.opacity(0.90))
                 .background(.ultraThinMaterial)
         }
-        .if(isHover) { view in
+        .if(isHover && !tabIsSelected) { view in
             view.background(Color.secondary.opacity(0.15))
                 .background(.ultraThinMaterial)
         }
