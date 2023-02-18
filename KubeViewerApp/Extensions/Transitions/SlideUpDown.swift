@@ -4,22 +4,22 @@ import SwiftUI
 extension AnyTransition {
     static func slideUpDown(_ height: CGFloat) -> AnyTransition {
         AnyTransition.modifier(
-            active: SlideUpDown(offset: -1, height: height),
-            identity: SlideUpDown(offset: 0, height: height))
+            active: SlideUpDown(offsetDirection: -1, height: height),
+            identity: SlideUpDown(offsetDirection: 0, height: height))
     }
 
     static var slideUpDown: AnyTransition {
         AnyTransition.modifier(
-            active: SlideUpDown(offset: -1, height: 250),
-            identity: SlideUpDown(offset: 0, height: 250))
+            active: SlideUpDown(offsetDirection: -1, height: 250),
+            identity: SlideUpDown(offsetDirection: 0, height: 250))
     }
 }
 
 struct SlideUpDown: ViewModifier {
-    let offset: CGFloat
+    let offsetDirection: CGFloat
     let height: CGFloat
 
     func body(content: Content) -> some View {
-        content.offset(y: offset * height).clipped()
+        content.offset(y: offsetDirection * height).clipped()
     }
 }
