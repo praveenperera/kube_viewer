@@ -40,7 +40,7 @@ struct SidebarButton: View {
                 .background(.ultraThinMaterial)
         }
         .if(isHover && !tabIsSelected) { view in
-            view.background(Color.secondary.opacity(0.15))
+            view.background(Color.secondary.opacity(0.25))
                 .background(.ultraThinMaterial)
         }
         .clipShape(RoundedRectangle(cornerRadius: 4))

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 [ -z "$1" ] && BUILD_TYPE=debug
 [ -z "$1" ] || BUILD_TYPE=$1
