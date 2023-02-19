@@ -18,28 +18,36 @@ struct MainView: View {
             GeometryReader { _ in
                 NavigationSplitView(
                     sidebar: {
-                        ScrollView {
-                            SearchBar(text: $search).padding(.top, 15)
-                            ForEach(model.data.tabGroupsFiltered(search: search)) { tabGroup in
-                                DisclosureGroup(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
-                                    VStack {
-                                        ForEach(tabGroup.tabs) { tab in
-                                            SidebarButton(tab: tab, selectedTab: $model.selectedTab)
+                        VStack {
+                            ScrollView {
+                                SearchBar(text: $search).padding(.top, 15)
+                                ForEach(model.data.tabGroupsFiltered(search: search)) { tabGroup in
+                                    DisclosureGroup(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
+                                        VStack {
+                                            ForEach(tabGroup.tabs) { tab in
+                                                SidebarButton(tab: tab, selectedTab: $model.selectedTab)
+                                            }
                                         }
+                                        .padding(.leading, 5)
+                                    } label: {
+                                        SidebarTitle(name: tabGroup.name)
                                     }
-                                    .padding(.leading, 5)
-                                } label: {
-                                    SidebarTitle(name: tabGroup.name)
+                                    .disclosureGroupStyle(SidebarDisclosureGroupStyle())
+                                    .padding(.top, 5)
                                 }
-                                .disclosureGroupStyle(SidebarDisclosureGroupStyle())
-                                .padding(.top, 5)
-                            }
-                            .padding(.vertical, 10)
+                                .padding(.vertical, 10)
 
-                            Spacer()
+                                Spacer()
+                            }
+                            .navigationTitle(model.tabsMap[model.selectedTab]?.name ?? "Unknown tab")
+                            .padding(.horizontal, 20)
                         }
-                        .navigationTitle(model.tabsMap[model.selectedTab]?.name ?? "Unknown tab")
-                        .padding(.horizontal, 20)
+
+                        Divider()
+
+                        HStack {
+                            Button("Main Cluster") {}
+                        }.padding(.top, 8).padding(.bottom, 15)
                     },
                     detail: { model.tabContentViews[model.selectedTab]! })
             }
