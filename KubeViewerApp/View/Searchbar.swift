@@ -70,6 +70,8 @@ struct SearchBar: View {
 
 struct SearchField_Previews: PreviewProvider {
     static var previews: some View {
-        SearchBar(text: Binding.constant("search"))
+        VStack {
+            SearchBar(text: Binding.constant("search"))
+        }.frame(width: 250).padding(20)
     }
 }

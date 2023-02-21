@@ -60,6 +60,10 @@ struct SidebarButton: View {
 
 struct SidebarButton_Previews: PreviewProvider {
     static var previews: some View {
-        SidebarButton(tab: Tab(id: .cluster, icon: "helm", name: "Helm"), selectedTab: Binding.constant(.cluster))
+        VStack(spacing: 20) {
+            SidebarButton(tab: Tab(id: .cluster, icon: "helm", name: "Helm"), selectedTab: Binding.constant(.cluster))
+            SidebarButton(tab: Tab(id: .cluster, icon: "helm", name: "Helm"), selectedTab: Binding.constant(.charts))
+        }.frame(width: 150)
+            .padding(20)
     }
 }
