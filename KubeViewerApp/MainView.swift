@@ -39,6 +39,11 @@ struct MainView: View {
                                     }
                                     .disclosureGroupStyle(SidebarDisclosureGroupStyle())
                                     .padding(.top, 5)
+                                    .overlay {
+                                        if model.currentFocusRegion == .sidebarGroup(id: tabGroup.id) {
+                                            RoundedRectangle(cornerRadius: 4).stroke(Color.red)
+                                        }
+                                    }
                                 }
 
                                 .padding(.vertical, 10)
@@ -59,9 +64,11 @@ struct MainView: View {
             }
         }
         .background(KeyAwareView(onEvent: { key in
-            debugPrint("main", key)
-            return model.data.handleKeyInput(keyInput: key)
+            model.data.handleKeyInput(keyInput: key)
         }))
+        .onChange(of: model.currentFocusRegion) { curr in
+            debugPrint("current focus region changed", curr)
+        }
         .background(WindowAccessor(window: $model.window).background(BlurWindow()))
         .environmentObject(model)
     }

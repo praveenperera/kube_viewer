@@ -63,8 +63,7 @@ struct SearchBar: View {
                     }
                 }
                 .background(KeyAwareView(onEvent: { key in
-                    debugPrint("search")
-                    return mainViewModel.data.handleKeyInput(keyInput: key)
+                    mainViewModel.data.handleKeyInput(keyInput: key)
                 }))
         }
     }
