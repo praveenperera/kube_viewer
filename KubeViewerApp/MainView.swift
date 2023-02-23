@@ -1,4 +1,3 @@
-//
 //  MainView.swift
 //  KubeViewerApp
 //
@@ -7,8 +6,14 @@
 
 import SwiftUI
 
+enum FocusArea {
+    case search, sidebar, content
+}
+
 struct MainView: View {
     @StateObject private var model: MainViewModel = .init()
+    @StateObject var keyHandlerModel: KeyHandlerModel = .init()
+
     @State private var hoverRow: UUID?
     @State private var expanded: Bool = true
     @State private var search: String = ""
@@ -35,6 +40,7 @@ struct MainView: View {
                                     .disclosureGroupStyle(SidebarDisclosureGroupStyle())
                                     .padding(.top, 5)
                                 }
+
                                 .padding(.vertical, 10)
 
                                 Spacer()
@@ -51,7 +57,13 @@ struct MainView: View {
                     },
                     detail: { model.tabContentViews[model.selectedTab]! })
             }
-        }.background(WindowAccessor(window: $model.window).background(BlurWindow()))
+        }
+        .background(KeyAwareView(onEvent: { key in
+            debugPrint("key down", key)
+            return true
+        }))
+        .background(WindowAccessor(window: $model.window).background(BlurWindow()))
+        .environmentObject(keyHandlerModel)
     }
 }
 

@@ -618,6 +618,167 @@ public func FfiConverterTypeTabGroup_lower(_ value: TabGroup) -> RustBuffer {
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+public enum FocusRegion {
+    
+    case `sidebarSearch`
+    case `sidebar`
+    case `sidebarGroup`(`id`: TabGroupId)
+    case `clusterSelection`
+    case `content`
+}
+
+public struct FfiConverterTypeFocusRegion: FfiConverterRustBuffer {
+    typealias SwiftType = FocusRegion
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FocusRegion {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .`sidebarSearch`
+        
+        case 2: return .`sidebar`
+        
+        case 3: return .`sidebarGroup`(
+            `id`: try FfiConverterTypeTabGroupId.read(from: &buf)
+        )
+        
+        case 4: return .`clusterSelection`
+        
+        case 5: return .`content`
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: FocusRegion, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .`sidebarSearch`:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .`sidebar`:
+            writeInt(&buf, Int32(2))
+        
+        
+        case let .`sidebarGroup`(`id`):
+            writeInt(&buf, Int32(3))
+            FfiConverterTypeTabGroupId.write(`id`, into: &buf)
+            
+        
+        case .`clusterSelection`:
+            writeInt(&buf, Int32(4))
+        
+        
+        case .`content`:
+            writeInt(&buf, Int32(5))
+        
+        }
+    }
+}
+
+
+public func FfiConverterTypeFocusRegion_lift(_ buf: RustBuffer) throws -> FocusRegion {
+    return try FfiConverterTypeFocusRegion.lift(buf)
+}
+
+public func FfiConverterTypeFocusRegion_lower(_ value: FocusRegion) -> RustBuffer {
+    return FfiConverterTypeFocusRegion.lower(value)
+}
+
+
+extension FocusRegion: Equatable, Hashable {}
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+public enum KeyAwareEvent {
+    
+    case `upArrow`
+    case `downArrow`
+    case `leftArrow`
+    case `rightArrow`
+    case `space`
+    case `enter`
+    case `shiftTab`
+}
+
+public struct FfiConverterTypeKeyAwareEvent: FfiConverterRustBuffer {
+    typealias SwiftType = KeyAwareEvent
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> KeyAwareEvent {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .`upArrow`
+        
+        case 2: return .`downArrow`
+        
+        case 3: return .`leftArrow`
+        
+        case 4: return .`rightArrow`
+        
+        case 5: return .`space`
+        
+        case 6: return .`enter`
+        
+        case 7: return .`shiftTab`
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: KeyAwareEvent, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .`upArrow`:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .`downArrow`:
+            writeInt(&buf, Int32(2))
+        
+        
+        case .`leftArrow`:
+            writeInt(&buf, Int32(3))
+        
+        
+        case .`rightArrow`:
+            writeInt(&buf, Int32(4))
+        
+        
+        case .`space`:
+            writeInt(&buf, Int32(5))
+        
+        
+        case .`enter`:
+            writeInt(&buf, Int32(6))
+        
+        
+        case .`shiftTab`:
+            writeInt(&buf, Int32(7))
+        
+        }
+    }
+}
+
+
+public func FfiConverterTypeKeyAwareEvent_lift(_ buf: RustBuffer) throws -> KeyAwareEvent {
+    return try FfiConverterTypeKeyAwareEvent.lift(buf)
+}
+
+public func FfiConverterTypeKeyAwareEvent_lower(_ value: KeyAwareEvent) -> RustBuffer {
+    return FfiConverterTypeKeyAwareEvent.lower(value)
+}
+
+
+extension KeyAwareEvent: Equatable, Hashable {}
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum TabGroupId {
     
     case `general`

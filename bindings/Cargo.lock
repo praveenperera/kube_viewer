@@ -254,6 +254,7 @@ dependencies = [
  "derive_more",
  "indexmap",
  "maplit",
+ "once_cell",
  "uniffi",
  "uuid",
 ]
