@@ -25,7 +25,3 @@ uniffi = {version = "0.23", features = ["build"]}
 [lib]
 crate-type = ["staticlib", "cdylib", "lib"]
 name = "kube_viewer"
-
-[[bin]]
-name = "uniffi-bindgen"
-path = "uniffi-bindgen.rs"

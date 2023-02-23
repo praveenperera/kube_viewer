@@ -1,0 +1,10 @@
+[package]
+edition = "2021"
+name = "uniffi_bindgen"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+kube_viewer = {path = "../bindings"}
+uniffi = {version = "*", features = ["cli"]}
