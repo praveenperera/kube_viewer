@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SearchBar: View {
     @Binding var text: String
-    @EnvironmentObject var keyHandlerModel: KeyHandlerModel
+    @EnvironmentObject var mainViewModel: MainViewModel
     @FocusState private var isFocused: Bool
 
     @State private var isLoaded = false
@@ -57,23 +57,14 @@ struct SearchBar: View {
                     }
                 }
                 .keyboardShortcut(.escape)
-                .onChange(of: keyHandlerModel.focusRegion) { newFocus in
+                .onChange(of: mainViewModel.currentFocusRegion) { newFocus in
                     if newFocus == .sidebarSearch {
                         isFocused = true
                     }
                 }
                 .background(KeyAwareView(onEvent: { key in
-                    debugPrint("key down in search", key)
-
-                    switch key {
-                    case .tab:
-                        debugPrint("tab pressed")
-                        keyHandlerModel.focusRegion = .sidebarSearch
-                    default:
-                        ()
-                    }
-
-                    return true
+                    debugPrint("search")
+                    return mainViewModel.data.handleKeyInput(keyInput: key)
                 }))
         }
     }

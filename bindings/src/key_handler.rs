@@ -1,10 +1,8 @@
-use std::sync::RwLock;
-
-use uniffi::{Enum, Record};
+use uniffi::Enum;
 
 use crate::tab_group::TabGroupId;
 
-#[derive(Enum)]
+#[derive(Debug, Clone, Enum)]
 pub enum FocusRegion {
     SidebarSearch,
     Sidebar,
@@ -13,8 +11,9 @@ pub enum FocusRegion {
     Content,
 }
 
-#[derive(Enum)]
+#[derive(Debug, Clone, Enum)]
 pub enum KeyAwareEvent {
+    Delete,
     UpArrow,
     DownArrow,
     LeftArrow,
@@ -22,10 +21,49 @@ pub enum KeyAwareEvent {
     Space,
     Enter,
     ShiftTab,
+    TabKey,
 }
 
-pub struct RustKeyHandlerModel(RwLock<KeyHandlerModel>);
+#[derive(Debug, Clone)]
+pub struct KeyHandler {
+    pub current_focus_region: FocusRegion,
+}
 
-pub struct KeyHandlerModel {
-    current_focus_region: FocusRegion,
+impl KeyHandler {
+    pub fn new() -> Self {
+        Self {
+            current_focus_region: FocusRegion::Sidebar,
+        }
+    }
+
+    pub fn current_focus_region(&self) -> FocusRegion {
+        self.current_focus_region.clone()
+    }
+
+    pub fn set_current_focus_region(&mut self, focus_region: FocusRegion) {
+        self.current_focus_region = focus_region
+    }
+
+    pub fn handle_key_input(&mut self, key_input: &KeyAwareEvent) -> bool {
+        use FocusRegion::*;
+        use KeyAwareEvent::*;
+
+        match (&self.current_focus_region, key_input) {
+            (Sidebar, TabKey) => {
+                self.current_focus_region = SidebarGroup {
+                    id: TabGroupId::General,
+                };
+                true
+            }
+            (Sidebar, ShiftTab) => {
+                self.current_focus_region = SidebarSearch;
+                true
+            }
+            (SidebarSearch, TabKey) => {
+                self.current_focus_region = Sidebar;
+                true
+            }
+            _ => false,
+        }
+    }
 }

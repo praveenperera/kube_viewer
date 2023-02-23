@@ -341,7 +341,10 @@ fileprivate struct FfiConverterString: FfiConverter {
 
 
 public protocol RustMainViewModelProtocol {
+    func `currentFocusRegion`()  -> FocusRegion
+    func `handleKeyInput`(`keyInput`: KeyAwareEvent)  -> Bool
     func `selectedTab`()  -> TabId
+    func `setCurrentFocusRegion`(`currentFocusRegion`: FocusRegion) 
     func `setSelectedTab`(`selectedTab`: TabId) 
     func `setTabGroupExpansions`(`tabGroupExpansions`: [TabGroupId: Bool]) 
     func `tabGroupExpansions`()  -> [TabGroupId: Bool]
@@ -377,6 +380,27 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
 
     
+    public func `currentFocusRegion`()  -> FocusRegion {
+        return try! FfiConverterTypeFocusRegion.lift(
+            try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_current_focus_region_447f(self.pointer, $0
+    )
+}
+        )
+    }
+    public func `handleKeyInput`(`keyInput`: KeyAwareEvent)  -> Bool {
+        return try! FfiConverterBool.lift(
+            try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_handle_key_input_81e8(self.pointer, 
+        FfiConverterTypeKeyAwareEvent.lower(`keyInput`), $0
+    )
+}
+        )
+    }
     public func `selectedTab`()  -> TabId {
         return try! FfiConverterTypeTabId.lift(
             try!
@@ -386,6 +410,15 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     )
 }
         )
+    }
+    public func `setCurrentFocusRegion`(`currentFocusRegion`: FocusRegion)  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_set_current_focus_region_46b(self.pointer, 
+        FfiConverterTypeFocusRegion.lower(`currentFocusRegion`), $0
+    )
+}
     }
     public func `setSelectedTab`(`selectedTab`: TabId)  {
         try!
@@ -695,6 +728,7 @@ extension FocusRegion: Equatable, Hashable {}
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum KeyAwareEvent {
     
+    case `delete`
     case `upArrow`
     case `downArrow`
     case `leftArrow`
@@ -702,6 +736,7 @@ public enum KeyAwareEvent {
     case `space`
     case `enter`
     case `shiftTab`
+    case `tabKey`
 }
 
 public struct FfiConverterTypeKeyAwareEvent: FfiConverterRustBuffer {
@@ -711,19 +746,23 @@ public struct FfiConverterTypeKeyAwareEvent: FfiConverterRustBuffer {
         let variant: Int32 = try readInt(&buf)
         switch variant {
         
-        case 1: return .`upArrow`
+        case 1: return .`delete`
         
-        case 2: return .`downArrow`
+        case 2: return .`upArrow`
         
-        case 3: return .`leftArrow`
+        case 3: return .`downArrow`
         
-        case 4: return .`rightArrow`
+        case 4: return .`leftArrow`
         
-        case 5: return .`space`
+        case 5: return .`rightArrow`
         
-        case 6: return .`enter`
+        case 6: return .`space`
         
-        case 7: return .`shiftTab`
+        case 7: return .`enter`
+        
+        case 8: return .`shiftTab`
+        
+        case 9: return .`tabKey`
         
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -733,32 +772,40 @@ public struct FfiConverterTypeKeyAwareEvent: FfiConverterRustBuffer {
         switch value {
         
         
-        case .`upArrow`:
+        case .`delete`:
             writeInt(&buf, Int32(1))
         
         
-        case .`downArrow`:
+        case .`upArrow`:
             writeInt(&buf, Int32(2))
         
         
-        case .`leftArrow`:
+        case .`downArrow`:
             writeInt(&buf, Int32(3))
         
         
-        case .`rightArrow`:
+        case .`leftArrow`:
             writeInt(&buf, Int32(4))
         
         
-        case .`space`:
+        case .`rightArrow`:
             writeInt(&buf, Int32(5))
         
         
-        case .`enter`:
+        case .`space`:
             writeInt(&buf, Int32(6))
         
         
-        case .`shiftTab`:
+        case .`enter`:
             writeInt(&buf, Int32(7))
+        
+        
+        case .`shiftTab`:
+            writeInt(&buf, Int32(8))
+        
+        
+        case .`tabKey`:
+            writeInt(&buf, Int32(9))
         
         }
     }

@@ -20,8 +20,10 @@ class MainViewModel: ObservableObject {
 
     @Published var tabContentViews: [TabId: TabContentView]
     @Published var tabViewModels: [TabId: TabViewModel]
+
     @RustPublished var tabGroupExpansions: [TabGroupId: Bool]
     @RustPublished var selectedTab: TabId
+    @RustPublished var currentFocusRegion: FocusRegion
 
     init() {
         self.tabs = self.data.tabs()
@@ -38,6 +40,10 @@ class MainViewModel: ObservableObject {
         self.selectedTab = self.data.selectedTab()
         self._selectedTab.getter = self.data.selectedTab
         self._selectedTab.setter = self.data.setSelectedTab
+
+        self.currentFocusRegion = self.data.currentFocusRegion()
+        self._currentFocusRegion.getter = self.data.currentFocusRegion
+        self._currentFocusRegion.setter = self.data.setCurrentFocusRegion
     }
 }
 

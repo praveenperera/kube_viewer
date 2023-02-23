@@ -10,7 +10,7 @@ import KeyboardShortcuts
 import SwiftUI
 
 struct KeyAwareView: NSViewRepresentable {
-    let onEvent: (Event) -> Bool
+    let onEvent: (KeyAwareEvent) -> Bool
 
     func makeNSView(context: Context) -> NSView {
         let view = KeyView()
@@ -24,21 +24,8 @@ struct KeyAwareView: NSViewRepresentable {
     func updateNSView(_ nsView: NSView, context: Context) {}
 }
 
-extension KeyAwareView {
-    enum Event {
-        case upArrow
-        case downArrow
-        case leftArrow
-        case rightArrow
-        case space
-        case delete
-        case tab
-        case shiftTab
-    }
-}
-
 private class KeyView: NSView {
-    var onEvent: (KeyAwareView.Event) -> Bool = { _ in false }
+    var onEvent: (KeyAwareEvent) -> Bool = { _ in false }
 
     override var acceptsFirstResponder: Bool { true }
     override func keyDown(with event: NSEvent) {
@@ -59,7 +46,7 @@ private class KeyView: NSView {
             case KeyboardShortcuts.Key.tab.rawValue where event.modifierFlags.contains(.shift):
                 return onEvent(.shiftTab)
             case KeyboardShortcuts.Key.tab.rawValue:
-                return onEvent(.tab)
+                return onEvent(.tabKey)
             default:
                 return false
             }

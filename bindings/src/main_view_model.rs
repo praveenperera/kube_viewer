@@ -1,16 +1,17 @@
 use std::{collections::HashMap, sync::RwLock};
 
 use crate::{
+    key_handler::{FocusRegion, KeyAwareEvent, KeyHandler},
     tab::{Tab, TabId},
-    tab_group::{TabGroup, TabGroupId},
+    tab_group::{TabGroup, TabGroupId, TabGroups},
 };
 
 pub struct RustMainViewModel(RwLock<MainViewModel>);
 pub struct MainViewModel {
+    key_handler: KeyHandler,
     tabs_map: HashMap<TabId, Tab>,
     tabs: Vec<Tab>,
-    tab_groups: Vec<TabGroup>,
-
+    tab_groups: TabGroups,
     tab_group_expansions: HashMap<TabGroupId, bool>,
     selected_tab: TabId,
 }
@@ -44,6 +45,7 @@ impl RustMainViewModel {
             .read()
             .unwrap()
             .tab_groups
+            .0
             .clone()
             .into_iter()
             .collect()
@@ -58,6 +60,7 @@ impl RustMainViewModel {
             .read()
             .unwrap()
             .tab_groups
+            .0
             .iter()
             .filter_map(|tab_group| {
                 let tabs = tab_group
@@ -85,6 +88,22 @@ impl RustMainViewModel {
 
     pub fn set_tab_group_expansions(&self, tab_group_expansions: HashMap<TabGroupId, bool>) {
         self.0.write().unwrap().tab_group_expansions = tab_group_expansions
+    }
+
+    pub fn current_focus_region(&self) -> FocusRegion {
+        self.0.read().unwrap().key_handler.current_focus_region()
+    }
+
+    pub fn set_current_focus_region(&self, current_focus_region: FocusRegion) {
+        self.0
+            .write()
+            .unwrap()
+            .key_handler
+            .set_current_focus_region(current_focus_region)
+    }
+
+    pub fn handle_key_input(&self, key_input: KeyAwareEvent) -> bool {
+        self.0.write().unwrap().handle_key_input(key_input)
     }
 }
 
@@ -179,9 +198,10 @@ impl MainViewModel {
             .collect::<HashMap<TabGroupId, bool>>();
 
         Self {
+            key_handler: KeyHandler::new(),
             tabs_map,
             tabs,
-            tab_groups,
+            tab_groups: TabGroups(tab_groups),
             tab_group_expansions,
             selected_tab: TabId::Cluster,
         }
@@ -189,6 +209,35 @@ impl MainViewModel {
 
     pub fn select_tab(&mut self, selected_tab: TabId) {
         self.selected_tab = selected_tab
+    }
+
+    pub fn handle_key_input(&mut self, key_input: KeyAwareEvent) -> bool {
+        use FocusRegion::*;
+        use KeyAwareEvent::*;
+
+        match (&self.key_handler.current_focus_region, &key_input) {
+            (SidebarGroup { id }, ShiftTab) => {
+                let previous_tab_group_id = self.tab_groups.previous_tab_group_id(id);
+
+                self.key_handler.current_focus_region = SidebarGroup {
+                    id: previous_tab_group_id,
+                };
+
+                true
+            }
+
+            (SidebarGroup { id }, TabKey) => {
+                let next_tab_group_id = self.tab_groups.next_tab_group_id(id);
+
+                self.key_handler.current_focus_region = SidebarGroup {
+                    id: next_tab_group_id,
+                };
+
+                true
+            }
+
+            _simple => self.key_handler.handle_key_input(&key_input),
+        }
     }
 }
 

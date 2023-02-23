@@ -59,11 +59,11 @@ struct MainView: View {
             }
         }
         .background(KeyAwareView(onEvent: { key in
-            debugPrint("key down", key)
-            return true
+            debugPrint("main", key)
+            return model.data.handleKeyInput(keyInput: key)
         }))
         .background(WindowAccessor(window: $model.window).background(BlurWindow()))
-        .environmentObject(keyHandlerModel)
+        .environmentObject(model)
     }
 }
 

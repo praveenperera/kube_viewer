@@ -54,8 +54,20 @@ void*_Nonnull kube_viewer_54fe_RustMainViewModel_new(
       
     RustCallStatus *_Nonnull out_status
     );
+RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_current_focus_region_447f(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+int8_t _uniffi_kube_viewer_impl_RustMainViewModel_handle_key_input_81e8(
+      void*_Nonnull ptr,RustBuffer key_input,
+    RustCallStatus *_Nonnull out_status
+    );
 RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_selected_tab_9ae(
       void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void _uniffi_kube_viewer_impl_RustMainViewModel_set_current_focus_region_46b(
+      void*_Nonnull ptr,RustBuffer current_focus_region,
     RustCallStatus *_Nonnull out_status
     );
 void _uniffi_kube_viewer_impl_RustMainViewModel_set_selected_tab_48a9(
