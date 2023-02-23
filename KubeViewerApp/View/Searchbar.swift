@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct SearchBar: View {
     @Binding var text: String
 
@@ -30,7 +28,7 @@ struct SearchBar: View {
                 .overlay {
                     if isLoaded && isFocused {
                         RoundedRectangle(cornerRadius: 5)
-                            .stroke(.blue.opacity(0.45), lineWidth: 3.5)
+                            .stroke(.blue.opacity(0.45), lineWidth: 3.5).padding(.horizontal, 2)
                     }
                 }
                 .overlay {
