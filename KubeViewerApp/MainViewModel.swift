@@ -9,18 +9,6 @@ import Combine
 import Foundation
 import SwiftUI
 
-class Listener: MainViewModelUpdater {
-    var callback: (MainViewModelField) -> ()
-
-    init(callback: @escaping (MainViewModelField) -> ()) {
-        self.callback = callback
-    }
-
-    func update(field: MainViewModelField) {
-        self.callback(field)
-    }
-}
-
 class MainViewModel: ObservableObject {
     var listener: Listener?
     var data: RustMainViewModel = .init()
@@ -58,7 +46,7 @@ class MainViewModel: ObservableObject {
         self._currentFocusRegion.getter = self.data.currentFocusRegion
         self._currentFocusRegion.setter = self.data.setCurrentFocusRegion
 
-        self.listener = nil
+        DispatchQueue.main.async { self.setupListener() }
     }
 
     func setupListener() {
@@ -76,6 +64,20 @@ class MainViewModel: ObservableObject {
                     self.currentFocusRegion = self.data.currentFocusRegion()
                 }
             }
+        }
+    }
+}
+
+extension MainViewModel {
+    class Listener: MainViewModelUpdater {
+        var callback: (MainViewModelField) -> ()
+
+        init(callback: @escaping (MainViewModelField) -> ()) {
+            self.callback = callback
+        }
+
+        func update(field: MainViewModelField) {
+            self.callback(field)
         }
     }
 }

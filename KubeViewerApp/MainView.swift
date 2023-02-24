@@ -66,9 +66,6 @@ struct MainView: View {
         }
         .background(WindowAccessor(window: $model.window).background(BlurWindow()))
         .environmentObject(model)
-        .onAppear {
-            self.model.setupListener()
-        }
     }
 }
 
