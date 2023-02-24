@@ -63,7 +63,7 @@ impl MainViewModel {
                 true
             }
 
-            (SidebarGroup { .. }, Escape) => {
+            (SidebarGroup { .. } | SidebarSearch, Escape) => {
                 self.key_handler.current_focus_region = FocusRegion::Content;
                 true
             }

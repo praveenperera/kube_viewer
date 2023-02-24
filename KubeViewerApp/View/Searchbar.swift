@@ -12,7 +12,6 @@ struct SearchBar: View {
     @EnvironmentObject var mainViewModel: MainViewModel
     @FocusState private var isFocused: Bool
 
-    @State private var isLoaded = false
     var isEditing: Bool {
         text != ""
     }
@@ -27,9 +26,8 @@ struct SearchBar: View {
                 .background(Color.gray.opacity(0.12))
                 .cornerRadius(4)
                 .overlay {
-                    if isLoaded && isFocused {
-                        RoundedRectangle(cornerRadius: 5)
-                            .stroke(.blue.opacity(0.45), lineWidth: 3.5).padding(.horizontal, 2)
+                    if isFocused {
+                        StandardFocusRing()
                     }
                 }
                 .overlay {
@@ -40,31 +38,33 @@ struct SearchBar: View {
                             .padding(.leading, 11)
                             .opacity(0.9)
 
-                        if isEditing {
-                            Button(action: {
-                                withAnimation(.spring()) {
-                                    self.text = ""
-                                    self.isFocused = false
-                                }
-                            }) {
-                                Image(systemName: "multiply.circle.fill")
+                        // x button shown if editing
+                        Button(action: {
+                            withAnimation(.spring()) {
+                                self.text = ""
+                                self.isFocused = false
                             }
-                            .buttonStyle(PlainButtonStyle())
-                            .padding(.trailing, 10)
-                            .transition(.scale)
-                            .keyboardShortcut(.escape, modifiers: [])
+                        }) {
+                            Image(systemName: "multiply.circle.fill")
                         }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.trailing, 10)
+                        .transition(.scale)
+                        .keyboardShortcut(.escape, modifiers: [])
+                        .opacity(isEditing ? 100 : 0)
                     }
                 }
-                .keyboardShortcut(.escape)
                 .onChange(of: mainViewModel.currentFocusRegion) { newFocus in
                     if newFocus == .sidebarSearch {
                         isFocused = true
                     }
                 }
-                .background(KeyAwareView(onEvent: { key in
-                    mainViewModel.data.handleKeyInput(keyInput: key)
-                }))
+                .onChange(of: isFocused) { newFocus in
+                    if newFocus && mainViewModel.currentFocusRegion != .sidebarSearch {
+                        mainViewModel.currentFocusRegion = .sidebarSearch
+                    }
+                }
+                .background(KeyAwareView(onEvent: mainViewModel.data.handleKeyInput))
         }
     }
 }

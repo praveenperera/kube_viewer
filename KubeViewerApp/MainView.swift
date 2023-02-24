@@ -20,7 +20,11 @@ struct MainView: View {
                     sidebar: {
                         VStack {
                             ScrollView {
-                                SearchBar(text: $search).padding(.top, 15)
+                                SearchBar(text: $search)
+                                    .padding(.top, 15)
+                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, 12)
+
                                 ForEach(model.data.tabGroupsFiltered(search: search)) { tabGroup in
                                     DisclosureGroup(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
                                         VStack {
@@ -33,20 +37,20 @@ struct MainView: View {
                                         SidebarTitle(name: tabGroup.name)
                                     }
                                     .disclosureGroupStyle(SidebarDisclosureGroupStyle())
-                                    .padding(.top, 5)
+                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, 12)
                                     .overlay {
                                         if model.currentFocusRegion == .sidebarGroup(id: tabGroup.id) {
-                                            RoundedRectangle(cornerRadius: 4).stroke(Color.red)
+                                            StandardFocusRing()
                                         }
                                     }
                                 }
 
-                                .padding(.vertical, 10)
-
                                 Spacer()
                             }
                             .navigationTitle(model.tabsMap[model.selectedTab]?.name ?? "Unknown tab")
-                            .padding(.horizontal, 20)
+                            .padding(.top, 5)
+                            .padding(.horizontal, 8)
                         }
 
                         Divider()
@@ -58,12 +62,7 @@ struct MainView: View {
                     detail: { model.tabContentViews[model.selectedTab]! })
             }
         }
-        .background(KeyAwareView(onEvent: { key in
-            model.data.handleKeyInput(keyInput: key)
-        }))
-        .onChange(of: model.currentFocusRegion) { curr in
-            debugPrint("current focus region changed", curr)
-        }
+        .background(KeyAwareView(onEvent: model.data.handleKeyInput))
         .background(WindowAccessor(window: $model.window).background(BlurWindow()))
         .environmentObject(model)
     }
