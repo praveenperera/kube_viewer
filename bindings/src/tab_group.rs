@@ -46,26 +46,24 @@ impl TabGroup {
 pub struct TabGroups(pub Vec<TabGroup>);
 
 impl TabGroups {
-    pub fn next_tab_group_id(&self, id: &TabGroupId) -> TabGroupId {
+    pub fn next_tab_group_id(&self, id: &TabGroupId) -> Option<TabGroupId> {
         let current_index = self.get_index_by_id(id).unwrap_or(0);
-        let next_index = if current_index == (self.0.len() - 1) {
-            0
-        } else {
-            current_index + 1
+        if current_index == (self.0.len() - 1) {
+            return None;
         };
 
-        self.0[next_index].id.clone()
+        let next_index = current_index + 1;
+        Some(self.0[next_index].id.clone())
     }
 
-    pub fn previous_tab_group_id(&self, id: &TabGroupId) -> TabGroupId {
+    pub fn previous_tab_group_id(&self, id: &TabGroupId) -> Option<TabGroupId> {
         let current_index = self.get_index_by_id(id).unwrap_or(0);
-        let previous_tab_index = if current_index == 0 {
-            (self.0.len().min(1)) - 1
-        } else {
-            current_index - 1
-        };
+        if current_index == 0 {
+            return None;
+        }
 
-        self.0[previous_tab_index].id.clone()
+        let previous_tab_index = current_index - 1;
+        Some(self.0[previous_tab_index].id.clone())
     }
 
     fn get_index_by_id(&self, id: &TabGroupId) -> Option<usize> {

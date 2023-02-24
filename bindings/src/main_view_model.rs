@@ -258,23 +258,58 @@ impl MainViewModel {
         use KeyAwareEvent::*;
 
         match (&self.key_handler.current_focus_region, &key_input) {
-            (SidebarGroup { id }, ShiftTab) => {
-                let previous_tab_group_id = self.tab_groups.previous_tab_group_id(id);
+            (SidebarSearch, TabKey) => {
+                if !self.tab_groups.0.is_empty() {
+                    self.key_handler.current_focus_region = SidebarGroup {
+                        id: self.tab_groups.0[0].id.clone(),
+                    };
+                } else {
+                    self.key_handler.current_focus_region = Content;
+                }
 
-                self.key_handler.current_focus_region = SidebarGroup {
-                    id: previous_tab_group_id,
-                };
+                true
+            }
+
+            (SidebarGroup { id }, ShiftTab) => {
+                match self.tab_groups.previous_tab_group_id(id) {
+                    Some(previous_tab_group_id) => {
+                        self.key_handler.current_focus_region = SidebarGroup {
+                            id: previous_tab_group_id,
+                        };
+                    }
+                    None => self.key_handler.current_focus_region = SidebarSearch,
+                }
 
                 true
             }
 
             (SidebarGroup { id }, TabKey) => {
-                let next_tab_group_id = self.tab_groups.next_tab_group_id(id);
+                match self.tab_groups.next_tab_group_id(id) {
+                    Some(next_tab_group_id) => {
+                        self.key_handler.current_focus_region = SidebarGroup {
+                            id: next_tab_group_id,
+                        }
+                    }
+                    None => self.key_handler.current_focus_region = Content,
+                }
 
-                self.key_handler.current_focus_region = SidebarGroup {
-                    id: next_tab_group_id,
-                };
+                true
+            }
 
+            (Content, ShiftTab) => {
+                if !self.tab_groups.0.is_empty() {
+                    let last_index = self.tab_groups.0.len() - 1;
+                    self.key_handler.current_focus_region = SidebarGroup {
+                        id: self.tab_groups.0[last_index].id.clone(),
+                    };
+                } else {
+                    self.key_handler.current_focus_region = SidebarSearch;
+                }
+                true
+            }
+
+            (Content, TabKey) => {
+                self.key_handler.current_focus_region = SidebarSearch;
                 true
             }
 

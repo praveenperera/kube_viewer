@@ -8,7 +8,6 @@ import SwiftUI
 
 struct MainView: View {
     @StateObject private var model: MainViewModel = .init()
-    @StateObject var keyHandlerModel: KeyHandlerModel = .init()
 
     @State private var hoverRow: UUID?
     @State private var expanded: Bool = true

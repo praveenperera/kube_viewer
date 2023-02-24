@@ -664,7 +664,6 @@ public func FfiConverterTypeTabGroup_lower(_ value: TabGroup) -> RustBuffer {
 public enum FocusRegion {
     
     case `sidebarSearch`
-    case `sidebar`
     case `sidebarGroup`(`id`: TabGroupId)
     case `clusterSelection`
     case `content`
@@ -679,15 +678,13 @@ public struct FfiConverterTypeFocusRegion: FfiConverterRustBuffer {
         
         case 1: return .`sidebarSearch`
         
-        case 2: return .`sidebar`
-        
-        case 3: return .`sidebarGroup`(
+        case 2: return .`sidebarGroup`(
             `id`: try FfiConverterTypeTabGroupId.read(from: &buf)
         )
         
-        case 4: return .`clusterSelection`
+        case 3: return .`clusterSelection`
         
-        case 5: return .`content`
+        case 4: return .`content`
         
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -701,21 +698,17 @@ public struct FfiConverterTypeFocusRegion: FfiConverterRustBuffer {
             writeInt(&buf, Int32(1))
         
         
-        case .`sidebar`:
-            writeInt(&buf, Int32(2))
-        
-        
         case let .`sidebarGroup`(`id`):
-            writeInt(&buf, Int32(3))
+            writeInt(&buf, Int32(2))
             FfiConverterTypeTabGroupId.write(`id`, into: &buf)
             
         
         case .`clusterSelection`:
-            writeInt(&buf, Int32(4))
+            writeInt(&buf, Int32(3))
         
         
         case .`content`:
-            writeInt(&buf, Int32(5))
+            writeInt(&buf, Int32(4))
         
         }
     }

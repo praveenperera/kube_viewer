@@ -5,7 +5,6 @@ use crate::tab_group::TabGroupId;
 #[derive(Debug, Clone, Enum)]
 pub enum FocusRegion {
     SidebarSearch,
-    Sidebar,
     SidebarGroup { id: TabGroupId },
     ClusterSelection,
     Content,
@@ -51,18 +50,8 @@ impl KeyHandler {
         use KeyAwareEvent::*;
 
         match (&self.current_focus_region, key_input) {
-            (Sidebar, TabKey) => {
-                self.current_focus_region = SidebarGroup {
-                    id: TabGroupId::General,
-                };
-                true
-            }
-            (Sidebar, ShiftTab) => {
+            (Content, TabKey) => {
                 self.current_focus_region = SidebarSearch;
-                true
-            }
-            (SidebarSearch, TabKey) => {
-                self.current_focus_region = Sidebar;
                 true
             }
             _ => false,
