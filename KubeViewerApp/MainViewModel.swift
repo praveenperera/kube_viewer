@@ -49,14 +49,14 @@ class MainViewModel: ObservableObject {
         DispatchQueue.main.async { self.setupListener() }
     }
 
-    func setupListener() {
+    private func setupListener() {
         if self.listener == nil {
             self.listener = Listener(callback: self.receiveListenerUpdate)
             self.data.addUpdateListener(listener: self.listener!)
         }
     }
 
-    func receiveListenerUpdate(field: MainViewModelField) {
+    private func receiveListenerUpdate(field: MainViewModelField) {
         Task {
             await MainActor.run {
                 switch field {
