@@ -21,6 +21,7 @@ pub enum KeyAwareEvent {
     Enter,
     ShiftTab,
     TabKey,
+    Escape,
 }
 
 #[derive(Debug, Clone)]
@@ -43,18 +44,5 @@ impl KeyHandler {
 
     pub fn set_current_focus_region(&mut self, focus_region: FocusRegion) {
         self.current_focus_region = focus_region
-    }
-
-    pub fn handle_key_input(&mut self, key_input: &KeyAwareEvent) -> bool {
-        use FocusRegion::*;
-        use KeyAwareEvent::*;
-
-        match (&self.current_focus_region, key_input) {
-            (Content, TabKey) => {
-                self.current_focus_region = SidebarSearch;
-                true
-            }
-            _ => false,
-        }
     }
 }

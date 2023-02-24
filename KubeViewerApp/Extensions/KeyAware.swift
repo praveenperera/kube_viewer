@@ -47,6 +47,8 @@ private class KeyView: NSView {
                 return onEvent(.shiftTab)
             case KeyboardShortcuts.Key.tab.rawValue:
                 return onEvent(.tabKey)
+            case KeyboardShortcuts.Key.escape.rawValue:
+                return onEvent(.escape)
             default:
                 return false
             }

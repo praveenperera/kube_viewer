@@ -740,6 +740,7 @@ public enum KeyAwareEvent {
     case `enter`
     case `shiftTab`
     case `tabKey`
+    case `escape`
 }
 
 public struct FfiConverterTypeKeyAwareEvent: FfiConverterRustBuffer {
@@ -766,6 +767,8 @@ public struct FfiConverterTypeKeyAwareEvent: FfiConverterRustBuffer {
         case 8: return .`shiftTab`
         
         case 9: return .`tabKey`
+        
+        case 10: return .`escape`
         
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -809,6 +812,10 @@ public struct FfiConverterTypeKeyAwareEvent: FfiConverterRustBuffer {
         
         case .`tabKey`:
             writeInt(&buf, Int32(9))
+        
+        
+        case .`escape`:
+            writeInt(&buf, Int32(10))
         
         }
     }

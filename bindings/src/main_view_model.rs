@@ -1,3 +1,5 @@
+mod key_handler;
+
 use crossbeam::channel::Sender;
 use once_cell::sync::OnceCell;
 use std::{collections::HashMap, sync::RwLock};
@@ -251,69 +253,5 @@ impl MainViewModel {
 
     pub fn select_tab(&mut self, selected_tab: TabId) {
         self.selected_tab = selected_tab
-    }
-
-    pub fn handle_key_input(&mut self, key_input: KeyAwareEvent) -> bool {
-        use FocusRegion::*;
-        use KeyAwareEvent::*;
-
-        match (&self.key_handler.current_focus_region, &key_input) {
-            (SidebarSearch, TabKey) => {
-                if !self.tab_groups.0.is_empty() {
-                    self.key_handler.current_focus_region = SidebarGroup {
-                        id: self.tab_groups.0[0].id.clone(),
-                    };
-                } else {
-                    self.key_handler.current_focus_region = Content;
-                }
-
-                true
-            }
-
-            (SidebarGroup { id }, ShiftTab) => {
-                match self.tab_groups.previous_tab_group_id(id) {
-                    Some(previous_tab_group_id) => {
-                        self.key_handler.current_focus_region = SidebarGroup {
-                            id: previous_tab_group_id,
-                        };
-                    }
-                    None => self.key_handler.current_focus_region = SidebarSearch,
-                }
-
-                true
-            }
-
-            (SidebarGroup { id }, TabKey) => {
-                match self.tab_groups.next_tab_group_id(id) {
-                    Some(next_tab_group_id) => {
-                        self.key_handler.current_focus_region = SidebarGroup {
-                            id: next_tab_group_id,
-                        }
-                    }
-                    None => self.key_handler.current_focus_region = Content,
-                }
-
-                true
-            }
-
-            (Content, ShiftTab) => {
-                if !self.tab_groups.0.is_empty() {
-                    let last_index = self.tab_groups.0.len() - 1;
-                    self.key_handler.current_focus_region = SidebarGroup {
-                        id: self.tab_groups.0[last_index].id.clone(),
-                    };
-                } else {
-                    self.key_handler.current_focus_region = SidebarSearch;
-                }
-                true
-            }
-
-            (Content, TabKey) => {
-                self.key_handler.current_focus_region = SidebarSearch;
-                true
-            }
-
-            _simple => self.key_handler.handle_key_input(&key_input),
-        }
     }
 }
