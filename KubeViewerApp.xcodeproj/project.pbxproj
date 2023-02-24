@@ -331,7 +331,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "[[ $CONFIGURATION == \"Release\" ]] && bash $SRCROOT/xc-universal-binary.sh libkube_viewer.a kube_viewer $SRCROOT/bindings $CONFIGURATION\n\nexit 0\n";
+			shellScript = "# [[ $CONFIGURATION == \"Release\" ]] && bash $SRCROOT/xc-universal-binary.sh libkube_viewer.a kube_viewer $SRCROOT/bindings $CONFIGURATION\nbash $SRCROOT/xc-universal-binary.sh libkube_viewer.a kube_viewer $SRCROOT/bindings $CONFIGURATION\n\nexit 0\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -32,7 +32,9 @@ pub struct KeyHandler {
 impl KeyHandler {
     pub fn new() -> Self {
         Self {
-            current_focus_region: FocusRegion::Sidebar,
+            current_focus_region: FocusRegion::SidebarGroup {
+                id: TabGroupId::General,
+            },
         }
     }
 

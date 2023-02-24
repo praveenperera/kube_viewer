@@ -19,13 +19,13 @@ fileprivate extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_kube_viewer_54fe_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_kube_viewer_99a2_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_kube_viewer_54fe_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_kube_viewer_99a2_rustbuffer_free(self, $0) }
     }
 }
 
@@ -341,6 +341,7 @@ fileprivate struct FfiConverterString: FfiConverter {
 
 
 public protocol RustMainViewModelProtocol {
+    func `addUpdateListener`(`listener`: MainViewModelUpdater) 
     func `currentFocusRegion`()  -> FocusRegion
     func `handleKeyInput`(`keyInput`: KeyAwareEvent)  -> Bool
     func `selectedTab`()  -> TabId
@@ -369,17 +370,26 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_54fe_RustMainViewModel_new($0)
+    kube_viewer_99a2_RustMainViewModel_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_54fe_RustMainViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_99a2_RustMainViewModel_object_free(pointer, $0) }
     }
 
     
 
     
+    public func `addUpdateListener`(`listener`: MainViewModelUpdater)  {
+        try!
+    rustCall() {
+    
+    kube_viewer_99a2_RustMainViewModel_add_update_listener(self.pointer, 
+        FfiConverterCallbackInterfaceMainViewModelUpdater.lower(`listener`), $0
+    )
+}
+    }
     public func `currentFocusRegion`()  -> FocusRegion {
         return try! FfiConverterTypeFocusRegion.lift(
             try!
@@ -826,6 +836,50 @@ extension KeyAwareEvent: Equatable, Hashable {}
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+public enum MainViewModelField {
+    
+    case `currentFocusRegion`
+}
+
+public struct FfiConverterTypeMainViewModelField: FfiConverterRustBuffer {
+    typealias SwiftType = MainViewModelField
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> MainViewModelField {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .`currentFocusRegion`
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: MainViewModelField, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .`currentFocusRegion`:
+            writeInt(&buf, Int32(1))
+        
+        }
+    }
+}
+
+
+public func FfiConverterTypeMainViewModelField_lift(_ buf: RustBuffer) throws -> MainViewModelField {
+    return try FfiConverterTypeMainViewModelField.lift(buf)
+}
+
+public func FfiConverterTypeMainViewModelField_lower(_ value: MainViewModelField) -> RustBuffer {
+    return FfiConverterTypeMainViewModelField.lower(value)
+}
+
+
+extension MainViewModelField: Equatable, Hashable {}
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum TabGroupId {
     
     case `general`
@@ -1205,6 +1259,179 @@ public func FfiConverterTypeTabId_lower(_ value: TabId) -> RustBuffer {
 
 extension TabId: Equatable, Hashable {}
 
+
+fileprivate extension NSLock {
+    func withLock<T>(f: () throws -> T) rethrows -> T {
+        self.lock()
+        defer { self.unlock() }
+        return try f()
+    }
+}
+
+fileprivate typealias UniFFICallbackHandle = UInt64
+fileprivate class UniFFICallbackHandleMap<T> {
+    private var leftMap: [UniFFICallbackHandle: T] = [:]
+    private var counter: [UniFFICallbackHandle: UInt64] = [:]
+    private var rightMap: [ObjectIdentifier: UniFFICallbackHandle] = [:]
+
+    private let lock = NSLock()
+    private var currentHandle: UniFFICallbackHandle = 0
+    private let stride: UniFFICallbackHandle = 1
+
+    func insert(obj: T) -> UniFFICallbackHandle {
+        lock.withLock {
+            let id = ObjectIdentifier(obj as AnyObject)
+            let handle = rightMap[id] ?? {
+                currentHandle += stride
+                let handle = currentHandle
+                leftMap[handle] = obj
+                rightMap[id] = handle
+                return handle
+            }()
+            counter[handle] = (counter[handle] ?? 0) + 1
+            return handle
+        }
+    }
+
+    func get(handle: UniFFICallbackHandle) -> T? {
+        lock.withLock {
+            leftMap[handle]
+        }
+    }
+
+    func delete(handle: UniFFICallbackHandle) {
+        remove(handle: handle)
+    }
+
+    @discardableResult
+    func remove(handle: UniFFICallbackHandle) -> T? {
+        lock.withLock {
+            defer { counter[handle] = (counter[handle] ?? 1) - 1 }
+            guard counter[handle] == 1 else { return leftMap[handle] }
+            let obj = leftMap.removeValue(forKey: handle)
+            if let obj = obj {
+                rightMap.removeValue(forKey: ObjectIdentifier(obj as AnyObject))
+            }
+            return obj
+        }
+    }
+}
+
+// Magic number for the Rust proxy to call using the same mechanism as every other method,
+// to free the callback once it's dropped by Rust.
+private let IDX_CALLBACK_FREE: Int32 = 0
+
+// Declaration and FfiConverters for MainViewModelUpdater Callback Interface
+
+public protocol MainViewModelUpdater : AnyObject {
+    func `update`(`field`: MainViewModelField) 
+    
+}
+
+// The ForeignCallback that is passed to Rust.
+fileprivate let foreignCallbackCallbackInterfaceMainViewModelUpdater : ForeignCallback =
+    { (handle: UniFFICallbackHandle, method: Int32, args: RustBuffer, out_buf: UnsafeMutablePointer<RustBuffer>) -> Int32 in
+        func `invokeUpdate`(_ swiftCallbackInterface: MainViewModelUpdater, _ args: RustBuffer) throws -> RustBuffer {
+        defer { args.deallocate() }
+
+            var reader = createReader(data: Data(rustBuffer: args))
+            swiftCallbackInterface.`update`(
+                    `field`:  try FfiConverterTypeMainViewModelField.read(from: &reader)
+                    )
+            return RustBuffer()
+                // TODO catch errors and report them back to Rust.
+                // https://github.com/mozilla/uniffi-rs/issues/351
+
+        }
+        
+
+        let cb: MainViewModelUpdater
+        do {
+            cb = try FfiConverterCallbackInterfaceMainViewModelUpdater.lift(handle)
+        } catch {
+            out_buf.pointee = FfiConverterString.lower("MainViewModelUpdater: Invalid handle")
+            return -1
+        }
+
+        switch method {
+            case IDX_CALLBACK_FREE:
+                FfiConverterCallbackInterfaceMainViewModelUpdater.drop(handle: handle)
+                // No return value.
+                // See docs of ForeignCallback in `uniffi/src/ffi/foreigncallbacks.rs`
+                return 0
+            case 1:
+                do {
+                    out_buf.pointee = try `invokeUpdate`(cb, args)
+                    // Value written to out buffer.
+                    // See docs of ForeignCallback in `uniffi/src/ffi/foreigncallbacks.rs`
+                    return 1
+                } catch let error {
+                    out_buf.pointee = FfiConverterString.lower(String(describing: error))
+                    return -1
+                }
+            
+            // This should never happen, because an out of bounds method index won't
+            // ever be used. Once we can catch errors, we should return an InternalError.
+            // https://github.com/mozilla/uniffi-rs/issues/351
+            default:
+                // An unexpected error happened.
+                // See docs of ForeignCallback in `uniffi/src/ffi/foreigncallbacks.rs`
+                return -1
+        }
+    }
+
+// FfiConverter protocol for callback interfaces
+fileprivate struct FfiConverterCallbackInterfaceMainViewModelUpdater {
+    // Initialize our callback method with the scaffolding code
+    private static var callbackInitialized = false
+    private static func initCallback() {
+        try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
+                ffi_kube_viewer_99a2_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
+        }
+    }
+    private static func ensureCallbackinitialized() {
+        if !callbackInitialized {
+            initCallback()
+            callbackInitialized = true
+        }
+    }
+
+    static func drop(handle: UniFFICallbackHandle) {
+        handleMap.remove(handle: handle)
+    }
+
+    private static var handleMap = UniFFICallbackHandleMap<MainViewModelUpdater>()
+}
+
+extension FfiConverterCallbackInterfaceMainViewModelUpdater : FfiConverter {
+    typealias SwiftType = MainViewModelUpdater
+    // We can use Handle as the FfiType because it's a typealias to UInt64
+    typealias FfiType = UniFFICallbackHandle
+
+    public static func lift(_ handle: UniFFICallbackHandle) throws -> SwiftType {
+        ensureCallbackinitialized();
+        guard let callback = handleMap.get(handle: handle) else {
+            throw UniffiInternalError.unexpectedStaleHandle
+        }
+        return callback
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        ensureCallbackinitialized();
+        let handle: UniFFICallbackHandle = try readInt(&buf)
+        return try lift(handle)
+    }
+
+    public static func lower(_ v: SwiftType) -> UniFFICallbackHandle {
+        ensureCallbackinitialized();
+        return handleMap.insert(obj: v)
+    }
+
+    public static func write(_ v: SwiftType, into buf: inout [UInt8]) {
+        ensureCallbackinitialized();
+        writeInt(&buf, lower(v))
+    }
+}
 
 fileprivate struct FfiConverterSequenceTypeTab: FfiConverterRustBuffer {
     typealias SwiftType = [Tab]

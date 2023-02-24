@@ -1,10 +1,38 @@
+use crossbeam::channel::Sender;
+use once_cell::sync::OnceCell;
 use std::{collections::HashMap, sync::RwLock};
+
+#[derive(Debug)]
+pub struct Updater(Sender<MainViewModelField>);
+static INSTANCE: OnceCell<Updater> = OnceCell::new();
+
+impl Updater {
+    pub fn send(field: MainViewModelField) {
+        let global = INSTANCE.get().expect("updater is not initialized");
+        global.0.send(field).expect("failed to send update");
+    }
+
+    pub fn init(sender: Sender<MainViewModelField>) {
+        INSTANCE
+            .set(Updater(sender))
+            .expect("updater is already initialized");
+    }
+}
 
 use crate::{
     key_handler::{FocusRegion, KeyAwareEvent, KeyHandler},
     tab::{Tab, TabId},
     tab_group::{TabGroup, TabGroupId, TabGroups},
 };
+
+#[derive(Debug, Clone, uniffi::Enum)]
+pub enum MainViewModelField {
+    CurrentFocusRegion,
+}
+
+pub trait MainViewModelUpdater: Send + Sync {
+    fn update(&self, field: MainViewModelField);
+}
 
 pub struct RustMainViewModel(RwLock<MainViewModel>);
 pub struct MainViewModel {
@@ -19,6 +47,17 @@ pub struct MainViewModel {
 impl RustMainViewModel {
     pub fn new() -> Self {
         Self(RwLock::new(MainViewModel::new()))
+    }
+
+    pub fn add_update_listener(&self, updater: Box<dyn MainViewModelUpdater>) {
+        let (sender, receiver) = crossbeam::channel::unbounded();
+        Updater::init(sender);
+
+        std::thread::spawn(move || {
+            while let Ok(field) = receiver.recv() {
+                updater.update(field);
+            }
+        });
     }
 }
 
@@ -99,11 +138,14 @@ impl RustMainViewModel {
             .write()
             .unwrap()
             .key_handler
-            .set_current_focus_region(current_focus_region)
+            .set_current_focus_region(current_focus_region);
     }
 
     pub fn handle_key_input(&self, key_input: KeyAwareEvent) -> bool {
-        self.0.write().unwrap().handle_key_input(key_input)
+        let prevent_default = self.0.write().unwrap().handle_key_input(key_input);
+        Updater::send(MainViewModelField::CurrentFocusRegion);
+
+        prevent_default
     }
 }
 
@@ -238,17 +280,5 @@ impl MainViewModel {
 
             _simple => self.key_handler.handle_key_input(&key_input),
         }
-    }
-}
-
-impl Default for RustMainViewModel {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Default for MainViewModel {
-    fn default() -> Self {
-        Self::new()
     }
 }

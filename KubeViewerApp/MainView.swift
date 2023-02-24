@@ -6,10 +6,6 @@
 
 import SwiftUI
 
-enum FocusArea {
-    case search, sidebar, content
-}
-
 struct MainView: View {
     @StateObject private var model: MainViewModel = .init()
     @StateObject var keyHandlerModel: KeyHandlerModel = .init()
@@ -71,6 +67,9 @@ struct MainView: View {
         }
         .background(WindowAccessor(window: $model.window).background(BlurWindow()))
         .environmentObject(model)
+        .onAppear {
+            self.model.setupListener()
+        }
     }
 }
 

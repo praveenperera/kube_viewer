@@ -22,7 +22,7 @@ struct RustPublished<Value> {
             return object[keyPath: storageKeyPath].innervalue
         }
         set {
-            // current.publisher.send(newValue)
+            object[keyPath: storageKeyPath].publisher.send(newValue)
             (object.objectWillChange as? ObservableObjectPublisher)?.send()
 
             let current = object[keyPath: storageKeyPath]

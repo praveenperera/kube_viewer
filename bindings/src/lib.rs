@@ -4,11 +4,12 @@ mod tab;
 mod tab_group;
 
 uniffi::include_scaffolding!("kube_viewer");
-use crate::main_view_model::RustMainViewModel;
+
+use crate::uniffi_types::*;
 
 mod uniffi_types {
     pub(crate) use crate::key_handler::*;
+    pub(crate) use crate::main_view_model::*;
     pub(crate) use crate::tab::*;
     pub(crate) use crate::tab_group::*;
-    pub(crate) use crate::*;
 }

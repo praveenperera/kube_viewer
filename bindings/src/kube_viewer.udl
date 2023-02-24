@@ -2,4 +2,13 @@ namespace kube_viewer {};
 
 interface RustMainViewModel {
   constructor();
+  void add_update_listener(MainViewModelUpdater listener);
+};
+
+callback interface MainViewModelUpdater {
+  void update(MainViewModelField field);
+};
+
+enum MainViewModelField {
+  "CurrentFocusRegion"
 };
