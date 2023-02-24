@@ -57,7 +57,14 @@ struct MainView: View {
 
                         HStack {
                             Button("Main Cluster") {}
-                        }.padding(.top, 8).padding(.bottom, 15)
+                        }
+                        .overlay {
+                            if model.currentFocusRegion == .clusterSelection {
+                                StandardFocusRing()
+                            }
+                        }
+                        .padding(.vertical, 8)
+                        .padding(.bottom, 7)
                     },
                     detail: { model.tabContentViews[model.selectedTab]! })
             }

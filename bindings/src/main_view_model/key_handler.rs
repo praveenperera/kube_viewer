@@ -1,4 +1,7 @@
-use crate::key_handler::{FocusRegion, KeyAwareEvent};
+use crate::{
+    key_handler::{FocusRegion, KeyAwareEvent},
+    uniffi_types::Tab,
+};
 
 use super::MainViewModel;
 
@@ -40,13 +43,18 @@ impl MainViewModel {
                             id: next_tab_group_id,
                         }
                     }
-                    None => self.key_handler.current_focus_region = FocusRegion::Content,
+                    None => self.key_handler.current_focus_region = FocusRegion::ClusterSelection,
                 }
 
                 true
             }
 
-            (Content, ShiftTab) => {
+            (ClusterSelection, TabKey) => {
+                self.key_handler.current_focus_region = FocusRegion::Content;
+                true
+            }
+
+            (ClusterSelection, ShiftTab) => {
                 if !self.tab_groups.0.is_empty() {
                     let last_index = self.tab_groups.0.len() - 1;
                     self.key_handler.current_focus_region = SidebarGroup {
@@ -55,6 +63,11 @@ impl MainViewModel {
                 } else {
                     self.key_handler.current_focus_region = FocusRegion::SidebarSearch;
                 }
+                true
+            }
+
+            (Content, ShiftTab) => {
+                self.key_handler.current_focus_region = FocusRegion::ClusterSelection;
                 true
             }
 
