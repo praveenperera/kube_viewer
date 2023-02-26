@@ -40,8 +40,12 @@ struct MainView: View {
                                     .padding(.vertical, 10)
                                     .padding(.horizontal, 12)
                                     .overlay {
-                                        if model.currentFocusRegion == .sidebarGroup(id: tabGroup.id) {
-                                            StandardFocusRing()
+                                        switch model.currentFocusRegion {
+                                            case let .sidebarGroup(id: id) where id == tabGroup.id,
+                                                 let .inTabGroup(tabGroupId: id, tabId: _) where id == tabGroup.id:
+                                                StandardFocusRing()
+                                            default:
+                                                Color.clear
                                         }
                                     }
                                 }

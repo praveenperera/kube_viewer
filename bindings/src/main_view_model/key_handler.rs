@@ -71,16 +71,19 @@ impl MainViewModel {
                 true
             }
 
+            // content --> siebar search
             (Content, TabKey) => {
                 self.key_handler.current_focus_region = FocusRegion::SidebarSearch;
                 true
             }
 
+            // escape out of focused
             (SidebarGroup { .. } | SidebarSearch, Escape) => {
                 self.key_handler.current_focus_region = FocusRegion::Content;
                 true
             }
 
+            // start into sidebar group
             (SidebarGroup { id }, DownArrow) => {
                 if let Some((tab_group_id, tab_id)) = self
                     .tab_groups
@@ -98,11 +101,13 @@ impl MainViewModel {
                     self.selected_tab = tab_id;
                     Updater::send(MainViewModelField::SelectedTab);
 
-                    true
-                } else {
-                    false
+                    return true;
                 }
+
+                false
             }
+
+            // next down in sidebar group
 
             // currently unhandled or ignored
             _ => false,
