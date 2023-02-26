@@ -1,6 +1,9 @@
+use tab::{BorrowedTabs, TabId, Tabs};
+
 use crate::{
     key_handler::{FocusRegion, KeyAwareEvent},
     main_view_model::{MainViewModelField, Updater},
+    tab,
 };
 
 use super::MainViewModel;
@@ -49,6 +52,32 @@ impl MainViewModel {
                 true
             }
 
+            (InTabGroup { tab_group_id, .. }, ShiftTab) => {
+                match self.tab_groups.previous_tab_group_id(tab_group_id) {
+                    Some(previous_tab_group_id) => {
+                        self.key_handler.current_focus_region = SidebarGroup {
+                            id: previous_tab_group_id,
+                        };
+                    }
+                    None => self.key_handler.current_focus_region = FocusRegion::SidebarSearch,
+                }
+
+                true
+            }
+
+            (InTabGroup { tab_group_id, .. }, TabKey) => {
+                match self.tab_groups.next_tab_group_id(tab_group_id) {
+                    Some(next_tab_group_id) => {
+                        self.key_handler.current_focus_region = SidebarGroup {
+                            id: next_tab_group_id,
+                        }
+                    }
+                    None => self.key_handler.current_focus_region = FocusRegion::ClusterSelection,
+                }
+
+                true
+            }
+
             (ClusterSelection, TabKey) => {
                 self.key_handler.current_focus_region = FocusRegion::Content;
                 true
@@ -85,20 +114,18 @@ impl MainViewModel {
 
             // start into sidebar group
             (SidebarGroup { id }, DownArrow) => {
-                if let Some((tab_group_id, tab_id)) = self
+                if let Some(tab) = self
                     .tab_groups
-                    .0
-                    .iter()
-                    .find(|tab_group| &tab_group.id == id)
-                    .map(|tab_group| (tab_group.id.clone(), tab_group.tabs.first()))
-                    .and_then(|(tab_group_id, tab)| tab.map(|tab| (tab_group_id, tab.id.clone())))
+                    .get_by_id(id)
+                    .and_then(|tab_group| tab_group.tabs.first())
                 {
                     self.key_handler.current_focus_region = FocusRegion::InTabGroup {
-                        tab_group_id,
-                        tab_id: tab_id.clone(),
+                        tab_group_id: id.clone(),
+                        tab_id: tab.id.clone(),
                     };
 
-                    self.selected_tab = tab_id;
+                    self.selected_tab = tab.id.clone();
+
                     Updater::send(MainViewModelField::SelectedTab);
 
                     return true;
@@ -108,6 +135,78 @@ impl MainViewModel {
             }
 
             // next down in sidebar group
+            (
+                InTabGroup {
+                    tab_group_id,
+                    tab_id,
+                },
+                DownArrow,
+            ) => {
+                let next_tab_id: Option<TabId> = (|| {
+                    let tab_group = self.tab_groups.get_by_id(tab_group_id)?.clone();
+                    let next_tab_id = BorrowedTabs::from(&tab_group.tabs).next_tab_id(tab_id);
+
+                    let next_tab_id = if let Some(next_tab_id) = next_tab_id {
+                        self.selected_tab = next_tab_id.clone();
+                        next_tab_id
+                    } else {
+                        let first_tab_id = tab_group.tabs.first()?.id.clone();
+                        self.selected_tab = first_tab_id.clone();
+                        first_tab_id
+                    };
+
+                    Some(next_tab_id)
+                })();
+
+                if let Some(next_tab_id) = next_tab_id {
+                    self.key_handler.current_focus_region = FocusRegion::InTabGroup {
+                        tab_group_id: tab_group_id.clone(),
+                        tab_id: next_tab_id,
+                    };
+
+                    Updater::send(MainViewModelField::SelectedTab);
+                }
+
+                false
+            }
+
+            // next up in sidebar group
+            (
+                InTabGroup {
+                    tab_group_id,
+                    tab_id,
+                },
+                UpArrow,
+            ) => {
+                let previous_tab_id: Option<TabId> = (|| {
+                    let tab_group = self.tab_groups.get_by_id(tab_group_id)?.clone();
+                    let previous_tab_id =
+                        BorrowedTabs::from(&tab_group.tabs).previous_tab_id(tab_id);
+
+                    let previous_tab_id = if let Some(previous_tab_id) = previous_tab_id {
+                        self.selected_tab = previous_tab_id.clone();
+                        previous_tab_id
+                    } else {
+                        let last_tab_id = tab_group.tabs.last()?.id.clone();
+                        self.selected_tab = last_tab_id.clone();
+                        last_tab_id
+                    };
+
+                    Some(previous_tab_id)
+                })();
+
+                if let Some(previous_tab_id) = previous_tab_id {
+                    self.key_handler.current_focus_region = FocusRegion::InTabGroup {
+                        tab_group_id: tab_group_id.clone(),
+                        tab_id: previous_tab_id,
+                    };
+
+                    Updater::send(MainViewModelField::CurrentFocusRegion);
+                    Updater::send(MainViewModelField::SelectedTab);
+                }
+
+                false
+            }
 
             // currently unhandled or ignored
             _ => false,

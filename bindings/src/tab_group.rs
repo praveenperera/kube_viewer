@@ -66,7 +66,11 @@ impl TabGroups {
         Some(self.0[previous_tab_index].id.clone())
     }
 
-    fn get_index_by_id(&self, id: &TabGroupId) -> Option<usize> {
+    pub fn get_by_id(&self, id: &TabGroupId) -> Option<&TabGroup> {
+        self.0.iter().find(|tab_group| &tab_group.id == id)
+    }
+
+    pub fn get_index_by_id(&self, id: &TabGroupId) -> Option<usize> {
         self.0.iter().position(|tab_group| &tab_group.id == id)
     }
 }

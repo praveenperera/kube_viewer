@@ -101,3 +101,57 @@ impl Tab {
         }
     }
 }
+
+#[derive(Debug, Clone, Eq, Hash, PartialEq)]
+pub struct Tabs(Vec<Tab>);
+
+#[derive(Debug, Clone, Eq, Hash, PartialEq)]
+pub struct BorrowedTabs<'a>(&'a Vec<Tab>);
+
+impl<'a> BorrowedTabs<'a> {
+    pub fn next_tab_id(&self, id: &TabId) -> Option<TabId> {
+        let current_index = self.get_index_by_id(id).unwrap_or(0);
+        if current_index == (self.0.len() - 1) {
+            return None;
+        };
+
+        let next_index = current_index + 1;
+        Some(self.0[next_index].id.clone())
+    }
+
+    pub fn previous_tab_id(&self, id: &TabId) -> Option<TabId> {
+        let current_index = self.get_index_by_id(id).unwrap_or(0);
+        if current_index == 0 {
+            return None;
+        }
+
+        let previous_tab_index = current_index - 1;
+        Some(self.0[previous_tab_index].id.clone())
+    }
+
+    pub fn get_by_id(&self, id: &TabId) -> Option<&Tab> {
+        self.0.iter().find(|tab| &tab.id == id)
+    }
+
+    pub fn get_index_by_id(&self, id: &TabId) -> Option<usize> {
+        self.0.iter().position(|tab| &tab.id == id)
+    }
+}
+
+impl From<Vec<Tab>> for Tabs {
+    fn from(value: Vec<Tab>) -> Self {
+        Tabs(value)
+    }
+}
+
+impl<'a> From<&'a Vec<Tab>> for BorrowedTabs<'a> {
+    fn from(value: &'a Vec<Tab>) -> Self {
+        BorrowedTabs(value)
+    }
+}
+
+impl<'a> From<&'a Tabs> for BorrowedTabs<'a> {
+    fn from(value: &'a Tabs) -> Self {
+        BorrowedTabs(&value.0)
+    }
+}
