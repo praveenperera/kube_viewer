@@ -4,6 +4,8 @@ use crate::{
     key_handler::{FocusRegion, KeyAwareEvent},
     main_view_model::{MainViewModelField, Updater},
     tab,
+    tab_group::TabGroups,
+    TabGroupId,
 };
 
 use super::MainViewModel;
@@ -27,53 +29,28 @@ impl MainViewModel {
             }
 
             (SidebarGroup { id }, ShiftTab) => {
-                match self.tab_groups.previous_tab_group_id(id) {
-                    Some(previous_tab_group_id) => {
-                        self.key_handler.current_focus_region = SidebarGroup {
-                            id: previous_tab_group_id,
-                        };
-                    }
-                    None => self.key_handler.current_focus_region = FocusRegion::SidebarSearch,
-                }
+                self.key_handler.current_focus_region =
+                    get_previous_tab_group_focus(&self.tab_groups, id);
 
                 true
             }
 
             (SidebarGroup { id }, TabKey) => {
-                match self.tab_groups.next_tab_group_id(id) {
-                    Some(next_tab_group_id) => {
-                        self.key_handler.current_focus_region = SidebarGroup {
-                            id: next_tab_group_id,
-                        }
-                    }
-                    None => self.key_handler.current_focus_region = FocusRegion::ClusterSelection,
-                }
-
+                self.key_handler.current_focus_region =
+                    get_next_tab_group_focus(&self.tab_groups, id);
                 true
             }
 
             (InTabGroup { tab_group_id, .. }, ShiftTab) => {
-                match self.tab_groups.previous_tab_group_id(tab_group_id) {
-                    Some(previous_tab_group_id) => {
-                        self.key_handler.current_focus_region = SidebarGroup {
-                            id: previous_tab_group_id,
-                        };
-                    }
-                    None => self.key_handler.current_focus_region = FocusRegion::SidebarSearch,
-                }
+                self.key_handler.current_focus_region =
+                    get_previous_tab_group_focus(&self.tab_groups, tab_group_id);
 
                 true
             }
 
             (InTabGroup { tab_group_id, .. }, TabKey) => {
-                match self.tab_groups.next_tab_group_id(tab_group_id) {
-                    Some(next_tab_group_id) => {
-                        self.key_handler.current_focus_region = SidebarGroup {
-                            id: next_tab_group_id,
-                        }
-                    }
-                    None => self.key_handler.current_focus_region = FocusRegion::ClusterSelection,
-                }
+                self.key_handler.current_focus_region =
+                    get_next_tab_group_focus(&self.tab_groups, tab_group_id);
 
                 true
             }
@@ -211,5 +188,23 @@ impl MainViewModel {
             // currently unhandled or ignored
             _ => false,
         }
+    }
+}
+
+fn get_next_tab_group_focus(tab_groups: &TabGroups, tab_group_id: &TabGroupId) -> FocusRegion {
+    match tab_groups.next_tab_group_id(tab_group_id) {
+        Some(next_tab_group_id) => FocusRegion::SidebarGroup {
+            id: next_tab_group_id,
+        },
+        None => FocusRegion::ClusterSelection,
+    }
+}
+
+fn get_previous_tab_group_focus(tab_groups: &TabGroups, tab_group_id: &TabGroupId) -> FocusRegion {
+    match tab_groups.previous_tab_group_id(tab_group_id) {
+        Some(previous_tab_group_id) => FocusRegion::SidebarGroup {
+            id: previous_tab_group_id,
+        },
+        None => FocusRegion::SidebarSearch,
     }
 }
