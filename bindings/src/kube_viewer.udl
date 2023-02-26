@@ -10,5 +10,6 @@ callback interface MainViewModelUpdater {
 };
 
 enum MainViewModelField {
-  "CurrentFocusRegion"
+  "CurrentFocusRegion",
+  "SelectedTab"
 };

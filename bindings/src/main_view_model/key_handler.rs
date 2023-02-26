@@ -1,6 +1,6 @@
 use crate::{
     key_handler::{FocusRegion, KeyAwareEvent},
-    uniffi_types::Tab,
+    main_view_model::{MainViewModelField, Updater},
 };
 
 use super::MainViewModel;
@@ -79,6 +79,29 @@ impl MainViewModel {
             (SidebarGroup { .. } | SidebarSearch, Escape) => {
                 self.key_handler.current_focus_region = FocusRegion::Content;
                 true
+            }
+
+            (SidebarGroup { id }, DownArrow) => {
+                if let Some((tab_group_id, tab_id)) = self
+                    .tab_groups
+                    .0
+                    .iter()
+                    .find(|tab_group| &tab_group.id == id)
+                    .map(|tab_group| (tab_group.id.clone(), tab_group.tabs.first()))
+                    .and_then(|(tab_group_id, tab)| tab.map(|tab| (tab_group_id, tab.id.clone())))
+                {
+                    self.key_handler.current_focus_region = FocusRegion::InTabGroup {
+                        tab_group_id,
+                        tab_id: tab_id.clone(),
+                    };
+
+                    self.selected_tab = tab_id;
+                    Updater::send(MainViewModelField::SelectedTab);
+
+                    true
+                } else {
+                    false
+                }
             }
 
             // currently unhandled or ignored

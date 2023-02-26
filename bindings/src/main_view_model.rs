@@ -30,6 +30,7 @@ use crate::{
 #[derive(Debug, Clone, uniffi::Enum)]
 pub enum MainViewModelField {
     CurrentFocusRegion,
+    SelectedTab,
 }
 
 pub trait MainViewModelUpdater: Send + Sync {

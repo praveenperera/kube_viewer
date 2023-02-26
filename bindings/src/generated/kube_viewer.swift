@@ -19,13 +19,13 @@ fileprivate extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_kube_viewer_99a2_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_kube_viewer_6d37_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_kube_viewer_99a2_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_kube_viewer_6d37_rustbuffer_free(self, $0) }
     }
 }
 
@@ -370,12 +370,12 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_99a2_RustMainViewModel_new($0)
+    kube_viewer_6d37_RustMainViewModel_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_99a2_RustMainViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_6d37_RustMainViewModel_object_free(pointer, $0) }
     }
 
     
@@ -385,7 +385,7 @@ public class RustMainViewModel: RustMainViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_99a2_RustMainViewModel_add_update_listener(self.pointer, 
+    kube_viewer_6d37_RustMainViewModel_add_update_listener(self.pointer, 
         FfiConverterCallbackInterfaceMainViewModelUpdater.lower(`listener`), $0
     )
 }
@@ -665,6 +665,7 @@ public enum FocusRegion {
     
     case `sidebarSearch`
     case `sidebarGroup`(`id`: TabGroupId)
+    case `inTabGroup`(`tabGroupId`: TabGroupId, `tabId`: TabId)
     case `clusterSelection`
     case `content`
 }
@@ -682,9 +683,14 @@ public struct FfiConverterTypeFocusRegion: FfiConverterRustBuffer {
             `id`: try FfiConverterTypeTabGroupId.read(from: &buf)
         )
         
-        case 3: return .`clusterSelection`
+        case 3: return .`inTabGroup`(
+            `tabGroupId`: try FfiConverterTypeTabGroupId.read(from: &buf), 
+            `tabId`: try FfiConverterTypeTabId.read(from: &buf)
+        )
         
-        case 4: return .`content`
+        case 4: return .`clusterSelection`
+        
+        case 5: return .`content`
         
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -703,12 +709,18 @@ public struct FfiConverterTypeFocusRegion: FfiConverterRustBuffer {
             FfiConverterTypeTabGroupId.write(`id`, into: &buf)
             
         
-        case .`clusterSelection`:
+        case let .`inTabGroup`(`tabGroupId`,`tabId`):
             writeInt(&buf, Int32(3))
+            FfiConverterTypeTabGroupId.write(`tabGroupId`, into: &buf)
+            FfiConverterTypeTabId.write(`tabId`, into: &buf)
+            
+        
+        case .`clusterSelection`:
+            writeInt(&buf, Int32(4))
         
         
         case .`content`:
-            writeInt(&buf, Int32(4))
+            writeInt(&buf, Int32(5))
         
         }
     }
@@ -839,6 +851,7 @@ extension KeyAwareEvent: Equatable, Hashable {}
 public enum MainViewModelField {
     
     case `currentFocusRegion`
+    case `selectedTab`
 }
 
 public struct FfiConverterTypeMainViewModelField: FfiConverterRustBuffer {
@@ -850,6 +863,8 @@ public struct FfiConverterTypeMainViewModelField: FfiConverterRustBuffer {
         
         case 1: return .`currentFocusRegion`
         
+        case 2: return .`selectedTab`
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
@@ -860,6 +875,10 @@ public struct FfiConverterTypeMainViewModelField: FfiConverterRustBuffer {
         
         case .`currentFocusRegion`:
             writeInt(&buf, Int32(1))
+        
+        
+        case .`selectedTab`:
+            writeInt(&buf, Int32(2))
         
         }
     }
@@ -1386,7 +1405,7 @@ fileprivate struct FfiConverterCallbackInterfaceMainViewModelUpdater {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_99a2_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
+                ffi_kube_viewer_6d37_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
         }
     }
     private static func ensureCallbackinitialized() {

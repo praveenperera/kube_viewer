@@ -1,11 +1,17 @@
 use uniffi::Enum;
 
-use crate::tab_group::TabGroupId;
+use crate::{tab::TabId, tab_group::TabGroupId};
 
 #[derive(Debug, Clone, Enum)]
 pub enum FocusRegion {
     SidebarSearch,
-    SidebarGroup { id: TabGroupId },
+    SidebarGroup {
+        id: TabGroupId,
+    },
+    InTabGroup {
+        tab_group_id: TabGroupId,
+        tab_id: TabId,
+    },
     ClusterSelection,
     Content,
 }

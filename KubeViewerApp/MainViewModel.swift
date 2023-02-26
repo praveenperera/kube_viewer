@@ -62,6 +62,8 @@ class MainViewModel: ObservableObject {
                 switch field {
                 case .currentFocusRegion:
                     self.currentFocusRegion = self.data.currentFocusRegion()
+                case .selectedTab:
+                    self.selectedTab = self.data.selectedTab()
                 }
             }
         }
