@@ -14,83 +14,80 @@ struct MainView: View {
 
     var body: some View {
         NavigationStack {
-            GeometryReader { _ in
-                NavigationSplitView(
-                    sidebar: {
-                        VStack {
-                            ScrollViewReader { proxy in
-                                ScrollView {
-                                    SearchBar(text: $search)
-                                        .padding(.top, 15)
-                                        .padding(.vertical, 10)
-                                        .padding(.horizontal, 12)
-
-                                    ForEach(model.data.tabGroupsFiltered(search: search)) { tabGroup in
-                                        DisclosureGroup(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
-                                            VStack {
-                                                ForEach(tabGroup.tabs) { tab in
-                                                    SidebarButton(tab: tab, selectedTab: $model.selectedTab)
-                                                        .id(.inTabGroup(tabGroupId: tabGroup.id, tabId: tab.id))
-                                                }
-                                            }
-                                            .padding(.leading, 5)
-                                        } label: {
-                                            SidebarTitle(name: tabGroup.name)
-                                        }
-                                        .disclosureGroupStyle(SidebarDisclosureGroupStyle())
-                                        .padding(.vertical, 10)
-                                        .padding(.horizontal, 12)
-                                        .overlay {
-                                            switch model.currentFocusRegion {
-                                                case let .sidebarGroup(id: id) where id == tabGroup.id,
-                                                     let .inTabGroup(tabGroupId: id, tabId: _) where id == tabGroup.id:
-                                                    StandardFocusRing()
-                                                default:
-                                                    Color.clear
-                                            }
-                                        }
-
-                                        .id(.sidebarGroup(id: tabGroup.id))
-                                        .onReceive(model.$currentFocusRegion, perform: { currentFocusRegion in
-                                            withAnimation(.easeIn) {
-                                                switch currentFocusRegion {
-                                                    case .sidebarGroup(_),
-                                                         .inTabGroup(_):
-                                                        proxy.scrollTo(currentFocusRegion)
-                                                    default:
-                                                        ()
-                                                }
-                                            }
-                                        })
-                                    }
-
-                                    Spacer()
-                                }
-                                .navigationTitle(model.tabsMap[model.selectedTab]?.name ?? "Unknown tab")
-                                .padding(.top, 5)
-                                .padding(.horizontal, 8)
-                            }
-                        }
-
-                        Divider()
-
-                        HStack {
-                            Button("Main Cluster") {}
-                        }
-                        .overlay {
-                            if model.currentFocusRegion == .clusterSelection {
-                                StandardFocusRing()
-                            }
-                        }
-                        .padding(.vertical, 8)
-                        .padding(.bottom, 7)
-                    },
-                    detail: { model.tabContentViews[model.selectedTab]! })
-            }
+            NavigationSplitView(
+                sidebar: { Sidebar },
+                detail: { model.tabContentViews[model.selectedTab]! })
         }
         .background(KeyAwareView(onEvent: model.data.handleKeyInput))
         .background(WindowAccessor(window: $model.window).background(BlurWindow()))
         .environmentObject(model)
+    }
+
+    @ViewBuilder
+    var Sidebar: some View {
+        VStack {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    SearchBar(text: $search)
+                        .padding(.top, 15)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .id(FocusRegion.sidebarSearch)
+
+                    ForEach(model.data.tabGroupsFiltered(search: search)) { tabGroup in
+                        DisclosureGroup(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
+                            VStack {
+                                ForEach(tabGroup.tabs) { tab in
+                                    SidebarButton(tab: tab, selectedTab: $model.selectedTab)
+                                        .id(FocusRegion.inTabGroup(tabGroupId: tabGroup.id, tabId: tab.id))
+                                }
+                            }
+                            .padding(.leading, 5)
+                        } label: {
+                            SidebarTitle(name: tabGroup.name)
+                        }
+                        .disclosureGroupStyle(SidebarDisclosureGroupStyle())
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .overlay {
+                            switch model.currentFocusRegion {
+                            case let .sidebarGroup(id: id) where id == tabGroup.id,
+                                 let .inTabGroup(tabGroupId: id, tabId: _) where id == tabGroup.id:
+                                StandardFocusRing()
+                            default:
+                                Color.clear
+                            }
+                        }
+                        .id(FocusRegion.sidebarGroup(id: tabGroup.id))
+                        .onReceive(model.$currentFocusRegion, perform: { currentFocusRegion in
+                            proxy.scrollTo(currentFocusRegion)
+                        })
+                    }
+
+                    Spacer()
+                }
+                .navigationTitle(model.tabsMap[model.selectedTab]?.name ?? "Unknown tab")
+                .padding(.top, 5)
+                .padding(.horizontal, 8)
+            }
+        }
+
+        Divider()
+
+        ClusterSelection
+    }
+
+    var ClusterSelection: some View {
+        HStack {
+            Button("Main Cluster") {}
+        }
+        .overlay {
+            if model.currentFocusRegion == .clusterSelection {
+                StandardFocusRing()
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.bottom, 7)
     }
 }
 
