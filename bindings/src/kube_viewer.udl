@@ -1,7 +1,7 @@
 namespace kube_viewer {};
 
 interface RustMainViewModel {
-  constructor();
+  constructor(string window_id);
   void add_update_listener(MainViewModelUpdater listener);
 };
 

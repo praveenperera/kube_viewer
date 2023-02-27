@@ -19,13 +19,13 @@ fileprivate extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_kube_viewer_6d37_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_kube_viewer_5557_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_kube_viewer_6d37_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_kube_viewer_5557_rustbuffer_free(self, $0) }
     }
 }
 
@@ -365,17 +365,18 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
         self.pointer = pointer
     }
-    public convenience init()  {
+    public convenience init(`windowId`: String)  {
         self.init(unsafeFromRawPointer: try!
     
     rustCall() {
     
-    kube_viewer_6d37_RustMainViewModel_new($0)
+    kube_viewer_5557_RustMainViewModel_new(
+        FfiConverterString.lower(`windowId`), $0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_6d37_RustMainViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_5557_RustMainViewModel_object_free(pointer, $0) }
     }
 
     
@@ -385,7 +386,7 @@ public class RustMainViewModel: RustMainViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_6d37_RustMainViewModel_add_update_listener(self.pointer, 
+    kube_viewer_5557_RustMainViewModel_add_update_listener(self.pointer, 
         FfiConverterCallbackInterfaceMainViewModelUpdater.lower(`listener`), $0
     )
 }
@@ -1405,7 +1406,7 @@ fileprivate struct FfiConverterCallbackInterfaceMainViewModelUpdater {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_6d37_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
+                ffi_kube_viewer_5557_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
         }
     }
     private static func ensureCallbackinitialized() {

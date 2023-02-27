@@ -1,4 +1,4 @@
-use tab::{BorrowedTabs, TabId, Tabs};
+use tab::{BorrowedTabs, TabId};
 
 use crate::{
     key_handler::{FocusRegion, KeyAwareEvent},
@@ -103,7 +103,7 @@ impl MainViewModel {
 
                     self.selected_tab = tab.id.clone();
 
-                    Updater::send(MainViewModelField::SelectedTab);
+                    Updater::send(&self.window_id, MainViewModelField::SelectedTab);
 
                     return true;
                 }
@@ -141,7 +141,7 @@ impl MainViewModel {
                         tab_id: next_tab_id,
                     };
 
-                    Updater::send(MainViewModelField::SelectedTab);
+                    Updater::send(&self.window_id, MainViewModelField::SelectedTab);
                 }
 
                 false
@@ -178,8 +178,7 @@ impl MainViewModel {
                         tab_id: previous_tab_id,
                     };
 
-                    Updater::send(MainViewModelField::CurrentFocusRegion);
-                    Updater::send(MainViewModelField::SelectedTab);
+                    Updater::send(&self.window_id, MainViewModelField::SelectedTab);
                 }
 
                 false
