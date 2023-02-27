@@ -5,6 +5,10 @@ interface RustMainViewModel {
   void add_update_listener(MainViewModelUpdater listener);
 };
 
+interface FocusRegionHasher {
+  constructor();
+};
+
 callback interface MainViewModelUpdater {
   void update(MainViewModelField field);
 };

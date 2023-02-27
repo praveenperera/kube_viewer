@@ -93,3 +93,10 @@ struct Previews_MainViewModel_Previews: PreviewProvider {
 
 extension Tab: Identifiable {}
 extension TabGroup: Identifiable {}
+public extension FocusRegion {
+    func hash(into hasher: inout Hasher) {
+        let h = FocusRegionHasher()
+        let hash = h.hash(value: self)
+        hasher.combine(hash)
+    }
+}

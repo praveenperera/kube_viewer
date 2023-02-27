@@ -19,13 +19,13 @@ fileprivate extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_kube_viewer_5557_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_kube_viewer_22be_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_kube_viewer_5557_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_kube_viewer_22be_rustbuffer_free(self, $0) }
     }
 }
 
@@ -280,6 +280,19 @@ private func makeRustCall<T>(_ callback: (UnsafeMutablePointer<RustCallStatus>) 
 // Public interface members begin here.
 
 
+fileprivate struct FfiConverterUInt64: FfiConverterPrimitive {
+    typealias FfiType = UInt64
+    typealias SwiftType = UInt64
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> UInt64 {
+        return try lift(readInt(&buf))
+    }
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
 fileprivate struct FfiConverterBool : FfiConverter {
     typealias FfiType = Int8
     typealias SwiftType = Bool
@@ -340,6 +353,82 @@ fileprivate struct FfiConverterString: FfiConverter {
 }
 
 
+public protocol FocusRegionHasherProtocol {
+    func `hash`(`value`: FocusRegion)  -> UInt64
+    
+}
+
+public class FocusRegionHasher: FocusRegionHasherProtocol {
+    fileprivate let pointer: UnsafeMutableRawPointer
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `FfiConverter` without making this `required` and we can't
+    // make it `required` without making it `public`.
+    required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
+        self.pointer = pointer
+    }
+    public convenience init()  {
+        self.init(unsafeFromRawPointer: try!
+    
+    rustCall() {
+    
+    kube_viewer_22be_FocusRegionHasher_new($0)
+})
+    }
+
+    deinit {
+        try! rustCall { ffi_kube_viewer_22be_FocusRegionHasher_object_free(pointer, $0) }
+    }
+
+    
+
+    
+    public func `hash`(`value`: FocusRegion)  -> UInt64 {
+        return try! FfiConverterUInt64.lift(
+            try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_FocusRegionHasher_hash_32a5(self.pointer, 
+        FfiConverterTypeFocusRegion.lower(`value`), $0
+    )
+}
+        )
+    }
+    
+}
+
+
+public struct FfiConverterTypeFocusRegionHasher: FfiConverter {
+    typealias FfiType = UnsafeMutableRawPointer
+    typealias SwiftType = FocusRegionHasher
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FocusRegionHasher {
+        let v: UInt64 = try readInt(&buf)
+        // The Rust code won't compile if a pointer won't fit in a UInt64.
+        // We have to go via `UInt` because that's the thing that's the size of a pointer.
+        let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
+        if (ptr == nil) {
+            throw UniffiInternalError.unexpectedNullPointer
+        }
+        return try lift(ptr!)
+    }
+
+    public static func write(_ value: FocusRegionHasher, into buf: inout [UInt8]) {
+        // This fiddling is because `Int` is the thing that's the same size as a pointer.
+        // The Rust code won't compile if a pointer won't fit in a `UInt64`.
+        writeInt(&buf, UInt64(bitPattern: Int64(Int(bitPattern: lower(value)))))
+    }
+
+    public static func lift(_ pointer: UnsafeMutableRawPointer) throws -> FocusRegionHasher {
+        return FocusRegionHasher(unsafeFromRawPointer: pointer)
+    }
+
+    public static func lower(_ value: FocusRegionHasher) -> UnsafeMutableRawPointer {
+        return value.pointer
+    }
+}
+
+
 public protocol RustMainViewModelProtocol {
     func `addUpdateListener`(`listener`: MainViewModelUpdater) 
     func `currentFocusRegion`()  -> FocusRegion
@@ -370,13 +459,13 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_5557_RustMainViewModel_new(
+    kube_viewer_22be_RustMainViewModel_new(
         FfiConverterString.lower(`windowId`), $0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_5557_RustMainViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_22be_RustMainViewModel_object_free(pointer, $0) }
     }
 
     
@@ -386,7 +475,7 @@ public class RustMainViewModel: RustMainViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_5557_RustMainViewModel_add_update_listener(self.pointer, 
+    kube_viewer_22be_RustMainViewModel_add_update_listener(self.pointer, 
         FfiConverterCallbackInterfaceMainViewModelUpdater.lower(`listener`), $0
     )
 }
@@ -1406,7 +1495,7 @@ fileprivate struct FfiConverterCallbackInterfaceMainViewModelUpdater {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_5557_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
+                ffi_kube_viewer_22be_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
         }
     }
     private static func ensureCallbackinitialized() {

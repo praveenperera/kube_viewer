@@ -7,11 +7,6 @@
 import SwiftUI
 
 struct MainView: View {
-    struct ScrollId: Hashable, Equatable {
-        var tabGroupId: TabGroupId
-        var tabId: TabId? = nil
-    }
-
     @StateObject private var model: MainViewModel = .init()
     @State private var hoverRow: UUID?
     @State private var expanded: Bool = true
@@ -35,7 +30,7 @@ struct MainView: View {
                                             VStack {
                                                 ForEach(tabGroup.tabs) { tab in
                                                     SidebarButton(tab: tab, selectedTab: $model.selectedTab)
-                                                        .id(ScrollId(tabGroupId: tabGroup.id, tabId: tab.id))
+                                                        .id(.inTabGroup(tabGroupId: tabGroup.id, tabId: tab.id))
                                                 }
                                             }
                                             .padding(.leading, 5)
@@ -54,14 +49,14 @@ struct MainView: View {
                                                     Color.clear
                                             }
                                         }
-                                        .id(ScrollId(tabGroupId: tabGroup.id))
+
+                                        .id(.sidebarGroup(id: tabGroup.id))
                                         .onReceive(model.$currentFocusRegion, perform: { currentFocusRegion in
                                             withAnimation(.easeIn) {
                                                 switch currentFocusRegion {
-                                                    case let .sidebarGroup(id: tabGroupId):
-                                                        proxy.scrollTo(ScrollId(tabGroupId: tabGroupId))
-                                                    case let .inTabGroup(tabGroupId: tabGroupId, tabId: tabId):
-                                                        proxy.scrollTo(ScrollId(tabGroupId: tabGroupId, tabId: tabId))
+                                                    case .sidebarGroup(_),
+                                                         .inTabGroup(_):
+                                                        proxy.scrollTo(currentFocusRegion)
                                                     default:
                                                         ()
                                                 }

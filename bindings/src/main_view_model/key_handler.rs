@@ -111,6 +111,28 @@ impl MainViewModel {
                 false
             }
 
+            // start into bottom of sidebar group
+            (SidebarGroup { id }, UpArrow) => {
+                if let Some(tab) = self
+                    .tab_groups
+                    .get_by_id(id)
+                    .and_then(|tab_group| tab_group.tabs.last())
+                {
+                    self.key_handler.current_focus_region = FocusRegion::InTabGroup {
+                        tab_group_id: id.clone(),
+                        tab_id: tab.id.clone(),
+                    };
+
+                    self.selected_tab = tab.id.clone();
+
+                    Updater::send(&self.window_id, MainViewModelField::SelectedTab);
+
+                    return true;
+                }
+
+                false
+            }
+
             // next down in sidebar group
             (
                 InTabGroup {

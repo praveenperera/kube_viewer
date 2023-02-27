@@ -1,3 +1,5 @@
+pub mod generic_hasher;
+
 mod key_handler;
 mod main_view_model;
 mod tab;

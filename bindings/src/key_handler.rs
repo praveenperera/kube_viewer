@@ -1,8 +1,8 @@
 use uniffi::Enum;
 
-use crate::{tab::TabId, tab_group::TabGroupId};
+use crate::{generic_hasher::GenericHasher, tab::TabId, tab_group::TabGroupId};
 
-#[derive(Debug, Clone, Enum)]
+#[derive(Debug, Clone, Enum, Hash)]
 pub enum FocusRegion {
     SidebarSearch,
     SidebarGroup {
@@ -50,5 +50,20 @@ impl KeyHandler {
 
     pub fn set_current_focus_region(&mut self, focus_region: FocusRegion) {
         self.current_focus_region = focus_region
+    }
+}
+
+pub struct FocusRegionHasher(GenericHasher<FocusRegion>);
+
+impl FocusRegionHasher {
+    pub fn new() -> Self {
+        Self(GenericHasher::new())
+    }
+}
+
+#[uniffi::export]
+impl FocusRegionHasher {
+    fn hash(&self, value: FocusRegion) -> u64 {
+        self.0.hash(value)
     }
 }
