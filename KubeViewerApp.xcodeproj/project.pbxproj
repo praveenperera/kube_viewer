@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		AC1651B829874DB000CBC220 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1651B729874DB000CBC220 /* Theme.swift */; };
 		AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D66299B325000429CDB /* RustPublished.swift */; };
-		AC3F4D69299C778600429CDB /* xc-universal-binary.sh in Resources */ = {isa = PBXBuildFile; fileRef = ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */; };
 		AC3F4D6B299C789100429CDB /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6A299C789100429CDB /* kube_viewer.udl */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
 		AC65E77529A7DCC200F3A7CE /* KeyAware.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC65E77429A7DCC200F3A7CE /* KeyAware.swift */; };
@@ -308,7 +307,6 @@
 			files = (
 				DADF4C85295E6DBB006CA792 /* Preview Assets.xcassets in Resources */,
 				DADF4C82295E6DBB006CA792 /* Assets.xcassets in Resources */,
-				AC3F4D69299C778600429CDB /* xc-universal-binary.sh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
