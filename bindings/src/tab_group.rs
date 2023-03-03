@@ -1,6 +1,6 @@
 use uniffi::{Enum, Record};
 
-use crate::tab::Tab;
+use crate::tab::{Tab, TabId};
 
 #[derive(Enum, Debug, Clone, Eq, Hash, PartialEq)]
 pub enum TabGroupId {
@@ -72,5 +72,11 @@ impl TabGroups {
 
     pub fn get_index_by_id(&self, id: &TabGroupId) -> Option<usize> {
         self.0.iter().position(|tab_group| &tab_group.id == id)
+    }
+
+    pub fn get_by_tab_id(&self, tab_id: &TabId) -> Option<&TabGroup> {
+        self.0
+            .iter()
+            .find(|tab_group| tab_group.tabs.iter().any(|tab| &tab.id == tab_id))
     }
 }

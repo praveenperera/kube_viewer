@@ -5,6 +5,12 @@ use derive_more::{AsRef, Display, From, FromStr};
 use once_cell::sync::OnceCell;
 use std::{collections::HashMap, sync::RwLock};
 
+use crate::{
+    key_handler::{FocusRegion, KeyAwareEvent, KeyHandler},
+    tab::{Tab, TabId},
+    tab_group::{TabGroup, TabGroupId, TabGroups},
+};
+
 #[derive(Debug, Clone, AsRef, From, FromStr, Display, Hash, PartialEq, Eq)]
 pub struct WindowId(String);
 
@@ -27,16 +33,11 @@ impl Updater {
     }
 }
 
-use crate::{
-    key_handler::{FocusRegion, KeyAwareEvent, KeyHandler},
-    tab::{Tab, TabId},
-    tab_group::{TabGroup, TabGroupId, TabGroups},
-};
-
 #[derive(Debug, Clone, uniffi::Enum)]
 pub enum MainViewModelField {
     CurrentFocusRegion,
     SelectedTab,
+    TabGroupExpansions,
 }
 
 pub trait MainViewModelUpdater: Send + Sync {
@@ -271,6 +272,22 @@ impl MainViewModel {
     }
 
     pub fn select_tab(&mut self, selected_tab: TabId) {
-        self.selected_tab = selected_tab
+        self.selected_tab = selected_tab;
+        self.expand_selected_tabs_tab_group();
+    }
+
+    pub fn expand_selected_tabs_tab_group(&mut self) -> Option<()> {
+        let tab_group_id = self
+            .tab_groups
+            .get_by_tab_id(&self.selected_tab)?
+            .id
+            .clone();
+
+        if let Some(expanded @ false) = self.tab_group_expansions.get_mut(&tab_group_id) {
+            Updater::send(&self.window_id, MainViewModelField::TabGroupExpansions);
+            *expanded = true
+        }
+
+        Some(())
     }
 }

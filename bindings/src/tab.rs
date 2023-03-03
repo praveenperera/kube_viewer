@@ -129,6 +129,7 @@ impl<'a> BorrowedTabs<'a> {
         Some(self.0[previous_tab_index].id.clone())
     }
 
+    #[allow(dead_code)]
     pub fn get_by_id(&self, id: &TabId) -> Option<&Tab> {
         self.0.iter().find(|tab| &tab.id == id)
     }

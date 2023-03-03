@@ -1,6 +1,5 @@
-use uniffi::Enum;
-
 use crate::{generic_hasher::GenericHasher, tab::TabId, tab_group::TabGroupId};
+use uniffi::Enum;
 
 #[derive(Debug, Clone, Enum, Hash)]
 pub enum FocusRegion {

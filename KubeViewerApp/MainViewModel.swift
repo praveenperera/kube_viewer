@@ -65,6 +65,8 @@ class MainViewModel: ObservableObject {
                     self.currentFocusRegion = self.data.currentFocusRegion()
                 case .selectedTab:
                     self.selectedTab = self.data.selectedTab()
+                case .tabGroupExpansions:
+                    self.tabGroupExpansions = self.data.tabGroupExpansions()
                 }
             }
         }

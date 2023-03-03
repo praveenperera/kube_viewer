@@ -101,7 +101,7 @@ impl MainViewModel {
                         tab_id: tab.id.clone(),
                     };
 
-                    self.selected_tab = tab.id.clone();
+                    self.select_tab(tab.id.clone());
 
                     Updater::send(&self.window_id, MainViewModelField::SelectedTab);
 
@@ -123,7 +123,7 @@ impl MainViewModel {
                         tab_id: tab.id.clone(),
                     };
 
-                    self.selected_tab = tab.id.clone();
+                    self.select_tab(tab.id.clone());
 
                     Updater::send(&self.window_id, MainViewModelField::SelectedTab);
 
@@ -146,20 +146,20 @@ impl MainViewModel {
                     let next_tab_id = BorrowedTabs::from(&tab_group.tabs).next_tab_id(tab_id);
 
                     let next_tab_id = if let Some(next_tab_id) = next_tab_id {
-                        self.selected_tab = next_tab_id.clone();
                         next_tab_id
                     } else {
-                        let first_tab_id = tab_group.tabs.first()?.id.clone();
-                        self.selected_tab = first_tab_id.clone();
-                        first_tab_id
+                        tab_group.tabs.first()?.id.clone()
                     };
 
                     Some(next_tab_id)
                 })();
 
                 if let Some(next_tab_id) = next_tab_id {
+                    let tab_group_id = tab_group_id.clone();
+                    self.select_tab(next_tab_id.clone());
+
                     self.key_handler.current_focus_region = FocusRegion::InTabGroup {
-                        tab_group_id: tab_group_id.clone(),
+                        tab_group_id,
                         tab_id: next_tab_id,
                     };
 
@@ -183,11 +183,9 @@ impl MainViewModel {
                         BorrowedTabs::from(&tab_group.tabs).previous_tab_id(tab_id);
 
                     let previous_tab_id = if let Some(previous_tab_id) = previous_tab_id {
-                        self.selected_tab = previous_tab_id.clone();
                         previous_tab_id
                     } else {
                         let last_tab_id = tab_group.tabs.last()?.id.clone();
-                        self.selected_tab = last_tab_id.clone();
                         last_tab_id
                     };
 
@@ -195,12 +193,31 @@ impl MainViewModel {
                 })();
 
                 if let Some(previous_tab_id) = previous_tab_id {
+                    let tab_group_id = tab_group_id.clone();
+                    self.select_tab(previous_tab_id.clone());
+
                     self.key_handler.current_focus_region = FocusRegion::InTabGroup {
-                        tab_group_id: tab_group_id.clone(),
+                        tab_group_id,
                         tab_id: previous_tab_id,
                     };
 
                     Updater::send(&self.window_id, MainViewModelField::SelectedTab);
+                }
+
+                true
+            }
+
+            // toggle sidebar group extension
+            (
+                InTabGroup {
+                    tab_group_id: id, ..
+                }
+                | SidebarGroup { id },
+                Space | Enter,
+            ) => {
+                if let Some(is_expanded) = self.tab_group_expansions.get_mut(id) {
+                    *is_expanded = !*is_expanded;
+                    Updater::send(&self.window_id, MainViewModelField::TabGroupExpansions);
                 }
 
                 true
