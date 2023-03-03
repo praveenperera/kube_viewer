@@ -108,7 +108,7 @@ impl MainViewModel {
                     return true;
                 }
 
-                false
+                true
             }
 
             // start into bottom of sidebar group
@@ -130,7 +130,7 @@ impl MainViewModel {
                     return true;
                 }
 
-                false
+                true
             }
 
             // next down in sidebar group
@@ -166,7 +166,7 @@ impl MainViewModel {
                     Updater::send(&self.window_id, MainViewModelField::SelectedTab);
                 }
 
-                false
+                true
             }
 
             // next up in sidebar group
@@ -203,7 +203,7 @@ impl MainViewModel {
                     Updater::send(&self.window_id, MainViewModelField::SelectedTab);
                 }
 
-                false
+                true
             }
 
             // currently unhandled or ignored
