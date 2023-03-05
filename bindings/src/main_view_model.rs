@@ -3,7 +3,8 @@ mod key_handler;
 use crossbeam::channel::Sender;
 use derive_more::{AsRef, Display, From, FromStr};
 use once_cell::sync::OnceCell;
-use std::{collections::HashMap, sync::RwLock};
+use parking_lot::RwLock;
+use std::collections::HashMap;
 
 use crate::{
     key_handler::{FocusRegion, KeyAwareEvent, KeyHandler},
@@ -22,14 +23,14 @@ impl Updater {
     pub fn send(window_id: &WindowId, field: MainViewModelField) {
         let global = INSTANCE.get().expect("updater is not initialized");
 
-        if let Some(updater) = global.0.read().unwrap().get(window_id) {
+        if let Some(updater) = global.0.read().get(window_id) {
             updater.send(field).expect("failed to send update");
         }
     }
 
     pub fn init(window_id: &WindowId, sender: Sender<MainViewModelField>) {
         let map = INSTANCE.get_or_init(|| Updater(RwLock::new(HashMap::new())));
-        map.0.write().unwrap().insert(window_id.clone(), sender);
+        map.0.write().insert(window_id.clone(), sender);
     }
 }
 
@@ -81,30 +82,23 @@ impl RustMainViewModel {
 #[uniffi::export]
 impl RustMainViewModel {
     pub fn selected_tab(&self) -> TabId {
-        self.inner.read().unwrap().selected_tab.clone()
+        self.inner.read().selected_tab.clone()
     }
 
     pub fn set_selected_tab(&self, selected_tab: TabId) {
-        self.inner.write().unwrap().select_tab(selected_tab);
+        self.inner.write().select_tab(selected_tab);
     }
 
     pub fn tabs(&self) -> Vec<Tab> {
-        self.inner.read().unwrap().tabs.clone()
+        self.inner.read().tabs.clone()
     }
 
     pub fn tabs_map(&self) -> HashMap<TabId, Tab> {
-        self.inner.read().unwrap().tabs_map.clone()
+        self.inner.read().tabs_map.clone()
     }
 
     pub fn tab_groups(&self) -> Vec<TabGroup> {
-        self.inner
-            .read()
-            .unwrap()
-            .tab_groups
-            .0
-            .clone()
-            .into_iter()
-            .collect()
+        self.inner.read().tab_groups.0.clone().into_iter().collect()
     }
 
     pub fn tab_groups_filtered(&self, search: String) -> Vec<TabGroup> {
@@ -114,7 +108,6 @@ impl RustMainViewModel {
 
         self.inner
             .read()
-            .unwrap()
             .tab_groups
             .0
             .iter()
@@ -139,31 +132,26 @@ impl RustMainViewModel {
     }
 
     pub fn tab_group_expansions(&self) -> HashMap<TabGroupId, bool> {
-        self.inner.read().unwrap().tab_group_expansions.clone()
+        self.inner.read().tab_group_expansions.clone()
     }
 
     pub fn set_tab_group_expansions(&self, tab_group_expansions: HashMap<TabGroupId, bool>) {
-        self.inner.write().unwrap().tab_group_expansions = tab_group_expansions
+        self.inner.write().tab_group_expansions = tab_group_expansions
     }
 
     pub fn current_focus_region(&self) -> FocusRegion {
-        self.inner
-            .read()
-            .unwrap()
-            .key_handler
-            .current_focus_region()
+        self.inner.read().key_handler.current_focus_region()
     }
 
     pub fn set_current_focus_region(&self, current_focus_region: FocusRegion) {
         self.inner
             .write()
-            .unwrap()
             .key_handler
             .set_current_focus_region(current_focus_region);
     }
 
     pub fn handle_key_input(&self, key_input: KeyAwareEvent) -> bool {
-        let prevent_default = self.inner.write().unwrap().handle_key_input(key_input);
+        let prevent_default = self.inner.write().handle_key_input(key_input);
         Updater::send(&self.window_id, MainViewModelField::CurrentFocusRegion);
 
         prevent_default
