@@ -44,6 +44,7 @@ private class KeyView: NSView {
             case KeyboardShortcuts.Key.space.rawValue:
                 return onEvent(.space)
             case KeyboardShortcuts.Key.tab.rawValue where event.modifierFlags.contains(.shift):
+                debugPrint(event.modifierFlags)
                 return onEvent(.shiftTab)
             case KeyboardShortcuts.Key.tab.rawValue:
                 return onEvent(.tabKey)
@@ -51,6 +52,8 @@ private class KeyView: NSView {
                 return onEvent(.escape)
             case KeyboardShortcuts.Key.return.rawValue:
                 return onEvent(.enter)
+            case KeyboardShortcuts.Key.f.rawValue where event.modifierFlags.contains(.option):
+                return onEvent(.optionF)
             default:
                 return false
             }

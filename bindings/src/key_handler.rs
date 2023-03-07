@@ -27,6 +27,7 @@ pub enum KeyAwareEvent {
     ShiftTab,
     TabKey,
     Escape,
+    OptionF,
 }
 
 #[derive(Debug, Clone)]

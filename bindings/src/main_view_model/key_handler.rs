@@ -223,6 +223,11 @@ impl MainViewModel {
                 true
             }
 
+            (_, OptionF) => {
+                self.key_handler.current_focus_region = FocusRegion::SidebarSearch;
+                true
+            }
+
             // currently unhandled or ignored
             _ => false,
         }
