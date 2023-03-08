@@ -7,41 +7,46 @@
 
 import SwiftUI
 
+class GlobalModel: ObservableObject {
+    var models: [UUID: MainViewModel]
+
+    init() {
+        self.models = [:]
+    }
+
+    func getModel(_ key: UUID) -> MainViewModel? {
+        self.models[key]
+    }
+
+    func getOrInsert(key: UUID, model: (_ windowId: UUID) -> MainViewModel) -> MainViewModel {
+        if let model = self.getModel(key) {
+            return model
+        }
+
+        let model = model(key)
+        self.models[key] = model
+
+        return model
+    }
+
+    func windowClosing(_ windowId: UUID) {
+        self.models.removeValue(forKey: windowId)
+    }
+}
+
 @main
 struct KubeViewerApp: App {
+    @StateObject var global = GlobalModel()
+
     var body: some Scene {
-        let mainWindow = WindowGroup {
-            MainView()
+        WindowGroup(id: "Main", for: UUID.self) { $maybeUuid in
+            let uuid = maybeUuid ?? UUID()
+            let model = self.global.getOrInsert(key: uuid, model: MainViewModel.init)
+
+            MainView(windowId: uuid, model: model)
+                .environmentObject(self.global)
         }
         .windowStyle(.hiddenTitleBar)
-        .commands {
-            CommandMenu("Print") {
-                Button("Print", action: { print("🍌") })
-                    .keyboardShortcut(KeyboardShortcut(KeyEquivalent("p"), modifiers: [.command]))
-            }
-        }
-
-        mainWindow.commands {
-            CommandGroup(after: .newItem) {
-                Button(action: {
-                    if let currentWindow = NSApp.keyWindow,
-                       let windowController = currentWindow.windowController
-                    {
-                        windowController.newWindowForTab(nil)
-
-                        if let newWindow = NSApp.keyWindow,
-                           currentWindow != newWindow
-                        {
-                            currentWindow.addTabbedWindow(newWindow, ordered: .above)
-                            // currentWindow.tabbingMode = .preferred
-                        }
-                    }
-                }) {
-                    Text("New Tab")
-                }
-                .keyboardShortcut("t", modifiers: [.command])
-            }
-        }
     }
 }
 

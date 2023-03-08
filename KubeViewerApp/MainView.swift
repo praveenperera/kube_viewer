@@ -7,7 +7,9 @@
 import SwiftUI
 
 struct MainView: View {
-    @StateObject private var model: MainViewModel = .init()
+    let windowId: UUID
+    @EnvironmentObject var globalModel: GlobalModel
+    @ObservedObject var model: MainViewModel
     @State private var hoverRow: UUID?
     @State private var expanded: Bool = true
     @State private var search: String = ""
@@ -15,13 +17,27 @@ struct MainView: View {
     var body: some View {
         NavigationStack {
             NavigationSplitView(
-                sidebar: { Sidebar },
-                detail: { model.tabContentViews[model.selectedTab]! })
+                sidebar: { Sidebar
+                    .navigationSplitViewColumnWidth(min: 200, ideal: 260)
+                },
+                detail: {
+                    HStack {
+                        model.tabContentViews[model.selectedTab]!
+                        Text(model.windowId.uuidString)
+                    }
+
+                })
         }
         .background(KeyAwareView(onEvent: model.data.handleKeyInput))
         .background(WindowAccessor(window: $model.window).background(BlurWindow()))
         .environmentObject(model)
-        
+        .if(model.window != nil) { view in
+            view.onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification, object: model.window)) { _ in
+                DispatchQueue.main.async {
+                    globalModel.windowClosing(self.windowId)
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -108,7 +124,8 @@ struct WindowAccessor: NSViewRepresentable {
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView()
+        let uuid = UUID()
+        MainView(windowId: uuid, model: MainViewModel(windowId: uuid))
     }
 }
 

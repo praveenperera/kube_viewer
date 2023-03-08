@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 
 class MainViewModel: ObservableObject {
+    var windowId: UUID
     var listener: Listener?
     var data: RustMainViewModel
     var tabs: [Tab]
@@ -26,8 +27,9 @@ class MainViewModel: ObservableObject {
     @RustPublished var selectedTab: TabId
     @RustPublished var currentFocusRegion: FocusRegion
 
-    init() {
-        self.data = RustMainViewModel(windowId: UUID().uuidString)
+    init(windowId: UUID) {
+        self.windowId = windowId
+        self.data = RustMainViewModel(windowId: windowId.uuidString)
         self.tabs = self.data.tabs()
         self.tabsMap = self.data.tabsMap()
         self.tabGroups = self.data.tabGroups()

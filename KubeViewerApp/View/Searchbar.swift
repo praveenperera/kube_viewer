@@ -10,6 +10,7 @@ import SwiftUI
 struct SearchBar: View {
     @Binding var text: String
     @EnvironmentObject var mainViewModel: MainViewModel
+    @EnvironmentObject var global: GlobalModel
     @FocusState private var isFocused: Bool
 
     var isEditing: Bool {
@@ -52,9 +53,9 @@ struct SearchBar: View {
                         .transition(.scale)
                         .keyboardShortcut(.escape, modifiers: [])
                         .opacity(isEditing ? 100 : 0)
-                        
+
                         if mainViewModel.currentFocusRegion != FocusRegion.sidebarSearch {
-                            HStack(spacing: 2){
+                            HStack(spacing: 2) {
                                 Text("⌥")
                                     .padding(.vertical, 1)
                                     .padding(.horizontal, 4)
@@ -93,6 +94,6 @@ struct SearchField_Previews: PreviewProvider {
         VStack {
             SearchBar(text: Binding.constant("search"))
         }.frame(width: 250).padding(20)
-            .environmentObject(MainViewModel())
+            .environmentObject(MainViewModel(windowId: UUID()))
     }
 }
