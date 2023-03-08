@@ -12,7 +12,14 @@ struct KubeViewerApp: App {
     var body: some Scene {
         let mainWindow = WindowGroup {
             MainView()
-        }.windowStyle(.hiddenTitleBar)
+        }
+        .windowStyle(.hiddenTitleBar)
+        .commands {
+            CommandMenu("Print") {
+                Button("Print", action: { print("🍌") })
+                    .keyboardShortcut(KeyboardShortcut(KeyEquivalent("p"), modifiers: [.command]))
+            }
+        }
 
         mainWindow.commands {
             CommandGroup(after: .newItem) {

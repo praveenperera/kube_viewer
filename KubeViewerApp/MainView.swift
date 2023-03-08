@@ -21,6 +21,7 @@ struct MainView: View {
         .background(KeyAwareView(onEvent: model.data.handleKeyInput))
         .background(WindowAccessor(window: $model.window).background(BlurWindow()))
         .environmentObject(model)
+        
     }
 
     @ViewBuilder

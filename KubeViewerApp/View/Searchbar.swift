@@ -52,6 +52,25 @@ struct SearchBar: View {
                         .transition(.scale)
                         .keyboardShortcut(.escape, modifiers: [])
                         .opacity(isEditing ? 100 : 0)
+                        
+                        if mainViewModel.currentFocusRegion != FocusRegion.sidebarSearch {
+                            HStack(spacing: 2){
+                                Text("⌥")
+                                    .padding(.vertical, 1)
+                                    .padding(.horizontal, 4)
+                                    .foregroundColor(Color.primary.opacity(0.75))
+                                    .background(Color.black.opacity(0.1))
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    .font(.subheadline)
+                                Text("F")
+                                    .padding(.vertical, 1)
+                                    .padding(.horizontal, 6)
+                                    .foregroundColor(Color.primary.opacity(0.75))
+                                    .background(Color.black.opacity(0.1))
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    .font(.subheadline)
+                            }.padding(.trailing, 10)
+                        }
                     }
                 }
                 .onChange(of: mainViewModel.currentFocusRegion) { newFocus in
@@ -74,5 +93,6 @@ struct SearchField_Previews: PreviewProvider {
         VStack {
             SearchBar(text: Binding.constant("search"))
         }.frame(width: 250).padding(20)
+            .environmentObject(MainViewModel())
     }
 }
