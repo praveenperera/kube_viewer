@@ -8,20 +8,18 @@
 import SwiftUI
 
 class GlobalModel: ObservableObject {
-    @Published var models: [UUID: MainViewModel]
+    var models: [UUID: MainViewModel]
 
     init() {
         self.models = [:]
     }
 
-    func getModel(_ key: UUID) -> MainViewModel? {
-        self.models[key]
+    func windowModel(_ windowId: UUID) -> MainViewModel? {
+        self.models[windowId]
     }
 
-    func windowClosing(_ windowId: UUID) {
-        self.models.removeValue(forKey: windowId)
-        self.models = self.models.compactMapValues { $0 }
-    }
+    func windowOpened(_ windowId: UUID) {}
+    func windowClosing(_ windowId: UUID) {}
 }
 
 @main
@@ -29,12 +27,8 @@ struct KubeViewerApp: App {
     @StateObject var global = GlobalModel()
 
     var body: some Scene {
-        WindowGroup(id: "Main", for: UUID.self) { $maybeUuid in
-            let uuid = maybeUuid ?? UUID()
-            let model = self.global.models[uuid] ?? MainViewModel(windowId: uuid)
-
-            MainView(windowId: uuid, model: model)
-                .environmentObject(self.global)
+        WindowGroup(id: "Main", for: UUID.self) { $uuid in
+            MainView(windowId: $uuid, globalModel: self.global)
         }
         .windowStyle(.hiddenTitleBar)
     }

@@ -8,32 +8,46 @@ import SwiftUI
 
 struct MainView: View {
     let windowId: UUID
-    @EnvironmentObject var globalModel: GlobalModel
+    @ObservedObject var globalModel: GlobalModel
     @ObservedObject var model: MainViewModel
+
     @State private var hoverRow: UUID?
     @State private var expanded: Bool = true
     @State private var search: String = ""
+    @State private var window: NSWindow?
+
+    public init(windowId: Binding<UUID?>, globalModel: GlobalModel) {
+        self.windowId = windowId.wrappedValue ?? UUID()
+        self.globalModel = globalModel
+        self.model = globalModel.windowModel(self.windowId) ?? MainViewModel(windowId: self.windowId)
+    }
 
     var body: some View {
         NavigationStack {
             NavigationSplitView(
-                sidebar: { Sidebar
+                sidebar: { self.Sidebar
                     .navigationSplitViewColumnWidth(min: 200, ideal: 260)
                 },
                 detail: {
                     HStack {
-                        Text(String(globalModel.models.count))
-                        model.tabContentViews[model.selectedTab]!
-                        Text(model.windowId.uuidString)
+                        self.model.tabContentViews[self.model.selectedTab]!
+                        Text(self.model.windowId.uuidString)
                     }
 
                 })
         }
-        .background(KeyAwareView(onEvent: model.data.handleKeyInput))
-        .background(WindowAccessor(window: $model.window).background(BlurWindow()))
-        .environmentObject(model)
+        .background(KeyAwareView(onEvent: self.model.data.handleKeyInput))
+        .background(WindowAccessor(window: self.$window).background(BlurWindow()))
+        .environmentObject(self.model)
         .onAppear {
-            globalModel.models[windowId] = model
+            self.globalModel.windowOpened(self.windowId)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification, object: self.window)) { _ in
+            if self.window != nil {
+                DispatchQueue.main.async {
+                    self.globalModel.windowClosing(self.windowId)
+                }
+            }
         }
     }
 
@@ -42,17 +56,17 @@ struct MainView: View {
         VStack {
             ScrollViewReader { proxy in
                 ScrollView {
-                    SearchBar(text: $search)
+                    SearchBar(text: self.$search)
                         .padding(.top, 15)
                         .padding(.vertical, 10)
                         .padding(.horizontal, 12)
                         .id(FocusRegion.sidebarSearch)
 
-                    ForEach(model.data.tabGroupsFiltered(search: search)) { tabGroup in
-                        DisclosureGroup(isExpanded: $model.tabGroupExpansions[tabGroup.id] ?? true) {
-                            VStack {
+                    ForEach(self.model.data.tabGroupsFiltered(search: self.search)) { tabGroup in
+                        DisclosureGroup(isExpanded: self.$model.tabGroupExpansions[tabGroup.id] ?? true) {
+                            LazyVStack {
                                 ForEach(tabGroup.tabs) { tab in
-                                    SidebarButton(tab: tab, selectedTab: $model.selectedTab)
+                                    SidebarButton(tab: tab, selectedTab: self.$model.selectedTab)
                                         .id(FocusRegion.inTabGroup(tabGroupId: tabGroup.id, tabId: tab.id))
                                 }
                             }
@@ -64,7 +78,7 @@ struct MainView: View {
                         .padding(.vertical, 10)
                         .padding(.horizontal, 12)
                         .overlay {
-                            switch model.currentFocusRegion {
+                            switch self.model.currentFocusRegion {
                             case let .sidebarGroup(id: id) where id == tabGroup.id,
                                  let .inTabGroup(tabGroupId: id, tabId: _) where id == tabGroup.id:
                                 StandardFocusRing()
@@ -73,14 +87,14 @@ struct MainView: View {
                             }
                         }
                         .id(FocusRegion.sidebarGroup(id: tabGroup.id))
-                        .onReceive(model.$currentFocusRegion, perform: { currentFocusRegion in
+                        .onReceive(self.model.$currentFocusRegion, perform: { currentFocusRegion in
                             proxy.scrollTo(currentFocusRegion)
                         })
                     }
 
                     Spacer()
                 }
-                .navigationTitle(model.tabsMap[model.selectedTab]?.name ?? "Unknown tab")
+                .navigationTitle(self.model.tabsMap[self.model.selectedTab]?.name ?? "Unknown tab")
                 .padding(.top, 5)
                 .padding(.horizontal, 8)
             }
@@ -96,7 +110,7 @@ struct MainView: View {
             Button("Main Cluster") {}
         }
         .overlay {
-            if model.currentFocusRegion == .clusterSelection {
+            if self.model.currentFocusRegion == .clusterSelection {
                 StandardFocusRing()
             }
         }
@@ -121,8 +135,7 @@ struct WindowAccessor: NSViewRepresentable {
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        let uuid = UUID()
-        MainView(windowId: uuid, model: MainViewModel(windowId: uuid))
+        MainView(windowId: Binding.constant(nil), globalModel: GlobalModel())
     }
 }
 

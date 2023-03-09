@@ -17,9 +17,7 @@ class MainViewModel: ObservableObject {
     var tabsMap: [TabId: Tab]
     var tabGroups: [TabGroup]
 
-    @Published var window: NSWindow?
     @Published var selectedMainTab: NSWindow?
-
     @Published var tabContentViews: [TabId: TabContentView]
     @Published var tabViewModels: [TabId: TabViewModel]
 
