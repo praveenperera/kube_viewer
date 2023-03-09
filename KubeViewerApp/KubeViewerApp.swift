@@ -8,7 +8,7 @@
 import SwiftUI
 
 class GlobalModel: ObservableObject {
-    var models: [UUID: MainViewModel]
+    @Published var models: [UUID: MainViewModel]
 
     init() {
         self.models = [:]
@@ -18,19 +18,9 @@ class GlobalModel: ObservableObject {
         self.models[key]
     }
 
-    func getOrInsert(key: UUID, model: (_ windowId: UUID) -> MainViewModel) -> MainViewModel {
-        if let model = self.getModel(key) {
-            return model
-        }
-
-        let model = model(key)
-        self.models[key] = model
-
-        return model
-    }
-
     func windowClosing(_ windowId: UUID) {
         self.models.removeValue(forKey: windowId)
+        self.models = self.models.compactMapValues { $0 }
     }
 }
 
@@ -41,7 +31,7 @@ struct KubeViewerApp: App {
     var body: some Scene {
         WindowGroup(id: "Main", for: UUID.self) { $maybeUuid in
             let uuid = maybeUuid ?? UUID()
-            let model = self.global.getOrInsert(key: uuid, model: MainViewModel.init)
+            let model = self.global.models[uuid] ?? MainViewModel(windowId: uuid)
 
             MainView(windowId: uuid, model: model)
                 .environmentObject(self.global)

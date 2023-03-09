@@ -22,6 +22,7 @@ struct MainView: View {
                 },
                 detail: {
                     HStack {
+                        Text(String(globalModel.models.count))
                         model.tabContentViews[model.selectedTab]!
                         Text(model.windowId.uuidString)
                     }
@@ -31,12 +32,8 @@ struct MainView: View {
         .background(KeyAwareView(onEvent: model.data.handleKeyInput))
         .background(WindowAccessor(window: $model.window).background(BlurWindow()))
         .environmentObject(model)
-        .if(model.window != nil) { view in
-            view.onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification, object: model.window)) { _ in
-                DispatchQueue.main.async {
-                    globalModel.windowClosing(self.windowId)
-                }
-            }
+        .onAppear {
+            globalModel.models[windowId] = model
         }
     }
 
