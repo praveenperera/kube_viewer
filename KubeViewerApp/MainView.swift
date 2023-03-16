@@ -11,6 +11,7 @@ struct MainView: View {
     @ObservedObject var globalModel: GlobalModel
     @ObservedObject var model: MainViewModel
 
+    @State private var windowIsLoaded: Bool = false
     @State private var hoverRow: UUID?
     @State private var expanded: Bool = true
     @State private var search: String = ""
@@ -49,6 +50,11 @@ struct MainView: View {
                 }
             }
         }
+        .onChange(of: self.window) { newWindow in
+            if newWindow != nil {
+                self.windowIsLoaded = true
+            }
+        }
     }
 
     @ViewBuilder
@@ -64,10 +70,13 @@ struct MainView: View {
 
                     ForEach(self.model.data.tabGroupsFiltered(search: self.search)) { tabGroup in
                         DisclosureGroup(isExpanded: self.$model.tabGroupExpansions[tabGroup.id] ?? true) {
-                            LazyVStack {
-                                ForEach(tabGroup.tabs) { tab in
-                                    SidebarButton(tab: tab, selectedTab: self.$model.selectedTab)
-                                        .id(FocusRegion.inTabGroup(tabGroupId: tabGroup.id, tabId: tab.id))
+                            VStack {
+                                if windowIsLoaded {
+                                    ForEach(tabGroup.tabs) { tab in
+                                        SidebarButton(tab: tab, selectedTab: self.$model.selectedTab)
+                                            .id(FocusRegion.inTabGroup(tabGroupId: tabGroup.id, tabId: tab.id))
+                                            .transition(.opacity)
+                                    }
                                 }
                             }
                             .padding(.leading, 5)
