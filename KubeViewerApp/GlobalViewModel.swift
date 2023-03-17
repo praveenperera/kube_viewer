@@ -20,3 +20,5 @@ class GlobalViewModel: ObservableObject {
         self._clusters.getter = self.data.clusters
     }
 }
+
+extension Cluster: Identifiable {}
