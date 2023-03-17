@@ -2,11 +2,9 @@ use std::collections::HashMap;
 
 use kube::config::NamedCluster;
 
-pub type ClusterId = String;
-
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct Cluster {
-    pub name: ClusterId,
+    pub name: String,
 
     // set by user
     pub nickname: Option<String>,

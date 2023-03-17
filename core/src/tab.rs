@@ -2,7 +2,7 @@ use uniffi::{Enum, Record};
 
 #[derive(Debug, Clone, Eq, Hash, PartialEq, Enum)]
 pub enum TabId {
-    Cluster,
+    ClusterTab,
     Nodes,
     NameSpaces,
     Events,
@@ -44,7 +44,7 @@ pub enum TabId {
 impl TabId {
     fn name(&self) -> String {
         match self {
-            TabId::Cluster => "Cluster".to_string(),
+            TabId::ClusterTab => "Cluster".to_string(),
             TabId::Nodes => "Nodes".to_string(),
             TabId::NameSpaces => "Namespaces".to_string(),
             TabId::Events => "Events".to_string(),

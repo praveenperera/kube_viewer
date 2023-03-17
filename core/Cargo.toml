@@ -30,11 +30,9 @@ thiserror = "1"
 # utility 
 derive_more = {version = "0.99.17", default-features = false, features = ["as_ref", "display", "from", "from_str"]}
 
-
 # kubernetes
-kube = { version = "0.80.0", features = ["runtime", "derive", "config"] }
+kube = { version = "0.80.0", default-features = false, features = ["runtime", "derive", "config", "rustls-tls"]} 
 k8s-openapi = { version = "0.17.0", features = ["v1_26"] }
-
 
 crossbeam = "0.8.2"
 parking_lot = "0.12.1"

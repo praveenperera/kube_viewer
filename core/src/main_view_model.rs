@@ -163,7 +163,7 @@ impl MainViewModel {
         let general = TabGroup::new(
             TabGroupId::General,
             vec![
-                Tab::new(TabId::Cluster, "helm"),
+                Tab::new(TabId::ClusterTab, "helm"),
                 Tab::new(TabId::Nodes, "server.rack"),
                 Tab::new(TabId::NameSpaces, "list.dash"),
                 Tab::new(TabId::Events, "clock.arrow.circlepath"),
@@ -255,7 +255,7 @@ impl MainViewModel {
             tabs,
             tab_groups: TabGroups(tab_groups),
             tab_group_expansions,
-            selected_tab: TabId::Cluster,
+            selected_tab: TabId::ClusterTab,
         }
     }
 

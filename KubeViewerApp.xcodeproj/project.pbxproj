@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		AC1651B829874DB000CBC220 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1651B729874DB000CBC220 /* Theme.swift */; };
 		AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D66299B325000429CDB /* RustPublished.swift */; };
-		AC3F4D6B299C789100429CDB /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6A299C789100429CDB /* kube_viewer.udl */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
 		AC65E77529A7DCC200F3A7CE /* KeyAware.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC65E77429A7DCC200F3A7CE /* KeyAware.swift */; };
 		AC65E77829A7DE3F00F3A7CE /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = AC65E77729A7DE3F00F3A7CE /* KeyboardShortcuts */; };
@@ -56,8 +55,8 @@
 /* Begin PBXFileReference section */
 		AC1651B729874DB000CBC220 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		AC3F4D66299B325000429CDB /* RustPublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustPublished.swift; sourceTree = "<group>"; };
-		AC3F4D6A299C789100429CDB /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = bindings/src/kube_viewer.udl; sourceTree = "<group>"; };
 		AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalBinding.swift; sourceTree = "<group>"; };
+		AC61EB7529C3C50D008341E9 /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = core/src/kube_viewer.udl; sourceTree = "<group>"; };
 		AC65E77429A7DCC200F3A7CE /* KeyAware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyAware.swift; sourceTree = "<group>"; };
 		AC65E77C29A9278600F3A7CE /* StandardFocusRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardFocusRing.swift; sourceTree = "<group>"; };
 		AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarButton.swift; sourceTree = "<group>"; };
@@ -182,7 +181,7 @@
 		DADF4C71295E6DB9006CA792 = {
 			isa = PBXGroup;
 			children = (
-				AC3F4D6A299C789100429CDB /* kube_viewer.udl */,
+				AC61EB7529C3C50D008341E9 /* kube_viewer.udl */,
 				ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */,
 				DADF4C7C295E6DB9006CA792 /* KubeViewerApp */,
 				DADF4C7B295E6DB9006CA792 /* Products */,
@@ -329,7 +328,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# [[ $CONFIGURATION == \"Release\" ]] && bash $SRCROOT/xc-universal-binary.sh libkube_viewer.a kube_viewer $SRCROOT/bindings $CONFIGURATION\nbash $SRCROOT/xc-universal-binary.sh libkube_viewer.a kube_viewer $SRCROOT/bindings $CONFIGURATION\n\nexit 0\n";
+			shellScript = "# [[ $CONFIGURATION == \"Release\" ]] && bash $SRCROOT/xc-universal-binary.sh libkube_viewer.a kube_viewer $SRCROOT/bindings $CONFIGURATION\nbash $SRCROOT/xc-universal-binary.sh libkube_viewer.a kube_viewer $SRCROOT/core $CONFIGURATION\n\nexit 0\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -338,7 +337,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AC3F4D6B299C789100429CDB /* kube_viewer.udl in Sources */,
 				AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */,
 				ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */,
 				ACC45D552995EFA00063B358 /* whenHovered.swift in Sources */,
@@ -500,8 +498,8 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/bindings/target/universal",
-					"$(PROJECT_DIR)/bindings/target/universal",
+					"$(SRCROOT)/core/target/universal",
+					"$(PROJECT_DIR)/core/target/universal",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MARKETING_VERSION = 1.0;
@@ -536,8 +534,8 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/bindings/target/universal",
-					"$(PROJECT_DIR)/bindings/target/universal",
+					"$(SRCROOT)/core/target/universal",
+					"$(PROJECT_DIR)/core/target/universal",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MARKETING_VERSION = 1.0;
