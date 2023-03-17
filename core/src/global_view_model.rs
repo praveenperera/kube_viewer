@@ -1,5 +1,7 @@
+use parking_lot::RwLock;
+
 use crate::cluster::{Cluster, ClusterId};
-use std::{collections::HashMap, sync::RwLock};
+use std::collections::HashMap;
 
 pub struct RustGlobalViewModel {
     inner: RwLock<GlobalViewModel>,
@@ -14,6 +16,13 @@ impl RustGlobalViewModel {
         Self {
             inner: RwLock::new(GlobalViewModel::new()),
         }
+    }
+}
+
+#[uniffi::export]
+impl RustGlobalViewModel {
+    pub fn clusters(&self) -> HashMap<ClusterId, Cluster> {
+        self.inner.read().clusters.clone()
     }
 }
 

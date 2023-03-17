@@ -3,3 +3,5 @@
 **/**/UserInterfaceState.xcuserstate
 bindings/.uniffi/
 **/**/target
+buildServer.json
+.compile

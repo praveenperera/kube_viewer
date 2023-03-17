@@ -430,6 +430,7 @@ public struct FfiConverterTypeFocusRegionHasher: FfiConverter {
 
 
 public protocol RustGlobalViewModelProtocol {
+    func `clusters`()  -> [ClusterId: Cluster]
     
 }
 
@@ -458,6 +459,16 @@ public class RustGlobalViewModel: RustGlobalViewModelProtocol {
     
 
     
+    public func `clusters`()  -> [ClusterId: Cluster] {
+        return try! FfiConverterDictionaryTypeClusterIdTypeCluster.lift(
+            try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustGlobalViewModel_clusters_1daf(self.pointer, $0
+    )
+}
+        )
+    }
     
 }
 
@@ -689,15 +700,15 @@ public struct FfiConverterTypeRustMainViewModel: FfiConverter {
 
 
 public struct Cluster {
-    public var `name`: String
+    public var `id`: ClusterId
     public var `nickname`: String?
     public var `server`: String?
     public var `proxyUrl`: String?
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(`name`: String, `nickname`: String?, `server`: String?, `proxyUrl`: String?) {
-        self.`name` = `name`
+    public init(`id`: ClusterId, `nickname`: String?, `server`: String?, `proxyUrl`: String?) {
+        self.`id` = `id`
         self.`nickname` = `nickname`
         self.`server` = `server`
         self.`proxyUrl` = `proxyUrl`
@@ -707,7 +718,7 @@ public struct Cluster {
 
 extension Cluster: Equatable, Hashable {
     public static func ==(lhs: Cluster, rhs: Cluster) -> Bool {
-        if lhs.`name` != rhs.`name` {
+        if lhs.`id` != rhs.`id` {
             return false
         }
         if lhs.`nickname` != rhs.`nickname` {
@@ -723,7 +734,7 @@ extension Cluster: Equatable, Hashable {
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(`name`)
+        hasher.combine(`id`)
         hasher.combine(`nickname`)
         hasher.combine(`server`)
         hasher.combine(`proxyUrl`)
@@ -734,7 +745,7 @@ extension Cluster: Equatable, Hashable {
 public struct FfiConverterTypeCluster: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Cluster {
         return try Cluster(
-            `name`: FfiConverterString.read(from: &buf), 
+            `id`: FfiConverterTypeClusterId.read(from: &buf), 
             `nickname`: FfiConverterOptionString.read(from: &buf), 
             `server`: FfiConverterOptionString.read(from: &buf), 
             `proxyUrl`: FfiConverterOptionString.read(from: &buf)
@@ -742,7 +753,7 @@ public struct FfiConverterTypeCluster: FfiConverterRustBuffer {
     }
 
     public static func write(_ value: Cluster, into buf: inout [UInt8]) {
-        FfiConverterString.write(value.`name`, into: &buf)
+        FfiConverterTypeClusterId.write(value.`id`, into: &buf)
         FfiConverterOptionString.write(value.`nickname`, into: &buf)
         FfiConverterOptionString.write(value.`server`, into: &buf)
         FfiConverterOptionString.write(value.`proxyUrl`, into: &buf)
@@ -756,6 +767,53 @@ public func FfiConverterTypeCluster_lift(_ buf: RustBuffer) throws -> Cluster {
 
 public func FfiConverterTypeCluster_lower(_ value: Cluster) -> RustBuffer {
     return FfiConverterTypeCluster.lower(value)
+}
+
+
+public struct ClusterId {
+    public var `rawValue`: String
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`rawValue`: String) {
+        self.`rawValue` = `rawValue`
+    }
+}
+
+
+extension ClusterId: Equatable, Hashable {
+    public static func ==(lhs: ClusterId, rhs: ClusterId) -> Bool {
+        if lhs.`rawValue` != rhs.`rawValue` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`rawValue`)
+    }
+}
+
+
+public struct FfiConverterTypeClusterId: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ClusterId {
+        return try ClusterId(
+            `rawValue`: FfiConverterString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: ClusterId, into buf: inout [UInt8]) {
+        FfiConverterString.write(value.`rawValue`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeClusterId_lift(_ buf: RustBuffer) throws -> ClusterId {
+    return try FfiConverterTypeClusterId.lift(buf)
+}
+
+public func FfiConverterTypeClusterId_lower(_ value: ClusterId) -> RustBuffer {
+    return FfiConverterTypeClusterId.lower(value)
 }
 
 
@@ -1753,6 +1811,29 @@ fileprivate struct FfiConverterSequenceTypeTabGroup: FfiConverterRustBuffer {
             seq.append(try FfiConverterTypeTabGroup.read(from: &buf))
         }
         return seq
+    }
+}
+
+fileprivate struct FfiConverterDictionaryTypeClusterIdTypeCluster: FfiConverterRustBuffer {
+    public static func write(_ value: [ClusterId: Cluster], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for (key, value) in value {
+            FfiConverterTypeClusterId.write(key, into: &buf)
+            FfiConverterTypeCluster.write(value, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [ClusterId: Cluster] {
+        let len: Int32 = try readInt(&buf)
+        var dict = [ClusterId: Cluster]()
+        dict.reserveCapacity(Int(len))
+        for _ in 0..<len {
+            let key = try FfiConverterTypeClusterId.read(from: &buf)
+            let value = try FfiConverterTypeCluster.read(from: &buf)
+            dict[key] = value
+        }
+        return dict
     }
 }
 

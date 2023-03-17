@@ -54,6 +54,10 @@ void*_Nonnull kube_viewer_164e_RustGlobalViewModel_new(
       
     RustCallStatus *_Nonnull out_status
     );
+RustBuffer _uniffi_kube_viewer_impl_RustGlobalViewModel_clusters_1daf(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
 void ffi_kube_viewer_164e_RustMainViewModel_object_free(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
