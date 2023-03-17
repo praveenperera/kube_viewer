@@ -1,10 +1,15 @@
+use derive_more::From;
+use kube::config::NamedCluster;
 use std::collections::HashMap;
 
-use kube::config::NamedCluster;
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, From, Hash, uniffi::Record)]
+pub struct ClusterId {
+    raw_value: String,
+}
 
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct Cluster {
-    pub name: String,
+    pub id: ClusterId,
 
     // set by user
     pub nickname: Option<String>,
@@ -22,22 +27,22 @@ impl TryFrom<NamedCluster> for Cluster {
 
         Ok(Self {
             nickname: None,
-            name: named_cluster.name,
+            id: named_cluster.name.into(),
             server: cluster.server,
             proxy_url: cluster.proxy_url,
         })
     }
 }
 
-pub fn get_clusters_hashmap() -> eyre::Result<HashMap<String, Cluster>> {
+pub fn get_clusters_hashmap() -> eyre::Result<HashMap<ClusterId, Cluster>> {
     let kube_config = kube::config::Kubeconfig::read()?;
 
-    let clusters: HashMap<String, Cluster> = kube_config
+    let clusters: HashMap<ClusterId, Cluster> = kube_config
         .clusters
         .into_iter()
         .map(Cluster::try_from)
         .filter_map(Result::ok)
-        .map(|cluster| (cluster.name.clone(), cluster))
+        .map(|cluster| (cluster.id.clone(), cluster))
         .collect();
 
     Ok(clusters)

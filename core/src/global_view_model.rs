@@ -1,4 +1,4 @@
-use crate::cluster::Cluster;
+use crate::cluster::{Cluster, ClusterId};
 use std::{collections::HashMap, sync::RwLock};
 
 pub struct RustGlobalViewModel {
@@ -6,7 +6,7 @@ pub struct RustGlobalViewModel {
 }
 
 pub struct GlobalViewModel {
-    clusters: HashMap<String, Cluster>,
+    clusters: HashMap<ClusterId, Cluster>,
 }
 
 impl RustGlobalViewModel {
