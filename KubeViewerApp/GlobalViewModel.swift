@@ -11,14 +11,20 @@ import SwiftUI
 
 class GlobalViewModel: ObservableObject {
     var data: RustGlobalViewModel
-    @RustPublished var clusters: [ClusterId: Cluster];
+    @RustPublished var clusters: [ClusterId: Cluster]
 
     init() {
         self.data = RustGlobalViewModel()
-        
+
         self.clusters = self.data.clusters()
         self._clusters.getter = self.data.clusters
     }
 }
 
 extension Cluster: Identifiable {}
+
+extension Cluster {
+    func name() -> String {
+        return self.nickname ?? self.id.rawValue
+    }
+}

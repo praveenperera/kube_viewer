@@ -1,4 +1,5 @@
 use derive_more::From;
+use eyre::Result;
 use kube::config::NamedCluster;
 use std::collections::HashMap;
 
@@ -34,7 +35,7 @@ impl TryFrom<NamedCluster> for Cluster {
     }
 }
 
-pub fn get_clusters_hashmap() -> eyre::Result<HashMap<ClusterId, Cluster>> {
+pub fn get_clusters_hashmap() -> Result<HashMap<ClusterId, Cluster>> {
     let kube_config = kube::config::Kubeconfig::read()?;
 
     let clusters: HashMap<ClusterId, Cluster> = kube_config
