@@ -22,7 +22,10 @@ struct RustPublished<Value> {
             return object[keyPath: storageKeyPath].innervalue
         }
         set {
-            // object[keyPath: storageKeyPath].publisher.send(newValue)
+            // send individual field publishes to be used by `onReceive`
+            object[keyPath: storageKeyPath].publisher.send(newValue)
+
+            // send entire objectWillChange
             (object.objectWillChange as? ObservableObjectPublisher)?.send()
 
             let current = object[keyPath: storageKeyPath]
