@@ -19,7 +19,6 @@
 		AC8ABA0429A01BF300C7F6D5 /* SidebarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */; };
 		AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */; };
 		AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */; };
-		ACA9DD8929EDAFA000164615 /* CustomDropdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACA9DD8829EDAFA000164615 /* CustomDropdown.swift */; };
 		ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */; };
 		ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */; };
 		ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */; };
@@ -67,7 +66,6 @@
 		AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarButton.swift; sourceTree = "<group>"; };
 		AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTitle.swift; sourceTree = "<group>"; };
 		AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurWindow.swift; sourceTree = "<group>"; };
-		ACA9DD8829EDAFA000164615 /* CustomDropdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDropdown.swift; sourceTree = "<group>"; };
 		ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleList.swift; sourceTree = "<group>"; };
 		ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Searchbar.swift; sourceTree = "<group>"; };
 		ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarDisclosureGroupStyle.swift; sourceTree = "<group>"; };
@@ -118,7 +116,6 @@
 				AC8ABA0529A01C6600C7F6D5 /* Sidebar */,
 				ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */,
 				ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */,
-				ACA9DD8829EDAFA000164615 /* CustomDropdown.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -363,7 +360,6 @@
 				AC1651B829874DB000CBC220 /* Theme.swift in Sources */,
 				ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */,
 				AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */,
-				ACA9DD8929EDAFA000164615 /* CustomDropdown.swift in Sources */,
 				ACD621F2298057D400FE2CE2 /* TabViewModel.swift in Sources */,
 				ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */,
 				AC65E77529A7DCC200F3A7CE /* KeyAware.swift in Sources */,
