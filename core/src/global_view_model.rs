@@ -17,6 +17,9 @@ pub struct GlobalViewModel {
 
 impl RustGlobalViewModel {
     pub fn new() -> Self {
+        // one time init
+        env_logger::init();
+
         Self {
             inner: RwLock::new(GlobalViewModel::new()),
         }
@@ -34,10 +37,14 @@ impl RustGlobalViewModel {
     }
 
     pub fn set_selected_cluster(&self, cluster: Cluster) {
-        self.inner
+        if let Err(err) = self
+            .inner
             .write()
             .user_config
             .set_selected_cluster(cluster.id)
+        {
+            log::error!("failed to set selected cluster: {err}");
+        }
     }
 }
 
@@ -50,7 +57,7 @@ impl GlobalViewModel {
         if user_config.selected_cluster.is_none() {
             if let Some(clusters) = &clusters {
                 if let Some(cluster_id) = clusters.selected_or_context_cluster(&user_config) {
-                    user_config.set_selected_cluster(cluster_id);
+                    let _ = user_config.set_selected_cluster(cluster_id);
                 }
             }
         }

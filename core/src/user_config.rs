@@ -1,4 +1,5 @@
 use etcetera::app_strategy::{self, AppStrategy, AppStrategyArgs, Xdg};
+use eyre::{Context, Result};
 use once_cell::sync::Lazy;
 
 use crate::cluster::ClusterId;
@@ -40,7 +41,10 @@ impl UserConfig {
             std::fs::create_dir_all(config_dir).expect("failed to create config dir");
 
             let config = Self::new();
-            config.save();
+
+            if let Err(err) = config.save() {
+                eprintln!("failed to save config file: {err}");
+            }
 
             return config;
         }
@@ -49,15 +53,18 @@ impl UserConfig {
         serde_json::from_str(&config_str).expect("failed to parse config file")
     }
 
-    pub fn set_selected_cluster(&mut self, cluster_id: ClusterId) {
+    pub fn set_selected_cluster(&mut self, cluster_id: ClusterId) -> Result<()> {
         self.selected_cluster = Some(cluster_id);
-        self.save();
+        self.save()
     }
 
-    pub fn save(&self) {
+    pub fn save(&self) -> Result<()> {
         let config_path = APP_DIR.config_dir().join("user_config.json");
-        let config_str = serde_json::to_string_pretty(self).expect("failed to serialize config");
+        let config_str =
+            serde_json::to_string_pretty(self).wrap_err("failed to serialize config")?;
 
-        std::fs::write(config_path, config_str).expect("failed to write config file");
+        std::fs::write(config_path, config_str).wrap_err("failed to write config file")?;
+
+        Ok(())
     }
 }
