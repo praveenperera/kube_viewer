@@ -58,6 +58,14 @@ RustBuffer _uniffi_kube_viewer_impl_RustGlobalViewModel_clusters_1daf(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
+RustBuffer _uniffi_kube_viewer_impl_RustGlobalViewModel_selected_cluster_8737(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void _uniffi_kube_viewer_impl_RustGlobalViewModel_set_selected_cluster_cd47(
+      void*_Nonnull ptr,RustBuffer cluster,
+    RustCallStatus *_Nonnull out_status
+    );
 void ffi_kube_viewer_164e_RustMainViewModel_object_free(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status

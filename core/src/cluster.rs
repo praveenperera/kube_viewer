@@ -32,7 +32,11 @@ impl Clusters {
         })
     }
 
-    pub fn selected_cluster(&self, user_config: &UserConfig) -> Option<ClusterId> {
+    pub fn get_cluster(&self, cluster_id: &ClusterId) -> Option<Cluster> {
+        self.clusters_map.get(cluster_id).cloned()
+    }
+
+    pub fn selected_or_context_cluster(&self, user_config: &UserConfig) -> Option<ClusterId> {
         // if user has selected a cluster, use that
         if let Some(ref selected_cluster) = user_config.selected_cluster {
             return self

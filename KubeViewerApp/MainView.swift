@@ -16,7 +16,6 @@ struct MainView: View {
     @State private var expanded: Bool = true
     @State private var search: String = ""
     @State private var window: NSWindow?
-    @State private var selectedCluster: Cluster?
 
     public init(windowId: Binding<UUID?>, globalModel: GlobalModel) {
         self.windowId = windowId.wrappedValue ?? UUID()
@@ -112,13 +111,13 @@ struct MainView: View {
             Menu(
                 content: {
                     ForEach(Array(globalViewModel.clusters.values), id: \.self) { cluster in
-                        Button(action: { self.selectedCluster = cluster }) {
+                        Button(action: { self.globalViewModel.selectedCluster = cluster }) {
                             Text(cluster.name())
                         }
                     }
                 },
                 label: {
-                    Label(selectedCluster?.name() ?? "Select a cluster ...", systemImage: "chevron.down")
+                    Label(globalViewModel.selectedCluster?.name() ?? "Select a cluster ...", systemImage: "chevron.down")
                 }
             )
             .padding(.horizontal, 15)

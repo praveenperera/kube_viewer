@@ -431,6 +431,8 @@ public struct FfiConverterTypeFocusRegionHasher: FfiConverter {
 
 public protocol RustGlobalViewModelProtocol {
     func `clusters`()  -> [ClusterId: Cluster]
+    func `selectedCluster`()  -> Cluster?
+    func `setSelectedCluster`(`cluster`: Cluster) 
     
 }
 
@@ -468,6 +470,25 @@ public class RustGlobalViewModel: RustGlobalViewModelProtocol {
     )
 }
         )
+    }
+    public func `selectedCluster`()  -> Cluster? {
+        return try! FfiConverterOptionTypeCluster.lift(
+            try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustGlobalViewModel_selected_cluster_8737(self.pointer, $0
+    )
+}
+        )
+    }
+    public func `setSelectedCluster`(`cluster`: Cluster)  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustGlobalViewModel_set_selected_cluster_cd47(self.pointer, 
+        FfiConverterTypeCluster.lower(`cluster`), $0
+    )
+}
     }
     
 }
@@ -701,17 +722,17 @@ public struct FfiConverterTypeRustMainViewModel: FfiConverter {
 
 public struct Cluster {
     public var `id`: ClusterId
-    public var `nickname`: String?
     public var `server`: String?
     public var `proxyUrl`: String?
+    public var `nickname`: String?
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(`id`: ClusterId, `nickname`: String?, `server`: String?, `proxyUrl`: String?) {
+    public init(`id`: ClusterId, `server`: String?, `proxyUrl`: String?, `nickname`: String?) {
         self.`id` = `id`
-        self.`nickname` = `nickname`
         self.`server` = `server`
         self.`proxyUrl` = `proxyUrl`
+        self.`nickname` = `nickname`
     }
 }
 
@@ -721,13 +742,13 @@ extension Cluster: Equatable, Hashable {
         if lhs.`id` != rhs.`id` {
             return false
         }
-        if lhs.`nickname` != rhs.`nickname` {
-            return false
-        }
         if lhs.`server` != rhs.`server` {
             return false
         }
         if lhs.`proxyUrl` != rhs.`proxyUrl` {
+            return false
+        }
+        if lhs.`nickname` != rhs.`nickname` {
             return false
         }
         return true
@@ -735,9 +756,9 @@ extension Cluster: Equatable, Hashable {
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(`id`)
-        hasher.combine(`nickname`)
         hasher.combine(`server`)
         hasher.combine(`proxyUrl`)
+        hasher.combine(`nickname`)
     }
 }
 
@@ -746,17 +767,17 @@ public struct FfiConverterTypeCluster: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Cluster {
         return try Cluster(
             `id`: FfiConverterTypeClusterId.read(from: &buf), 
-            `nickname`: FfiConverterOptionString.read(from: &buf), 
             `server`: FfiConverterOptionString.read(from: &buf), 
-            `proxyUrl`: FfiConverterOptionString.read(from: &buf)
+            `proxyUrl`: FfiConverterOptionString.read(from: &buf), 
+            `nickname`: FfiConverterOptionString.read(from: &buf)
         )
     }
 
     public static func write(_ value: Cluster, into buf: inout [UInt8]) {
         FfiConverterTypeClusterId.write(value.`id`, into: &buf)
-        FfiConverterOptionString.write(value.`nickname`, into: &buf)
         FfiConverterOptionString.write(value.`server`, into: &buf)
         FfiConverterOptionString.write(value.`proxyUrl`, into: &buf)
+        FfiConverterOptionString.write(value.`nickname`, into: &buf)
     }
 }
 
@@ -1765,6 +1786,27 @@ fileprivate struct FfiConverterOptionString: FfiConverterRustBuffer {
         switch try readInt(&buf) as Int8 {
         case 0: return nil
         case 1: return try FfiConverterString.read(from: &buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
+        }
+    }
+}
+
+fileprivate struct FfiConverterOptionTypeCluster: FfiConverterRustBuffer {
+    typealias SwiftType = Cluster?
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        guard let value = value else {
+            writeInt(&buf, Int8(0))
+            return
+        }
+        writeInt(&buf, Int8(1))
+        FfiConverterTypeCluster.write(value, into: &buf)
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        switch try readInt(&buf) as Int8 {
+        case 0: return nil
+        case 1: return try FfiConverterTypeCluster.read(from: &buf)
         default: throw UniffiInternalError.unexpectedOptionalTag
         }
     }

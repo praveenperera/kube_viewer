@@ -29,15 +29,15 @@ impl RustGlobalViewModel {
         self.inner.read().clusters()
     }
 
-    pub fn selected_cluster(&self) -> Option<ClusterId> {
-        self.inner.read().user_config.selected_cluster.clone()
+    pub fn selected_cluster(&self) -> Option<Cluster> {
+        self.inner.read().selected_cluster()
     }
 
-    pub fn set_selected_cluster(&self, cluster_id: ClusterId) {
+    pub fn set_selected_cluster(&self, cluster: Cluster) {
         self.inner
             .write()
             .user_config
-            .set_selected_cluster(cluster_id);
+            .set_selected_cluster(cluster.id)
     }
 }
 
@@ -49,7 +49,7 @@ impl GlobalViewModel {
         // set selected cluster to current context
         if user_config.selected_cluster.is_none() {
             if let Some(clusters) = &clusters {
-                if let Some(cluster_id) = clusters.selected_cluster(&user_config) {
+                if let Some(cluster_id) = clusters.selected_or_context_cluster(&user_config) {
                     user_config.set_selected_cluster(cluster_id);
                 }
             }
@@ -59,6 +59,11 @@ impl GlobalViewModel {
             user_config,
             clusters,
         }
+    }
+
+    pub fn selected_cluster(&self) -> Option<Cluster> {
+        let cluster_id = &self.user_config.selected_cluster.as_ref()?;
+        self.clusters.as_ref()?.get_cluster(cluster_id)
     }
 
     pub fn clusters(&self) -> HashMap<ClusterId, Cluster> {
