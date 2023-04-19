@@ -1,14 +1,14 @@
+use crate::Updater;
 use tab::{BorrowedTabs, TabId};
 
 use crate::{
     key_handler::{FocusRegion, KeyAwareEvent},
-    main_view_model::{MainViewModelField, Updater},
     tab,
     tab_group::TabGroups,
     TabGroupId,
 };
 
-use super::MainViewModel;
+use super::{MainViewModel, MainViewModelField};
 
 impl MainViewModel {
     pub fn handle_key_input(&mut self, key_input: KeyAwareEvent) -> bool {

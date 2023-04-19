@@ -15,6 +15,18 @@ pub struct GlobalViewModel {
     clusters: Option<Clusters>,
 }
 
+impl Default for RustGlobalViewModel {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Default for GlobalViewModel {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RustGlobalViewModel {
     pub fn new() -> Self {
         // one time init
