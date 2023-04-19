@@ -482,6 +482,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fcaabb2fef8c910e7f4c7ce9f67a1283a1715879a7c230ca9d6d1ae31f16d91"
 
 [[package]]
+name = "etcetera"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "870a9fdff9c99141df9277dece5ec8021434eca50f05cbac41a5eb07c9659e7d"
+dependencies = [
+ "cfg-if",
+ "home",
+ "thiserror",
+]
+
+[[package]]
 name = "eyre"
 version = "0.6.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -648,6 +659,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62b467343b94ba476dcb2500d242dadbb39557df889310ac77c5d99100aaac33"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "home"
+version = "0.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "747309b4b440c06d57b0b25f2aee03ee9b5e5397d288c60e21fc709bb98a7408"
+dependencies = [
+ "winapi",
 ]
 
 [[package]]
@@ -971,6 +991,7 @@ version = "0.1.0"
 dependencies = [
  "crossbeam",
  "derive_more",
+ "etcetera",
  "eyre",
  "indexmap",
  "k8s-openapi",
@@ -978,6 +999,8 @@ dependencies = [
  "maplit",
  "once_cell",
  "parking_lot",
+ "serde",
+ "serde_json",
  "thiserror",
  "tokio",
  "tracing",

@@ -185,8 +185,7 @@ impl MainViewModel {
                     let previous_tab_id = if let Some(previous_tab_id) = previous_tab_id {
                         previous_tab_id
                     } else {
-                        let last_tab_id = tab_group.tabs.last()?.id.clone();
-                        last_tab_id
+                        tab_group.tabs.last()?.id.clone()
                     };
 
                     Some(previous_tab_id)

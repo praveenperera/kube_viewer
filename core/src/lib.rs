@@ -6,6 +6,7 @@ mod key_handler;
 mod main_view_model;
 mod tab;
 mod tab_group;
+pub mod user_config;
 
 use crate::uniffi_types::*;
 uniffi::include_scaffolding!("kube_viewer");

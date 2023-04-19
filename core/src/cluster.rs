@@ -3,19 +3,77 @@ use eyre::Result;
 use kube::config::NamedCluster;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, From, Hash, uniffi::Record)]
+use serde::{Deserialize, Serialize};
+
+use crate::user_config::UserConfig;
+
+#[derive(Debug, Clone)]
+pub struct Clusters {
+    pub kube_config: kube::config::Kubeconfig,
+    pub clusters_map: HashMap<ClusterId, Cluster>,
+}
+
+impl Clusters {
+    pub fn try_new() -> Result<Self> {
+        let kube_config = kube::config::Kubeconfig::read()?;
+
+        let clusters_map: HashMap<ClusterId, Cluster> = kube_config
+            .clusters
+            .clone()
+            .into_iter()
+            .map(Cluster::try_from)
+            .filter_map(Result::ok)
+            .map(|cluster| (cluster.id.clone(), cluster))
+            .collect();
+
+        Ok(Self {
+            kube_config,
+            clusters_map,
+        })
+    }
+
+    pub fn selected_cluster(&self, user_config: &UserConfig) -> Option<ClusterId> {
+        // if user has selected a cluster, use that
+        if let Some(ref selected_cluster) = user_config.selected_cluster {
+            return self
+                .clusters_map
+                .get(selected_cluster)
+                .map(|cluster| cluster.id.clone())
+                // if user has selected a cluster, but it's not in the kubeconfig, use current_context
+                .or_else(|| self.current_context_cluster_id());
+        };
+
+        // default to current_context
+        self.current_context_cluster_id()
+    }
+
+    pub fn current_context_cluster_id(&self) -> Option<ClusterId> {
+        self.kube_config
+            .current_context
+            .as_ref()
+            .and_then(|cluster_id| self.clusters_map.get(&cluster_id.clone().into()))
+            .map(|cluster| cluster.id.clone())
+    }
+}
+
+/// Clusters
+
+#[derive(
+    Debug, Clone, PartialEq, Eq, PartialOrd, Ord, From, Hash, uniffi::Record, Serialize, Deserialize,
+)]
 pub struct ClusterId {
     raw_value: String,
 }
 
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct Cluster {
+    // set in kubeconfig
     pub id: ClusterId,
+    pub server: Option<String>,
+    pub proxy_url: Option<String>,
 
     // set by user
     pub nickname: Option<String>,
-    pub server: Option<String>,
-    pub proxy_url: Option<String>,
 }
 
 impl TryFrom<NamedCluster> for Cluster {
@@ -33,18 +91,4 @@ impl TryFrom<NamedCluster> for Cluster {
             proxy_url: cluster.proxy_url,
         })
     }
-}
-
-pub fn get_clusters_hashmap() -> Result<HashMap<ClusterId, Cluster>> {
-    let kube_config = kube::config::Kubeconfig::read()?;
-
-    let clusters: HashMap<ClusterId, Cluster> = kube_config
-        .clusters
-        .into_iter()
-        .map(Cluster::try_from)
-        .filter_map(Result::ok)
-        .map(|cluster| (cluster.id.clone(), cluster))
-        .collect();
-
-    Ok(clusters)
 }
