@@ -50,7 +50,7 @@ struct SidebarButton: View {
                 self.selectedTab = tab.id
             }
         }
-        .whenHovered { hovering in
+        .onHover { hovering in
             withAnimation {
                 self.isHover = hovering
             }
