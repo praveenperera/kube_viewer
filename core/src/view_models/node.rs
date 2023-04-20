@@ -25,9 +25,11 @@ pub struct RustNodeViewModel {
 }
 
 impl RustNodeViewModel {
-    pub fn new(window_id: WindowId) -> Self {
+    pub fn new(window_id: String) -> Self {
+        let window_id = WindowId(window_id);
+
         Self {
-            inner: RwLock::new(NodeViewModel::new(window_id.clone().into())),
+            inner: RwLock::new(NodeViewModel::new(window_id.clone())),
             window_id,
         }
     }

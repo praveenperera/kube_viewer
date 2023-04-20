@@ -1,14 +1,16 @@
 use chrono::{DateTime, Utc};
 use k8s_openapi::api::core::v1::{
-    Node as K8sNode, NodeAddress as K8sNodeAddress, Taint as K8sTaint,
+    Node as K8sNode, NodeAddress as K8sNodeAddress, NodeCondition as K8sNodeCondition,
+    NodeSystemInfo, Taint as K8sTaint,
 };
 use std::collections::BTreeMap;
 
-pub struct Condition {
+#[derive(Debug, Clone, Default)]
+pub struct NodeCondition {
     pub name: String,
     pub status: String,
-    pub reason: String,
-    pub message: String,
+    pub reason: Option<String>,
+    pub message: Option<String>,
 }
 
 pub struct Node {
@@ -16,14 +18,14 @@ pub struct Node {
     pub labels: BTreeMap<String, String>,
     pub annotations: BTreeMap<String, String>,
     pub taints: Vec<Taint>,
-    pub addressees: Vec<NodeAddress>,
+    pub addresses: Vec<NodeAddress>,
     pub os: Option<String>,
     pub arch: Option<String>,
     pub os_image: Option<String>,
     pub kernel_version: Option<String>,
     pub container_runtime: Option<String>,
     pub kubelet_version: Option<String>,
-    pub condition: Condition,
+    pub conditions: Vec<NodeCondition>,
 }
 
 pub struct Taint {
@@ -33,6 +35,7 @@ pub struct Taint {
     pub value: Option<String>,
 }
 
+#[derive(Debug, Clone)]
 pub struct NodeAddress {
     pub address: String,
     pub node_type: String,
@@ -58,9 +61,55 @@ impl From<K8sTaint> for Taint {
     }
 }
 
+impl From<K8sNodeCondition> for NodeCondition {
+    fn from(condition: K8sNodeCondition) -> Self {
+        Self {
+            name: condition.type_,
+            status: condition.status,
+            reason: condition.reason,
+            message: condition.message,
+        }
+    }
+}
+
 impl From<K8sNode> for Node {
     fn from(node: K8sNode) -> Self {
-        let node_info = node.status.and_then(|status| status.node_info);
+        let addresses = node
+            .status
+            .as_ref()
+            .and_then(|status| status.addresses.clone())
+            .map(|addresses| addresses.into_iter().map(NodeAddress::from).collect())
+            .unwrap_or_default();
+
+        let conditions = node
+            .status
+            .as_ref()
+            .and_then(|status| {
+                status.conditions.as_ref().map(|conditions| {
+                    conditions
+                        .into_iter()
+                        .cloned()
+                        .map(NodeCondition::from)
+                        .collect::<Vec<NodeCondition>>()
+                })
+            })
+            .unwrap_or_default();
+
+        let node_info: Option<NodeSystemInfo> =
+            node.status.and_then(|status| status.node_info).take();
+
+        let (os, arch, os_image, kernel_version, container_runtime, kubelet_version) = node_info
+            .map(|info| {
+                (
+                    Some(info.operating_system),
+                    Some(info.architecture),
+                    Some(info.os_image),
+                    Some(info.kernel_version),
+                    Some(info.container_runtime_version),
+                    Some(info.kubelet_version),
+                )
+            })
+            .unwrap_or((None, None, None, None, None, None));
 
         Self {
             name: node
@@ -74,18 +123,14 @@ impl From<K8sNode> for Node {
                 .and_then(|spec| spec.taints)
                 .map(|taints| taints.into_iter().map(Taint::from).collect())
                 .unwrap_or_default(),
-            addressees: node
-                .status
-                .and_then(|status| status.addresses)
-                .map(|addresses| addresses.into_iter().map(NodeAddress::from).collect())
-                .unwrap_or_default(),
-            os: node_info.map(|info| info.operating_system),
-            arch: node_info.map(|info| info.architecture),
-            os_image: node_info.map(|info| info.os_image),
-            kernel_version: node_info.map(|info| info.kernel_version),
-            container_runtime: node_info.map(|info| info.container_runtime_version),
-            kubelet_version: node_info.map(|info| info.kubelet_version),
-            condition: todo!(),
+            addresses,
+            os,
+            arch,
+            os_image,
+            kernel_version,
+            container_runtime,
+            kubelet_version,
+            conditions,
         }
     }
 }
