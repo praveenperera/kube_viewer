@@ -87,7 +87,7 @@ impl From<K8sNode> for Node {
             .and_then(|status| {
                 status.conditions.as_ref().map(|conditions| {
                     conditions
-                        .into_iter()
+                        .iter()
                         .cloned()
                         .map(NodeCondition::from)
                         .collect::<Vec<NodeCondition>>()
