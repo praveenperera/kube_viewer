@@ -5,6 +5,7 @@ mod key_handler;
 mod tab;
 mod tab_group;
 
+pub mod kubernetes;
 pub mod user_config;
 pub mod view_models;
 
