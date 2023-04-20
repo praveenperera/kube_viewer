@@ -15,6 +15,7 @@ mod uniffi_types {
     // view models
     pub(crate) use crate::view_models::global::*;
     pub(crate) use crate::view_models::main::*;
+    pub(crate) use crate::view_models::node::*;
 
     // view model helpers
     pub(crate) use crate::key_handler::*;

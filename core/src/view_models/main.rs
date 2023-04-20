@@ -1,7 +1,6 @@
 mod key_handler;
 
 use crossbeam::channel::Sender;
-use derive_more::{AsRef, Display, From, FromStr};
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::collections::HashMap;
@@ -12,8 +11,7 @@ use crate::{
     tab_group::{TabGroup, TabGroupId, TabGroups},
 };
 
-#[derive(Debug, Clone, AsRef, From, FromStr, Display, Hash, PartialEq, Eq)]
-pub struct WindowId(String);
+use super::WindowId;
 
 #[derive(Debug)]
 pub struct Updater(RwLock<HashMap<WindowId, Sender<MainViewModelField>>>);

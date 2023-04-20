@@ -9,6 +9,11 @@ interface RustMainViewModel {
   void add_update_listener(MainViewModelUpdater listener);
 };
 
+
+interface RustNodeViewModel {
+  constructor(string window_id);
+};
+
 interface FocusRegionHasher {
   constructor();
 };
