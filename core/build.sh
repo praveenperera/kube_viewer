@@ -3,15 +3,19 @@
 [ -z "$1" ] && BUILD_TYPE=debug
 [ -z "$1" ] || BUILD_TYPE=$1
 
+set -e
+
+cargo build
+
 cd ../uniffi_bindgen
 
 echo "generating bindings from udl file (${BUILD_TYPE})"
 cargo run -- \
-    generate ../bindings/src/kube_viewer.udl \
+    generate ../core/src/kube_viewer.udl \
     --language swift \
-    --out-dir ../bindings/src/generated \
-    --lib-file ../bindings/target/aarch64-apple-darwin/debug/libkube_viewer.a
+    --out-dir ../core/src/generated \
+    --lib-file ../core/target/debug/libkube_viewer.a
 
-cd ../bindings
+cd ../core
 echo "building universal binary (${BUILD_TYPE})"
 ../xc-universal-binary.sh libkube_viewer.a kube_viewer "${PWD}" "$BUILD_TYPE"

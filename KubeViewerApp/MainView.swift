@@ -10,6 +10,7 @@ struct MainView: View {
     let windowId: UUID
     @ObservedObject var globalModel: GlobalModel
     @ObservedObject var model: MainViewModel
+    @StateObject var globalViewModel: GlobalViewModel = .init()
 
     @State private var windowIsLoaded: Bool = false
     @State private var hoverRow: UUID?
@@ -34,8 +35,8 @@ struct MainView: View {
                         self.model.tabContentViews[self.model.selectedTab]!
                         Text(self.model.windowId.uuidString)
                     }
-
-                })
+                }
+            )
         }
         .background(KeyAwareView(onEvent: self.model.data.handleKeyInput))
         .background(WindowAccessor(window: self.$window).background(BlurWindow()))
@@ -115,16 +116,37 @@ struct MainView: View {
     }
 
     var ClusterSelection: some View {
-        HStack {
-            Button("Main Cluster") {}
-        }
-        .overlay {
-            if self.model.currentFocusRegion == .clusterSelection {
-                StandardFocusRing()
+        VStack {
+            Menu(
+                content: {
+                    ForEach(Array(globalViewModel.clusters.values), id: \.self) { cluster in
+                        Button(action: { self.globalViewModel.selectedCluster = cluster }) {
+                            Text(cluster.name())
+                        }
+                    }
+                },
+                label: {
+                    Label(globalViewModel.selectedCluster?.name() ?? "Select a cluster ...", systemImage: "chevron.down")
+                }
+            )
+            .padding(.horizontal, 15)
+            .padding(.vertical, 8)
+            .overlay {
+                if self.model.currentFocusRegion == .clusterSelection {
+                    StandardFocusRing()
+                }
             }
-        }
-        .padding(.vertical, 8)
-        .padding(.bottom, 7)
+            .menuStyle(CustomMenuStyle())
+        }.padding(.bottom, 7)
+    }
+}
+
+struct CustomMenuStyle: MenuStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        Menu(configuration)
+            .menuIndicator(.hidden)
+            .menuStyle(BorderlessButtonMenuStyle())
+            .buttonStyle(BorderedButtonStyle())
     }
 }
 

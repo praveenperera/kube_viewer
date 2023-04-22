@@ -1,7 +1,6 @@
 mod key_handler;
 
 use crossbeam::channel::Sender;
-use derive_more::{AsRef, Display, From, FromStr};
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::collections::HashMap;
@@ -12,8 +11,7 @@ use crate::{
     tab_group::{TabGroup, TabGroupId, TabGroups},
 };
 
-#[derive(Debug, Clone, AsRef, From, FromStr, Display, Hash, PartialEq, Eq)]
-pub struct WindowId(String);
+use super::WindowId;
 
 #[derive(Debug)]
 pub struct Updater(RwLock<HashMap<WindowId, Sender<MainViewModelField>>>);
@@ -163,7 +161,7 @@ impl MainViewModel {
         let general = TabGroup::new(
             TabGroupId::General,
             vec![
-                Tab::new(TabId::Cluster, "helm"),
+                Tab::new(TabId::ClusterTab, "helm"),
                 Tab::new(TabId::Nodes, "server.rack"),
                 Tab::new(TabId::NameSpaces, "list.dash"),
                 Tab::new(TabId::Events, "clock.arrow.circlepath"),
@@ -255,7 +253,7 @@ impl MainViewModel {
             tabs,
             tab_groups: TabGroups(tab_groups),
             tab_group_expansions,
-            selected_tab: TabId::Cluster,
+            selected_tab: TabId::ClusterTab,
         }
     }
 

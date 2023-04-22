@@ -8,8 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		AC1651B829874DB000CBC220 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1651B729874DB000CBC220 /* Theme.swift */; };
+		AC16FF4F29C3FE6C00AAEBD7 /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */; };
+		AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */; };
 		AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D66299B325000429CDB /* RustPublished.swift */; };
-		AC3F4D6B299C789100429CDB /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6A299C789100429CDB /* kube_viewer.udl */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
 		AC65E77529A7DCC200F3A7CE /* KeyAware.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC65E77429A7DCC200F3A7CE /* KeyAware.swift */; };
 		AC65E77829A7DE3F00F3A7CE /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = AC65E77729A7DE3F00F3A7CE /* KeyboardShortcuts */; };
@@ -17,6 +18,7 @@
 		AC8ABA0429A01BF300C7F6D5 /* SidebarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */; };
 		AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */; };
 		AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */; };
+		ACA9DD8E29F07F0700164615 /* libkube_viewer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ACA9DD8D29F07F0700164615 /* libkube_viewer.a */; };
 		ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */; };
 		ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */; };
 		ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */; };
@@ -28,7 +30,6 @@
 		ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621EA2980415E00FE2CE2 /* TabContentView.swift */; };
 		ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621ED2980569500FE2CE2 /* MainViewModel.swift */; };
 		ACD621F2298057D400FE2CE2 /* TabViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621F1298057D400FE2CE2 /* TabViewModel.swift */; };
-		ACE6E01C299C59410094C1DC /* libkube_viewer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ACE6E01B299C59410094C1DC /* libkube_viewer.a */; };
 		DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */; };
 		DADF4C82295E6DBB006CA792 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DADF4C81295E6DBB006CA792 /* Assets.xcassets */; };
 		DADF4C85295E6DBB006CA792 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DADF4C84295E6DBB006CA792 /* Preview Assets.xcassets */; };
@@ -49,20 +50,22 @@
 				"$(INPUT_FILE_DIR)/generated/$(INPUT_FILE_BASE)FFI.h",
 			);
 			runOncePerArchitecture = 0;
-			script = "#!/bin/zsh\ncd $SRCROOT/uniffi_bindgen\n\n$HOME/.cargo/bin/cargo run -- \\\n    generate \"$INPUT_FILE_PATH\" \\\n    --language swift \\\n    --out-dir $INPUT_FILE_DIR/generated \\\n    --lib-file $SRCROOT/bindings/target/aarch64-apple-darwin/debug/libkube_viewer.a \n\nexit 0\n";
+			script = "#!/bin/zsh\ncd $SRCROOT/uniffi_bindgen\n\n$HOME/.cargo/bin/cargo run -- \\\n    generate \"$INPUT_FILE_PATH\" \\\n    --language swift \\\n    --out-dir $INPUT_FILE_DIR/generated \\\n    --lib-file $SRCROOT/core/target/debug/libkube_viewer.a \n\nexit 0\n";
 		};
 /* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
 		AC1651B729874DB000CBC220 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = core/src/kube_viewer.udl; sourceTree = "<group>"; };
+		AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalViewModel.swift; sourceTree = "<group>"; };
 		AC3F4D66299B325000429CDB /* RustPublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustPublished.swift; sourceTree = "<group>"; };
-		AC3F4D6A299C789100429CDB /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = bindings/src/kube_viewer.udl; sourceTree = "<group>"; };
 		AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalBinding.swift; sourceTree = "<group>"; };
 		AC65E77429A7DCC200F3A7CE /* KeyAware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyAware.swift; sourceTree = "<group>"; };
 		AC65E77C29A9278600F3A7CE /* StandardFocusRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardFocusRing.swift; sourceTree = "<group>"; };
 		AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarButton.swift; sourceTree = "<group>"; };
 		AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTitle.swift; sourceTree = "<group>"; };
 		AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurWindow.swift; sourceTree = "<group>"; };
+		ACA9DD8D29F07F0700164615 /* libkube_viewer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkube_viewer.a; path = core/target/universal/libkube_viewer.a; sourceTree = "<group>"; };
 		ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleList.swift; sourceTree = "<group>"; };
 		ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Searchbar.swift; sourceTree = "<group>"; };
 		ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarDisclosureGroupStyle.swift; sourceTree = "<group>"; };
@@ -76,7 +79,6 @@
 		ACD621F1298057D400FE2CE2 /* TabViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabViewModel.swift; sourceTree = "<group>"; };
 		ACE6DFFA299C11520094C1DC /* KubeViewerApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KubeViewerApp-Bridging-Header.h"; sourceTree = "<group>"; };
 		ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "xc-universal-binary.sh"; sourceTree = "<group>"; };
-		ACE6E01B299C59410094C1DC /* libkube_viewer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkube_viewer.a; path = bindings/target/universal/libkube_viewer.a; sourceTree = "<group>"; };
 		DADF4C7A295E6DB9006CA792 /* KubeViewerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KubeViewerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KubeViewerApp.swift; sourceTree = "<group>"; };
 		DADF4C81295E6DBB006CA792 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -89,7 +91,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ACE6E01C299C59410094C1DC /* libkube_viewer.a in Frameworks */,
+				ACA9DD8E29F07F0700164615 /* libkube_viewer.a in Frameworks */,
 				AC65E77829A7DE3F00F3A7CE /* KeyboardShortcuts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -166,7 +168,7 @@
 		ACE6E014299C58F80094C1DC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				ACE6E01B299C59410094C1DC /* libkube_viewer.a */,
+				ACA9DD8D29F07F0700164615 /* libkube_viewer.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -182,7 +184,7 @@
 		DADF4C71295E6DB9006CA792 = {
 			isa = PBXGroup;
 			children = (
-				AC3F4D6A299C789100429CDB /* kube_viewer.udl */,
+				AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */,
 				ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */,
 				DADF4C7C295E6DB9006CA792 /* KubeViewerApp */,
 				DADF4C7B295E6DB9006CA792 /* Products */,
@@ -211,6 +213,7 @@
 				ACD621E629803DFB00FE2CE2 /* MainView.swift */,
 				AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */,
 				ACD621ED2980569500FE2CE2 /* MainViewModel.swift */,
+				AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */,
 				DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */,
 				DADF4C81295E6DBB006CA792 /* Assets.xcassets */,
 				DADF4C86295E6DBB006CA792 /* KubeViewerApp.entitlements */,
@@ -329,7 +332,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# [[ $CONFIGURATION == \"Release\" ]] && bash $SRCROOT/xc-universal-binary.sh libkube_viewer.a kube_viewer $SRCROOT/bindings $CONFIGURATION\nbash $SRCROOT/xc-universal-binary.sh libkube_viewer.a kube_viewer $SRCROOT/bindings $CONFIGURATION\n\nexit 0\n";
+			shellScript = "# [[ $CONFIGURATION == \"Release\" ]] && bash $SRCROOT/xc-universal-binary.sh libkube_viewer.a kube_viewer $SRCROOT/core $CONFIGURATION\n\nbash $SRCROOT/xc-universal-binary.sh libkube_viewer.a kube_viewer $SRCROOT/core $CONFIGURATION\n\nexit 0\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -338,10 +341,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AC3F4D6B299C789100429CDB /* kube_viewer.udl in Sources */,
 				AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */,
 				ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */,
 				ACC45D552995EFA00063B358 /* whenHovered.swift in Sources */,
+				AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */,
 				ACC45D532995AE480063B358 /* if.swift in Sources */,
 				ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */,
 				AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */,
@@ -359,6 +362,7 @@
 				ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */,
 				AC65E77529A7DCC200F3A7CE /* KeyAware.swift in Sources */,
 				ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */,
+				AC16FF4F29C3FE6C00AAEBD7 /* kube_viewer.udl in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -499,10 +503,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/bindings/target/universal",
-					"$(PROJECT_DIR)/bindings/target/universal",
-				);
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/core/target/universal";
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.infraopssolutions.kube-viewer-app";
@@ -535,10 +536,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/bindings/target/universal",
-					"$(PROJECT_DIR)/bindings/target/universal",
-				);
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/core/target/universal";
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.infraopssolutions.kube-viewer-app";

@@ -1,14 +1,14 @@
+use crate::Updater;
 use tab::{BorrowedTabs, TabId};
 
 use crate::{
     key_handler::{FocusRegion, KeyAwareEvent},
-    main_view_model::{MainViewModelField, Updater},
     tab,
     tab_group::TabGroups,
     TabGroupId,
 };
 
-use super::MainViewModel;
+use super::{MainViewModel, MainViewModelField};
 
 impl MainViewModel {
     pub fn handle_key_input(&mut self, key_input: KeyAwareEvent) -> bool {
@@ -185,8 +185,7 @@ impl MainViewModel {
                     let previous_tab_id = if let Some(previous_tab_id) = previous_tab_id {
                         previous_tab_id
                     } else {
-                        let last_tab_id = tab_group.tabs.last()?.id.clone();
-                        last_tab_id
+                        tab_group.tabs.last()?.id.clone()
                     };
 
                     Some(previous_tab_id)
