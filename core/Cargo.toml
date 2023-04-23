@@ -21,7 +21,7 @@ tracing = "0.1"
 tracing-log = "0.1"
 
 # async
-tokio = {version = "1.26", features = ["macros", "rt"]}
+tokio = {version = "1.26", features = ["macros", "rt", "rt-multi-thread"]}
 
 # error handling
 eyre = "0.6"
