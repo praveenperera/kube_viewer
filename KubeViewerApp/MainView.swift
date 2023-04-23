@@ -31,10 +31,7 @@ struct MainView: View {
                     .navigationSplitViewColumnWidth(min: 200, ideal: 260)
                 },
                 detail: {
-                    HStack {
-                        self.model.tabContentViews[self.model.selectedTab]!
-                        Text(self.model.windowId.uuidString)
-                    }
+                    TabContent
                 }
             )
         }
@@ -55,6 +52,17 @@ struct MainView: View {
             if newWindow != nil {
                 self.windowIsLoaded = true
             }
+        }
+    }
+
+    @ViewBuilder
+    var TabContent: some View {
+        switch self.model.selectedTab {
+        case TabId.nodes:
+            NodeView(windowId: windowId, globalModel: globalModel)
+        default:
+            self.model.tabContentViews[self.model.selectedTab]!
+            Text(self.model.windowId.uuidString)
         }
     }
 
@@ -120,13 +128,13 @@ struct MainView: View {
             Menu(
                 content: {
                     ForEach(Array(globalViewModel.clusters.values), id: \.self) { cluster in
-                        Button(action: { self.globalViewModel.selectedCluster = cluster }) {
+                        Button(action: { self.model.selectedCluster = cluster }) {
                             Text(cluster.name())
                         }
                     }
                 },
                 label: {
-                    Label(globalViewModel.selectedCluster?.name() ?? "Select a cluster ...", systemImage: "chevron.down")
+                    Label(model.selectedCluster?.name() ?? "Select a cluster ...", systemImage: "chevron.down")
                 }
             )
             .padding(.horizontal, 15)

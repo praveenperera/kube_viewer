@@ -46,11 +46,11 @@ typedef struct RustCallStatus {
 // ⚠️ increment the version suffix in all instances of UNIFFI_SHARED_HEADER_V4 in this file.           ⚠️
 #endif // def UNIFFI_SHARED_H
 
-void ffi_kube_viewer_164e_RustGlobalViewModel_object_free(
+void ffi_kube_viewer_ba9c_RustGlobalViewModel_object_free(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void*_Nonnull kube_viewer_164e_RustGlobalViewModel_new(
+void*_Nonnull kube_viewer_ba9c_RustGlobalViewModel_new(
       
     RustCallStatus *_Nonnull out_status
     );
@@ -58,23 +58,15 @@ RustBuffer _uniffi_kube_viewer_impl_RustGlobalViewModel_clusters_1daf(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer _uniffi_kube_viewer_impl_RustGlobalViewModel_selected_cluster_8737(
+void ffi_kube_viewer_ba9c_RustMainViewModel_object_free(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void _uniffi_kube_viewer_impl_RustGlobalViewModel_set_selected_cluster_cd47(
-      void*_Nonnull ptr,RustBuffer cluster,
-    RustCallStatus *_Nonnull out_status
-    );
-void ffi_kube_viewer_164e_RustMainViewModel_object_free(
-      void*_Nonnull ptr,
-    RustCallStatus *_Nonnull out_status
-    );
-void*_Nonnull kube_viewer_164e_RustMainViewModel_new(
+void*_Nonnull kube_viewer_ba9c_RustMainViewModel_new(
       RustBuffer window_id,
     RustCallStatus *_Nonnull out_status
     );
-void kube_viewer_164e_RustMainViewModel_add_update_listener(
+void kube_viewer_ba9c_RustMainViewModel_add_update_listener(
       void*_Nonnull ptr,uint64_t listener,
     RustCallStatus *_Nonnull out_status
     );
@@ -86,12 +78,20 @@ int8_t _uniffi_kube_viewer_impl_RustMainViewModel_handle_key_input_81e8(
       void*_Nonnull ptr,RustBuffer key_input,
     RustCallStatus *_Nonnull out_status
     );
+RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_selected_cluster_ebc2(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
 RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_selected_tab_9ae(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
 void _uniffi_kube_viewer_impl_RustMainViewModel_set_current_focus_region_46b(
       void*_Nonnull ptr,RustBuffer current_focus_region,
+    RustCallStatus *_Nonnull out_status
+    );
+void _uniffi_kube_viewer_impl_RustMainViewModel_set_selected_cluster_8a11(
+      void*_Nonnull ptr,RustBuffer cluster,
     RustCallStatus *_Nonnull out_status
     );
 void _uniffi_kube_viewer_impl_RustMainViewModel_set_selected_tab_48a9(
@@ -122,11 +122,23 @@ RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_tabs_map_4669(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_kube_viewer_164e_FocusRegionHasher_object_free(
+void ffi_kube_viewer_ba9c_RustNodeViewModel_object_free(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void*_Nonnull kube_viewer_164e_FocusRegionHasher_new(
+void*_Nonnull kube_viewer_ba9c_RustNodeViewModel_new(
+      RustBuffer window_id,
+    RustCallStatus *_Nonnull out_status
+    );
+void kube_viewer_ba9c_RustNodeViewModel_add_callback_listener(
+      void*_Nonnull ptr,uint64_t responder,
+    RustCallStatus *_Nonnull out_status
+    );
+void ffi_kube_viewer_ba9c_FocusRegionHasher_object_free(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void*_Nonnull kube_viewer_ba9c_FocusRegionHasher_new(
       
     RustCallStatus *_Nonnull out_status
     );
@@ -134,23 +146,27 @@ uint64_t _uniffi_kube_viewer_impl_FocusRegionHasher_hash_32a5(
       void*_Nonnull ptr,RustBuffer value,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_kube_viewer_164e_MainViewModelUpdater_init_callback(
+void ffi_kube_viewer_ba9c_NodeViewModelCallback_init_callback(
       ForeignCallback  _Nonnull callback_stub,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_kube_viewer_164e_rustbuffer_alloc(
+void ffi_kube_viewer_ba9c_MainViewModelUpdater_init_callback(
+      ForeignCallback  _Nonnull callback_stub,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer ffi_kube_viewer_ba9c_rustbuffer_alloc(
       int32_t size,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_kube_viewer_164e_rustbuffer_from_bytes(
+RustBuffer ffi_kube_viewer_ba9c_rustbuffer_from_bytes(
       ForeignBytes bytes,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_kube_viewer_164e_rustbuffer_free(
+void ffi_kube_viewer_ba9c_rustbuffer_free(
       RustBuffer buf,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_kube_viewer_164e_rustbuffer_reserve(
+RustBuffer ffi_kube_viewer_ba9c_rustbuffer_reserve(
       RustBuffer buf,int32_t additional,
     RustCallStatus *_Nonnull out_status
     );

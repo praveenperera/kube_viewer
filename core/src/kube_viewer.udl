@@ -12,6 +12,16 @@ interface RustMainViewModel {
 
 interface RustNodeViewModel {
   constructor(string window_id);
+  void add_callback_listener(NodeViewModelCallback responder);
+};
+
+callback interface NodeViewModelCallback {
+  void callback(NodeViewModelMessage msg);
+};
+
+[Enum]
+interface NodeViewModelMessage {
+  ClientLoaded();
 };
 
 interface FocusRegionHasher {

@@ -1,8 +1,12 @@
+use std::collections::HashMap;
+
 use etcetera::app_strategy::{self, AppStrategy, AppStrategyArgs, Xdg};
 use eyre::{Context, Result};
 use once_cell::sync::Lazy;
+use parking_lot::RwLock;
+use serde::{Deserialize, Serialize};
 
-use crate::cluster::ClusterId;
+use crate::{cluster::ClusterId, view_models::WindowId};
 
 pub static APP_DIR: Lazy<Xdg> = Lazy::new(|| {
     let app_strategy_args = AppStrategyArgs {
@@ -14,8 +18,15 @@ pub static APP_DIR: Lazy<Xdg> = Lazy::new(|| {
     app_strategy::Xdg::new(app_strategy_args).expect("failed to create app strategy directory")
 });
 
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
+pub static USER_CONFIG: Lazy<RwLock<UserConfig>> = Lazy::new(|| RwLock::new(UserConfig::load()));
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserConfig {
+    pub window_configs: HashMap<WindowId, WindowConfig>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct WindowConfig {
     pub selected_cluster: Option<ClusterId>,
 }
 
@@ -26,13 +37,13 @@ impl Default for UserConfig {
 }
 
 impl UserConfig {
-    pub fn new() -> Self {
+    fn new() -> Self {
         Self {
-            selected_cluster: None,
+            window_configs: HashMap::new(),
         }
     }
 
-    pub fn load() -> Self {
+    fn load() -> Self {
         let config_path = APP_DIR.config_dir().join("user_config.json");
 
         // create config file if it doesn't exist
@@ -53,8 +64,20 @@ impl UserConfig {
         serde_json::from_str(&config_str).expect("failed to parse config file")
     }
 
-    pub fn set_selected_cluster(&mut self, cluster_id: ClusterId) -> Result<()> {
-        self.selected_cluster = Some(cluster_id);
+    pub fn get_selected_cluster(&self, window_id: &WindowId) -> Option<ClusterId> {
+        self.window_configs.get(window_id)?.selected_cluster.clone()
+    }
+
+    pub fn set_selected_cluster(
+        &mut self,
+        window_id: WindowId,
+        cluster_id: ClusterId,
+    ) -> Result<()> {
+        self.window_configs
+            .entry(window_id)
+            .or_insert_with(WindowConfig::default)
+            .selected_cluster = Some(cluster_id);
+
         self.save()
     }
 
