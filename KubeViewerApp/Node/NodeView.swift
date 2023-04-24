@@ -25,7 +25,9 @@ struct NodeView: View {
     }
 
     var body: some View {
-        Text(self.model.path ?? "Hello word here are my nodes!")
+        ForEach(self.model.nodes) { node in
+            Text(node.name)
+        }
     }
 }
 
@@ -37,3 +39,5 @@ struct NodeView_Previews: PreviewProvider {
         NodeView(windowId: windowId, globalModel: globalModel)
     }
 }
+
+extension Node: Identifiable {}

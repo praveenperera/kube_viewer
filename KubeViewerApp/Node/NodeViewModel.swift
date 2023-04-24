@@ -12,27 +12,33 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
     let windowId: UUID
     var data: RustNodeViewModel
 
-    @Published var path: String?
+    @State var clientLoaded = false
+
+    @RustPublished var nodes: [Node]
 
     init(windowId: UUID) {
         self.windowId = windowId
         self.data = RustNodeViewModel(windowId: windowId.uuidString)
 
+        self.nodes = self.data.nodes()
+        self._nodes.getter = self.data.nodes
+
         DispatchQueue.main.async { self.setupCallback() }
     }
 
     private func setupCallback() {
-        data.addCallbackListener(responder: self)
+        self.data.addCallbackListener(responder: self)
     }
 
     func callback(msg: NodeViewModelMessage) {
         switch msg {
             case .clientLoaded:
-                print("Client Loaded")
-            case let .pathFound(path: newPath):
-                print("Path added")
                 DispatchQueue.main.async {
-                    self.path = newPath
+                    self.clientLoaded = true
+                }
+            case .loadedNodes:
+                DispatchQueue.main.async {
+                    self.clientLoaded = true
                 }
         }
     }
