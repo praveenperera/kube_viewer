@@ -5,8 +5,6 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::user_config::UserConfig;
-
 #[derive(Debug, Clone)]
 pub struct Clusters {
     pub kube_config: kube::config::Kubeconfig,
@@ -36,19 +34,20 @@ impl Clusters {
         self.clusters_map.get(cluster_id).cloned()
     }
 
-    pub fn selected_or_context_cluster(&self, user_config: &UserConfig) -> Option<ClusterId> {
-        // if user has selected a cluster, use that
-        if let Some(ref selected_cluster) = user_config.selected_cluster {
-            return self
-                .clusters_map
-                .get(selected_cluster)
-                .map(|cluster| cluster.id.clone())
-                // if user has selected a cluster, but it's not in the kubeconfig, use current_context
-                .or_else(|| self.current_context_cluster_id());
+    pub fn selected_or_context_cluster(
+        &self,
+        selected_cluster: Option<ClusterId>,
+    ) -> Option<ClusterId> {
+        if selected_cluster.is_none() {
+            // default to current_context
+            return self.current_context_cluster_id();
         };
 
-        // default to current_context
-        self.current_context_cluster_id()
+        self.clusters_map
+            .get(&selected_cluster.unwrap())
+            .map(|cluster| cluster.id.clone())
+            // if user has selected a cluster, but it's not in the kubeconfig, use current_context
+            .or_else(|| self.current_context_cluster_id())
     }
 
     pub fn current_context_cluster_id(&self) -> Option<ClusterId> {
@@ -66,7 +65,7 @@ impl Clusters {
     Debug, Clone, PartialEq, Eq, PartialOrd, Ord, From, Hash, uniffi::Record, Serialize, Deserialize,
 )]
 pub struct ClusterId {
-    raw_value: String,
+    pub raw_value: String,
 }
 
 #[derive(Debug, Clone, uniffi::Record)]

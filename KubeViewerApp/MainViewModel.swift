@@ -24,6 +24,7 @@ class MainViewModel: ObservableObject {
     @RustPublished var tabGroupExpansions: [TabGroupId: Bool]
     @RustPublished var selectedTab: TabId
     @RustPublished var currentFocusRegion: FocusRegion
+    @RustPublished var selectedCluster: Cluster?
 
     init(windowId: UUID) {
         self.windowId = windowId
@@ -46,6 +47,14 @@ class MainViewModel: ObservableObject {
         self.currentFocusRegion = self.data.currentFocusRegion()
         self._currentFocusRegion.getter = self.data.currentFocusRegion
         self._currentFocusRegion.setter = self.data.setCurrentFocusRegion
+
+        self.selectedCluster = self.data.selectedCluster()
+        self._selectedCluster.getter = self.data.selectedCluster
+        self._selectedCluster.setter = { cluster in
+            if let cluster = cluster {
+                self.data.setSelectedCluster(cluster: cluster)
+            }
+        }
 
         DispatchQueue.main.async { self.setupListener() }
     }

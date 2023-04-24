@@ -19,13 +19,13 @@ fileprivate extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_kube_viewer_164e_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_kube_viewer_fdf3_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_kube_viewer_164e_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_kube_viewer_fdf3_rustbuffer_free(self, $0) }
     }
 }
 
@@ -372,12 +372,12 @@ public class FocusRegionHasher: FocusRegionHasherProtocol {
     
     rustCall() {
     
-    kube_viewer_164e_FocusRegionHasher_new($0)
+    kube_viewer_fdf3_FocusRegionHasher_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_164e_FocusRegionHasher_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_fdf3_FocusRegionHasher_object_free(pointer, $0) }
     }
 
     
@@ -431,8 +431,6 @@ public struct FfiConverterTypeFocusRegionHasher: FfiConverter {
 
 public protocol RustGlobalViewModelProtocol {
     func `clusters`()  -> [ClusterId: Cluster]
-    func `selectedCluster`()  -> Cluster?
-    func `setSelectedCluster`(`cluster`: Cluster) 
     
 }
 
@@ -450,12 +448,12 @@ public class RustGlobalViewModel: RustGlobalViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_164e_RustGlobalViewModel_new($0)
+    kube_viewer_fdf3_RustGlobalViewModel_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_164e_RustGlobalViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_fdf3_RustGlobalViewModel_object_free(pointer, $0) }
     }
 
     
@@ -470,25 +468,6 @@ public class RustGlobalViewModel: RustGlobalViewModelProtocol {
     )
 }
         )
-    }
-    public func `selectedCluster`()  -> Cluster? {
-        return try! FfiConverterOptionTypeCluster.lift(
-            try!
-    rustCall() {
-    
-    _uniffi_kube_viewer_impl_RustGlobalViewModel_selected_cluster_8737(self.pointer, $0
-    )
-}
-        )
-    }
-    public func `setSelectedCluster`(`cluster`: Cluster)  {
-        try!
-    rustCall() {
-    
-    _uniffi_kube_viewer_impl_RustGlobalViewModel_set_selected_cluster_cd47(self.pointer, 
-        FfiConverterTypeCluster.lower(`cluster`), $0
-    )
-}
     }
     
 }
@@ -529,10 +508,13 @@ public protocol RustMainViewModelProtocol {
     func `addUpdateListener`(`listener`: MainViewModelUpdater) 
     func `currentFocusRegion`()  -> FocusRegion
     func `handleKeyInput`(`keyInput`: KeyAwareEvent)  -> Bool
+    func `selectedCluster`()  -> Cluster?
     func `selectedTab`()  -> TabId
     func `setCurrentFocusRegion`(`currentFocusRegion`: FocusRegion) 
+    func `setSelectedCluster`(`cluster`: Cluster) 
     func `setSelectedTab`(`selectedTab`: TabId) 
     func `setTabGroupExpansions`(`tabGroupExpansions`: [TabGroupId: Bool]) 
+    func `setWindowClosed`() 
     func `tabGroupExpansions`()  -> [TabGroupId: Bool]
     func `tabGroups`()  -> [TabGroup]
     func `tabGroupsFiltered`(`search`: String)  -> [TabGroup]
@@ -555,13 +537,13 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_164e_RustMainViewModel_new(
+    kube_viewer_fdf3_RustMainViewModel_new(
         FfiConverterString.lower(`windowId`), $0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_164e_RustMainViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_fdf3_RustMainViewModel_object_free(pointer, $0) }
     }
 
     
@@ -571,7 +553,7 @@ public class RustMainViewModel: RustMainViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_164e_RustMainViewModel_add_update_listener(self.pointer, 
+    kube_viewer_fdf3_RustMainViewModel_add_update_listener(self.pointer, 
         FfiConverterCallbackInterfaceMainViewModelUpdater.lower(`listener`), $0
     )
 }
@@ -597,6 +579,16 @@ public class RustMainViewModel: RustMainViewModelProtocol {
 }
         )
     }
+    public func `selectedCluster`()  -> Cluster? {
+        return try! FfiConverterOptionTypeCluster.lift(
+            try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_selected_cluster_ebc2(self.pointer, $0
+    )
+}
+        )
+    }
     public func `selectedTab`()  -> TabId {
         return try! FfiConverterTypeTabId.lift(
             try!
@@ -616,6 +608,15 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     )
 }
     }
+    public func `setSelectedCluster`(`cluster`: Cluster)  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_set_selected_cluster_8a11(self.pointer, 
+        FfiConverterTypeCluster.lower(`cluster`), $0
+    )
+}
+    }
     public func `setSelectedTab`(`selectedTab`: TabId)  {
         try!
     rustCall() {
@@ -631,6 +632,14 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     _uniffi_kube_viewer_impl_RustMainViewModel_set_tab_group_expansions_ac8c(self.pointer, 
         FfiConverterDictionaryTypeTabGroupIdBool.lower(`tabGroupExpansions`), $0
+    )
+}
+    }
+    public func `setWindowClosed`()  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_set_window_closed_f1bc(self.pointer, $0
     )
 }
     }
@@ -715,6 +724,81 @@ public struct FfiConverterTypeRustMainViewModel: FfiConverter {
     }
 
     public static func lower(_ value: RustMainViewModel) -> UnsafeMutableRawPointer {
+        return value.pointer
+    }
+}
+
+
+public protocol RustNodeViewModelProtocol {
+    func `addCallbackListener`(`responder`: NodeViewModelCallback) 
+    
+}
+
+public class RustNodeViewModel: RustNodeViewModelProtocol {
+    fileprivate let pointer: UnsafeMutableRawPointer
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `FfiConverter` without making this `required` and we can't
+    // make it `required` without making it `public`.
+    required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
+        self.pointer = pointer
+    }
+    public convenience init(`windowId`: String)  {
+        self.init(unsafeFromRawPointer: try!
+    
+    rustCall() {
+    
+    kube_viewer_fdf3_RustNodeViewModel_new(
+        FfiConverterString.lower(`windowId`), $0)
+})
+    }
+
+    deinit {
+        try! rustCall { ffi_kube_viewer_fdf3_RustNodeViewModel_object_free(pointer, $0) }
+    }
+
+    
+
+    
+    public func `addCallbackListener`(`responder`: NodeViewModelCallback)  {
+        try!
+    rustCall() {
+    
+    kube_viewer_fdf3_RustNodeViewModel_add_callback_listener(self.pointer, 
+        FfiConverterCallbackInterfaceNodeViewModelCallback.lower(`responder`), $0
+    )
+}
+    }
+    
+}
+
+
+public struct FfiConverterTypeRustNodeViewModel: FfiConverter {
+    typealias FfiType = UnsafeMutableRawPointer
+    typealias SwiftType = RustNodeViewModel
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> RustNodeViewModel {
+        let v: UInt64 = try readInt(&buf)
+        // The Rust code won't compile if a pointer won't fit in a UInt64.
+        // We have to go via `UInt` because that's the thing that's the size of a pointer.
+        let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
+        if (ptr == nil) {
+            throw UniffiInternalError.unexpectedNullPointer
+        }
+        return try lift(ptr!)
+    }
+
+    public static func write(_ value: RustNodeViewModel, into buf: inout [UInt8]) {
+        // This fiddling is because `Int` is the thing that's the same size as a pointer.
+        // The Rust code won't compile if a pointer won't fit in a `UInt64`.
+        writeInt(&buf, UInt64(bitPattern: Int64(Int(bitPattern: lower(value)))))
+    }
+
+    public static func lift(_ pointer: UnsafeMutableRawPointer) throws -> RustNodeViewModel {
+        return RustNodeViewModel(unsafeFromRawPointer: pointer)
+    }
+
+    public static func lower(_ value: RustNodeViewModel) -> UnsafeMutableRawPointer {
         return value.pointer
     }
 }
@@ -1213,6 +1297,60 @@ public func FfiConverterTypeMainViewModelField_lower(_ value: MainViewModelField
 
 
 extension MainViewModelField: Equatable, Hashable {}
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+public enum NodeViewModelMessage {
+    
+    case `clientLoaded`
+    case `pathFound`(`path`: String)
+}
+
+public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
+    typealias SwiftType = NodeViewModelMessage
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> NodeViewModelMessage {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .`clientLoaded`
+        
+        case 2: return .`pathFound`(
+            `path`: try FfiConverterString.read(from: &buf)
+        )
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: NodeViewModelMessage, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .`clientLoaded`:
+            writeInt(&buf, Int32(1))
+        
+        
+        case let .`pathFound`(`path`):
+            writeInt(&buf, Int32(2))
+            FfiConverterString.write(`path`, into: &buf)
+            
+        }
+    }
+}
+
+
+public func FfiConverterTypeNodeViewModelMessage_lift(_ buf: RustBuffer) throws -> NodeViewModelMessage {
+    return try FfiConverterTypeNodeViewModelMessage.lift(buf)
+}
+
+public func FfiConverterTypeNodeViewModelMessage_lower(_ value: NodeViewModelMessage) -> RustBuffer {
+    return FfiConverterTypeNodeViewModelMessage.lower(value)
+}
+
+
+extension NodeViewModelMessage: Equatable, Hashable {}
 
 
 // Note that we don't yet support `indirect` for enums.
@@ -1723,7 +1861,7 @@ fileprivate struct FfiConverterCallbackInterfaceMainViewModelUpdater {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_164e_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
+                ffi_kube_viewer_fdf3_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
         }
     }
     private static func ensureCallbackinitialized() {
@@ -1742,6 +1880,120 @@ fileprivate struct FfiConverterCallbackInterfaceMainViewModelUpdater {
 
 extension FfiConverterCallbackInterfaceMainViewModelUpdater : FfiConverter {
     typealias SwiftType = MainViewModelUpdater
+    // We can use Handle as the FfiType because it's a typealias to UInt64
+    typealias FfiType = UniFFICallbackHandle
+
+    public static func lift(_ handle: UniFFICallbackHandle) throws -> SwiftType {
+        ensureCallbackinitialized();
+        guard let callback = handleMap.get(handle: handle) else {
+            throw UniffiInternalError.unexpectedStaleHandle
+        }
+        return callback
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        ensureCallbackinitialized();
+        let handle: UniFFICallbackHandle = try readInt(&buf)
+        return try lift(handle)
+    }
+
+    public static func lower(_ v: SwiftType) -> UniFFICallbackHandle {
+        ensureCallbackinitialized();
+        return handleMap.insert(obj: v)
+    }
+
+    public static func write(_ v: SwiftType, into buf: inout [UInt8]) {
+        ensureCallbackinitialized();
+        writeInt(&buf, lower(v))
+    }
+}
+
+
+
+// Declaration and FfiConverters for NodeViewModelCallback Callback Interface
+
+public protocol NodeViewModelCallback : AnyObject {
+    func `callback`(`msg`: NodeViewModelMessage) 
+    
+}
+
+// The ForeignCallback that is passed to Rust.
+fileprivate let foreignCallbackCallbackInterfaceNodeViewModelCallback : ForeignCallback =
+    { (handle: UniFFICallbackHandle, method: Int32, args: RustBuffer, out_buf: UnsafeMutablePointer<RustBuffer>) -> Int32 in
+        func `invokeCallback`(_ swiftCallbackInterface: NodeViewModelCallback, _ args: RustBuffer) throws -> RustBuffer {
+        defer { args.deallocate() }
+
+            var reader = createReader(data: Data(rustBuffer: args))
+            swiftCallbackInterface.`callback`(
+                    `msg`:  try FfiConverterTypeNodeViewModelMessage.read(from: &reader)
+                    )
+            return RustBuffer()
+                // TODO catch errors and report them back to Rust.
+                // https://github.com/mozilla/uniffi-rs/issues/351
+
+        }
+        
+
+        let cb: NodeViewModelCallback
+        do {
+            cb = try FfiConverterCallbackInterfaceNodeViewModelCallback.lift(handle)
+        } catch {
+            out_buf.pointee = FfiConverterString.lower("NodeViewModelCallback: Invalid handle")
+            return -1
+        }
+
+        switch method {
+            case IDX_CALLBACK_FREE:
+                FfiConverterCallbackInterfaceNodeViewModelCallback.drop(handle: handle)
+                // No return value.
+                // See docs of ForeignCallback in `uniffi/src/ffi/foreigncallbacks.rs`
+                return 0
+            case 1:
+                do {
+                    out_buf.pointee = try `invokeCallback`(cb, args)
+                    // Value written to out buffer.
+                    // See docs of ForeignCallback in `uniffi/src/ffi/foreigncallbacks.rs`
+                    return 1
+                } catch let error {
+                    out_buf.pointee = FfiConverterString.lower(String(describing: error))
+                    return -1
+                }
+            
+            // This should never happen, because an out of bounds method index won't
+            // ever be used. Once we can catch errors, we should return an InternalError.
+            // https://github.com/mozilla/uniffi-rs/issues/351
+            default:
+                // An unexpected error happened.
+                // See docs of ForeignCallback in `uniffi/src/ffi/foreigncallbacks.rs`
+                return -1
+        }
+    }
+
+// FfiConverter protocol for callback interfaces
+fileprivate struct FfiConverterCallbackInterfaceNodeViewModelCallback {
+    // Initialize our callback method with the scaffolding code
+    private static var callbackInitialized = false
+    private static func initCallback() {
+        try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
+                ffi_kube_viewer_fdf3_NodeViewModelCallback_init_callback(foreignCallbackCallbackInterfaceNodeViewModelCallback, err)
+        }
+    }
+    private static func ensureCallbackinitialized() {
+        if !callbackInitialized {
+            initCallback()
+            callbackInitialized = true
+        }
+    }
+
+    static func drop(handle: UniFFICallbackHandle) {
+        handleMap.remove(handle: handle)
+    }
+
+    private static var handleMap = UniFFICallbackHandleMap<NodeViewModelCallback>()
+}
+
+extension FfiConverterCallbackInterfaceNodeViewModelCallback : FfiConverter {
+    typealias SwiftType = NodeViewModelCallback
     // We can use Handle as the FfiType because it's a typealias to UInt64
     typealias FfiType = UniFFICallbackHandle
 

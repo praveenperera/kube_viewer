@@ -12,21 +12,12 @@ import SwiftUI
 class GlobalViewModel: ObservableObject {
     var data: RustGlobalViewModel
     @RustPublished var clusters: [ClusterId: Cluster]
-    @RustPublished var selectedCluster: Cluster?
 
     init() {
         self.data = RustGlobalViewModel()
 
         self.clusters = self.data.clusters()
         self._clusters.getter = self.data.clusters
-
-        self.selectedCluster = self.data.selectedCluster()
-        self._selectedCluster.getter = self.data.selectedCluster
-        self._selectedCluster.setter = {cluster in
-            if let cluster = cluster {
-                self.data.setSelectedCluster(cluster: cluster)
-            }
-        }
     }
 }
 

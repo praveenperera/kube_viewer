@@ -21,7 +21,7 @@ tracing = "0.1"
 tracing-log = "0.1"
 
 # async
-tokio = {version = "1.26", features = ["macros", "rt"]}
+tokio = {version = "1.26", features = ["macros", "rt", "rt-multi-thread"]}
 
 # error handling
 eyre = "0.6"
@@ -31,7 +31,7 @@ thiserror = "1"
 derive_more = {version = "0.99.17", default-features = false, features = ["as_ref", "display", "from", "from_str"]}
 
 # kubernetes
-kube = { version = "0.82", features = ["runtime", "derive"] }
+kube = { version = "0.82", features = ["client", "runtime", "derive", "rustls-tls"], default-features = false }
 k8s-openapi = { version = "0.18.0", features = ["v1_26"] }
 
 # concurrency
@@ -39,7 +39,7 @@ crossbeam = "0.8.2"
 parking_lot = "0.12.1"
 
 # config files
-etcetera = "0.5.0"
+etcetera = "0.7"
 
 # json
 serde = {version = "1.0.130", features = ["derive"]}
@@ -49,6 +49,9 @@ serde_json = "1.0.96"
 log = "0.4"
 env_logger = "0.10" 
 chrono = "0.4.24"
+act-zero = { version = "0.4.0", features = ["default-tokio"] }
+async-trait = "0.1.68"
+futures = "0.3.28"
 
 [build-dependencies]
 uniffi = {version = "0.23", features = ["build"]}

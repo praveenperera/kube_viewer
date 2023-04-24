@@ -1,18 +1,25 @@
+use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 
 use crate::{
     cluster::{Cluster, ClusterId, Clusters},
-    user_config::UserConfig,
+    env::Env,
 };
 use std::collections::HashMap;
 
-pub struct RustGlobalViewModel {
-    inner: RwLock<GlobalViewModel>,
+static INSTANCE: OnceCell<RwLock<GlobalViewModel>> = OnceCell::new();
+
+impl GlobalViewModel {
+    pub fn global() -> &'static RwLock<GlobalViewModel> {
+        INSTANCE.get_or_init(|| RwLock::new(GlobalViewModel::new()))
+    }
 }
 
+pub struct RustGlobalViewModel;
+
+#[derive(Debug)]
 pub struct GlobalViewModel {
-    user_config: UserConfig,
-    clusters: Option<Clusters>,
+    pub clusters: Option<Clusters>,
 }
 
 impl Default for RustGlobalViewModel {
@@ -32,57 +39,29 @@ impl RustGlobalViewModel {
         // one time init
         env_logger::init();
 
-        Self {
-            inner: RwLock::new(GlobalViewModel::new()),
-        }
+        Self
+    }
+
+    pub fn inner(&self) -> &RwLock<GlobalViewModel> {
+        GlobalViewModel::global()
     }
 }
 
 #[uniffi::export]
 impl RustGlobalViewModel {
     pub fn clusters(&self) -> HashMap<ClusterId, Cluster> {
-        self.inner.read().clusters()
-    }
-
-    pub fn selected_cluster(&self) -> Option<Cluster> {
-        self.inner.read().selected_cluster()
-    }
-
-    pub fn set_selected_cluster(&self, cluster: Cluster) {
-        if let Err(err) = self
-            .inner
-            .write()
-            .user_config
-            .set_selected_cluster(cluster.id)
-        {
-            log::error!("failed to set selected cluster: {err}");
-        }
+        self.inner().read().clusters()
     }
 }
 
 impl GlobalViewModel {
     pub fn new() -> Self {
-        let mut user_config = UserConfig::load();
+        // init env
+        let _ = Env::global();
+
         let clusters = Clusters::try_new().ok();
 
-        // set selected cluster to current context
-        if user_config.selected_cluster.is_none() {
-            if let Some(clusters) = &clusters {
-                if let Some(cluster_id) = clusters.selected_or_context_cluster(&user_config) {
-                    let _ = user_config.set_selected_cluster(cluster_id);
-                }
-            }
-        }
-
-        Self {
-            user_config,
-            clusters,
-        }
-    }
-
-    pub fn selected_cluster(&self) -> Option<Cluster> {
-        let cluster_id = &self.user_config.selected_cluster.as_ref()?;
-        self.clusters.as_ref()?.get_cluster(cluster_id)
+        Self { clusters }
     }
 
     pub fn clusters(&self) -> HashMap<ClusterId, Cluster> {
@@ -90,5 +69,10 @@ impl GlobalViewModel {
             .as_ref()
             .map(|clusters| clusters.clusters_map.clone())
             .unwrap_or_default()
+    }
+
+    pub fn get_cluster(&self, cluster_id: &ClusterId) -> Option<Cluster> {
+        let clusters = self.clusters.as_ref()?;
+        clusters.get_cluster(cluster_id)
     }
 }

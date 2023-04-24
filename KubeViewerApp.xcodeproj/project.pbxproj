@@ -17,6 +17,8 @@
 		AC65E77D29A9278600F3A7CE /* StandardFocusRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC65E77C29A9278600F3A7CE /* StandardFocusRing.swift */; };
 		AC8ABA0429A01BF300C7F6D5 /* SidebarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */; };
 		AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */; };
+		AC95349E29F4B8200082155D /* NodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC95349D29F4B8200082155D /* NodeViewModel.swift */; };
+		AC9534A129F4BB0F0082155D /* NodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9534A029F4BB0F0082155D /* NodeView.swift */; };
 		AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */; };
 		ACA9DD8E29F07F0700164615 /* libkube_viewer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ACA9DD8D29F07F0700164615 /* libkube_viewer.a */; };
 		ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */; };
@@ -64,6 +66,8 @@
 		AC65E77C29A9278600F3A7CE /* StandardFocusRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardFocusRing.swift; sourceTree = "<group>"; };
 		AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarButton.swift; sourceTree = "<group>"; };
 		AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTitle.swift; sourceTree = "<group>"; };
+		AC95349D29F4B8200082155D /* NodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModel.swift; sourceTree = "<group>"; };
+		AC9534A029F4BB0F0082155D /* NodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeView.swift; sourceTree = "<group>"; };
 		AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurWindow.swift; sourceTree = "<group>"; };
 		ACA9DD8D29F07F0700164615 /* libkube_viewer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkube_viewer.a; path = core/target/universal/libkube_viewer.a; sourceTree = "<group>"; };
 		ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleList.swift; sourceTree = "<group>"; };
@@ -106,6 +110,23 @@
 				AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */,
 			);
 			path = Sidebar;
+			sourceTree = "<group>";
+		};
+		AC95349C29F4B8100082155D /* Node */ = {
+			isa = PBXGroup;
+			children = (
+				AC95349D29F4B8200082155D /* NodeViewModel.swift */,
+				AC9534A029F4BB0F0082155D /* NodeView.swift */,
+			);
+			path = Node;
+			sourceTree = "<group>";
+		};
+		AC95349F29F4B8490082155D /* Window */ = {
+			isa = PBXGroup;
+			children = (
+				AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */,
+			);
+			path = Window;
 			sourceTree = "<group>";
 		};
 		ACAAA9FD299EA71F00FABEF5 /* View */ = {
@@ -204,6 +225,8 @@
 		DADF4C7C295E6DB9006CA792 /* KubeViewerApp */ = {
 			isa = PBXGroup;
 			children = (
+				AC95349F29F4B8490082155D /* Window */,
+				AC95349C29F4B8100082155D /* Node */,
 				ACE6E01D299D45350094C1DC /* FFIHelpers */,
 				ACC45D512995AE2E0063B358 /* Extensions */,
 				ACBEA255299FEBC400ACB131 /* Styles */,
@@ -211,7 +234,6 @@
 				AC1651B729874DB000CBC220 /* Theme.swift */,
 				ACD621F02980573E00FE2CE2 /* TabContent */,
 				ACD621E629803DFB00FE2CE2 /* MainView.swift */,
-				AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */,
 				ACD621ED2980569500FE2CE2 /* MainViewModel.swift */,
 				AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */,
 				DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */,
@@ -341,7 +363,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AC95349E29F4B8200082155D /* NodeViewModel.swift in Sources */,
 				AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */,
+				AC9534A129F4BB0F0082155D /* NodeView.swift in Sources */,
 				ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */,
 				ACC45D552995EFA00063B358 /* whenHovered.swift in Sources */,
 				AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */,
