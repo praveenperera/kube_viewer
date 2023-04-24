@@ -1,14 +1,18 @@
+use std::collections::HashMap;
+
 use act_zero::*;
 use kube::{config::KubeConfigOptions, Client, Config};
 
 use super::WindowId;
 use crate::{
+    cluster::ClusterId,
     kubernetes::{self, node::Node},
     task,
     user_config::USER_CONFIG,
+    GlobalViewModel,
 };
 
-pub trait NodeViewModelCallback: Send {
+pub trait NodeViewModelCallback: Send + Sync + 'static {
     fn callback(&self, message: NodeViewModelMessage);
 }
 
@@ -63,7 +67,7 @@ impl Actor for NodeViewModel {
 pub struct NodeViewModel {
     addr: WeakAddr<Self>,
     nodes: Option<Vec<Node>>,
-    client: Option<Client>,
+    clients: HashMap<ClusterId, Client>,
     #[allow(dead_code)]
     window_id: WindowId,
     responder: Option<Box<dyn NodeViewModelCallback>>,
@@ -74,28 +78,40 @@ impl NodeViewModel {
         Self {
             addr: Default::default(),
             nodes: None,
-            client: None,
+            clients: HashMap::new(),
             window_id,
             responder: None,
         }
     }
 
-    async fn nodes(&mut self) -> ActorResult<Vec<Node>> {
-        if self.nodes.is_none() {
-            self.load_nodes().await?;
+    fn selected_cluster(&self) -> Option<ClusterId> {
+        match USER_CONFIG.read().get_selected_cluster(&self.window_id) {
+            Some(cluster_id) => Some(cluster_id),
+            None => GlobalViewModel::global()
+                .read()
+                .current_context_cluster_id(),
         }
+    }
+
+    async fn nodes(&mut self) -> ActorResult<Vec<Node>> {
+        println!("nodes() called");
+        self.load_nodes().await?;
 
         Produces::ok(self.nodes.clone().expect("just loaded nodes"))
     }
 
     async fn load_nodes(&mut self) -> ActorResult<()> {
-        let client = self
-            .client
-            .as_ref()
+        let selected_cluster = self
+            .selected_cluster()
+            .ok_or_else(|| eyre::eyre!("No cluster selected"))?;
+
+        let client: Client = self
+            .clients
+            .get(&selected_cluster)
             .ok_or_else(|| eyre::eyre!("Kubernetes client not loaded"))?
             .clone();
 
-        let nodes = kubernetes::get_nodes(client).await?;
+        let nodes = kubernetes::get_nodes(client.clone()).await?;
         self.nodes = Some(nodes);
 
         Produces::ok(())
@@ -128,7 +144,13 @@ impl NodeViewModel {
         };
 
         let client = Client::try_from(config)?;
-        self.client = Some(client);
+
+        let selected_cluster = self.selected_cluster().ok_or_else(|| {
+            eyre::eyre!("No cluster selected, but we should have selected one by now")
+        })?;
+
+        // save client to hashmap
+        self.clients.insert(selected_cluster, client);
 
         self.responder
             .as_ref()
