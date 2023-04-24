@@ -21,7 +21,18 @@ struct MainView: View {
     public init(windowId: Binding<UUID?>, globalModel: GlobalModel) {
         self.windowId = windowId.wrappedValue ?? UUID()
         self.globalModel = globalModel
-        self.model = globalModel.windowModel(self.windowId) ?? MainViewModel(windowId: self.windowId)
+        self.model = globalModel.mainWindowModel(self.windowId) ?? MainViewModel(windowId: self.windowId)
+
+        // save model in global models
+        if globalModel.mainWindowModel(self.windowId) == nil {
+            var models = globalModel.models
+
+            if models[self.windowId] == nil {
+                models[self.windowId] = ViewModels(main: self.model)
+            }
+
+            globalModel.models = models
+        }
     }
 
     var body: some View {
@@ -31,7 +42,7 @@ struct MainView: View {
                     .navigationSplitViewColumnWidth(min: 200, ideal: 260)
                 },
                 detail: {
-                    TabContent
+                    self.TabContent
                 }
             )
         }
@@ -59,7 +70,7 @@ struct MainView: View {
     var TabContent: some View {
         switch self.model.selectedTab {
         case TabId.nodes:
-            NodeView(windowId: windowId, globalModel: globalModel)
+            NodeView(windowId: self.windowId, globalModel: self.globalModel)
         default:
             self.model.tabContentViews[self.model.selectedTab]!
             Text(self.model.windowId.uuidString)
@@ -80,7 +91,7 @@ struct MainView: View {
                     ForEach(self.model.data.tabGroupsFiltered(search: self.search)) { tabGroup in
                         DisclosureGroup(isExpanded: self.$model.tabGroupExpansions[tabGroup.id] ?? true) {
                             VStack {
-                                if windowIsLoaded {
+                                if self.windowIsLoaded {
                                     ForEach(tabGroup.tabs) { tab in
                                         SidebarButton(tab: tab, selectedTab: self.$model.selectedTab)
                                             .id(FocusRegion.inTabGroup(tabGroupId: tabGroup.id, tabId: tab.id))
@@ -120,21 +131,21 @@ struct MainView: View {
 
         Divider()
 
-        ClusterSelection
+        self.ClusterSelection
     }
 
     var ClusterSelection: some View {
         VStack {
             Menu(
                 content: {
-                    ForEach(Array(globalViewModel.clusters.values), id: \.self) { cluster in
+                    ForEach(Array(self.globalViewModel.clusters.values), id: \.self) { cluster in
                         Button(action: { self.model.selectedCluster = cluster }) {
                             Text(cluster.name())
                         }
                     }
                 },
                 label: {
-                    Label(model.selectedCluster?.name() ?? "Select a cluster ...", systemImage: "chevron.down")
+                    Label(self.model.selectedCluster?.name() ?? "Select a cluster ...", systemImage: "chevron.down")
                 }
             )
             .padding(.horizontal, 15)

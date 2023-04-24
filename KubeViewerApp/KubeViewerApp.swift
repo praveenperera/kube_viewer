@@ -7,22 +7,29 @@
 
 import SwiftUI
 
+struct ViewModels {
+    var main: MainViewModel
+    var nodes: NodeViewModel?
+}
+
 class GlobalModel: ObservableObject {
-    var models: [UUID: MainViewModel]
+    var models: [UUID: ViewModels]
 
     init() {
         self.models = [:]
     }
 
-    func windowModel(_ windowId: UUID) -> MainViewModel? {
-        self.models[windowId]
+    func mainWindowModel(_ windowId: UUID) -> MainViewModel? {
+        self.models[windowId]?.main
     }
 
     func windowOpened(_ windowId: UUID) {
-        self.models[windowId]?.data.setWindowClosed()
+        
     }
 
-    func windowClosing(_ windowId: UUID) {}
+    func windowClosing(_ windowId: UUID) {
+        self.models[windowId]?.main.data.setWindowClosed()
+    }
 }
 
 @main

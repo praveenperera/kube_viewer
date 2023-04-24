@@ -15,11 +15,17 @@ struct NodeView: View {
     public init(windowId: UUID, globalModel: GlobalModel) {
         self.windowId = windowId
         self.globalModel = globalModel
-        self.model = NodeViewModel(windowId: windowId)
+        self.model = globalModel.models[windowId]?.nodes ?? NodeViewModel(windowId: windowId)
+
+        if let viewModels = globalModel.models[windowId],
+           viewModels.nodes == nil
+        {
+            $globalModel.models[windowId].wrappedValue!.nodes = self.model
+        }
     }
 
     var body: some View {
-        Text(model.path ?? "Hello word here are my nodes!")
+        Text(self.model.path ?? "Hello word here are my nodes!")
     }
 }
 
