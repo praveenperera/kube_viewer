@@ -1,7 +1,10 @@
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 
-use crate::cluster::{Cluster, ClusterId, Clusters};
+use crate::{
+    cluster::{Cluster, ClusterId, Clusters},
+    env::Env,
+};
 use std::collections::HashMap;
 
 static INSTANCE: OnceCell<RwLock<GlobalViewModel>> = OnceCell::new();
@@ -53,6 +56,9 @@ impl RustGlobalViewModel {
 
 impl GlobalViewModel {
     pub fn new() -> Self {
+        // init env
+        let _ = Env::global();
+
         let clusters = Clusters::try_new().ok();
 
         Self { clusters }

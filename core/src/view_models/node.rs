@@ -2,7 +2,7 @@ use act_zero::*;
 use kube::{config::KubeConfigOptions, Client, Config};
 
 use super::WindowId;
-use crate::{task, user_config::USER_CONFIG};
+use crate::{env::Env, task, user_config::USER_CONFIG};
 
 pub trait NodeViewModelCallback: Send {
     fn callback(&self, message: NodeViewModelMessage);
