@@ -22,8 +22,9 @@ callback interface NodeViewModelCallback {
 [Enum]
 interface NodeViewModelMessage {
   ClientLoaded();
-  PathFound(string path);
+  NodesLoaded();
 };
+
 
 interface FocusRegionHasher {
   constructor();

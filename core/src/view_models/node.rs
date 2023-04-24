@@ -2,7 +2,11 @@ use act_zero::*;
 use kube::{config::KubeConfigOptions, Client, Config};
 
 use super::WindowId;
-use crate::{task, user_config::USER_CONFIG};
+use crate::{
+    kubernetes::{self, node::Node},
+    task,
+    user_config::USER_CONFIG,
+};
 
 pub trait NodeViewModelCallback: Send {
     fn callback(&self, message: NodeViewModelMessage);
@@ -10,7 +14,7 @@ pub trait NodeViewModelCallback: Send {
 
 pub enum NodeViewModelMessage {
     ClientLoaded,
-    PathFound { path: String },
+    NodesLoaded,
 }
 
 pub struct RustNodeViewModel {
@@ -36,7 +40,12 @@ impl RustNodeViewModel {
 }
 
 #[uniffi::export]
-impl RustNodeViewModel {}
+impl RustNodeViewModel {
+    pub fn nodes(&self) -> Vec<Node> {
+        let addr = self.inner.clone();
+        task::block_on(async move { call!(addr.nodes()).await.unwrap_or_default() })
+    }
+}
 
 #[async_trait::async_trait]
 impl Actor for NodeViewModel {
@@ -53,6 +62,7 @@ impl Actor for NodeViewModel {
 
 pub struct NodeViewModel {
     addr: WeakAddr<Self>,
+    nodes: Option<Vec<Node>>,
     client: Option<Client>,
     #[allow(dead_code)]
     window_id: WindowId,
@@ -63,10 +73,32 @@ impl NodeViewModel {
     pub fn new(window_id: WindowId) -> Self {
         Self {
             addr: Default::default(),
+            nodes: None,
             client: None,
             window_id,
             responder: None,
         }
+    }
+
+    async fn nodes(&mut self) -> ActorResult<Vec<Node>> {
+        if self.nodes.is_none() {
+            self.load_nodes().await?;
+        }
+
+        Produces::ok(self.nodes.clone().expect("just loaded nodes"))
+    }
+
+    async fn load_nodes(&mut self) -> ActorResult<()> {
+        let client = self
+            .client
+            .as_ref()
+            .ok_or_else(|| eyre::eyre!("Kubernetes client not loaded"))?
+            .clone();
+
+        let nodes = kubernetes::get_nodes(client).await?;
+        self.nodes = Some(nodes);
+
+        Produces::ok(())
     }
 
     async fn add_callback_listener(
@@ -82,13 +114,6 @@ impl NodeViewModel {
     }
 
     async fn load_client(&mut self) -> ActorResult<()> {
-        self.responder
-            .as_ref()
-            .unwrap()
-            .callback(NodeViewModelMessage::PathFound {
-                path: std::env::var("PATH").unwrap_or_default(),
-            });
-
         let selected_cluster = USER_CONFIG.read().get_selected_cluster(&self.window_id);
 
         let config = match selected_cluster {
@@ -109,6 +134,12 @@ impl NodeViewModel {
             .as_ref()
             .unwrap()
             .callback(NodeViewModelMessage::ClientLoaded);
+
+        self.load_nodes().await?;
+        self.responder
+            .as_ref()
+            .unwrap()
+            .callback(NodeViewModelMessage::NodesLoaded);
 
         Produces::ok(())
     }

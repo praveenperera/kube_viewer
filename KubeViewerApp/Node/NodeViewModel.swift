@@ -14,13 +14,13 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
 
     @State var clientLoaded = false
 
-    @RustPublished var nodes: [Node]
+    @RustPublished var nodes: [Node]?
 
     init(windowId: UUID) {
         self.windowId = windowId
         self.data = RustNodeViewModel(windowId: windowId.uuidString)
 
-        self.nodes = self.data.nodes()
+        self.nodes = nil
         self._nodes.getter = self.data.nodes
 
         DispatchQueue.main.async { self.setupCallback() }
@@ -36,9 +36,9 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
                 DispatchQueue.main.async {
                     self.clientLoaded = true
                 }
-            case .loadedNodes:
+            case .nodesLoaded:
                 DispatchQueue.main.async {
-                    self.clientLoaded = true
+                    self.nodes = self.data.nodes()
                 }
         }
     }

@@ -19,13 +19,13 @@ fileprivate extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_kube_viewer_fdf3_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_kube_viewer_e_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_kube_viewer_fdf3_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_kube_viewer_e_rustbuffer_free(self, $0) }
     }
 }
 
@@ -372,12 +372,12 @@ public class FocusRegionHasher: FocusRegionHasherProtocol {
     
     rustCall() {
     
-    kube_viewer_fdf3_FocusRegionHasher_new($0)
+    kube_viewer_e_FocusRegionHasher_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_fdf3_FocusRegionHasher_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_e_FocusRegionHasher_object_free(pointer, $0) }
     }
 
     
@@ -448,12 +448,12 @@ public class RustGlobalViewModel: RustGlobalViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_fdf3_RustGlobalViewModel_new($0)
+    kube_viewer_e_RustGlobalViewModel_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_fdf3_RustGlobalViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_e_RustGlobalViewModel_object_free(pointer, $0) }
     }
 
     
@@ -537,13 +537,13 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_fdf3_RustMainViewModel_new(
+    kube_viewer_e_RustMainViewModel_new(
         FfiConverterString.lower(`windowId`), $0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_fdf3_RustMainViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_e_RustMainViewModel_object_free(pointer, $0) }
     }
 
     
@@ -553,7 +553,7 @@ public class RustMainViewModel: RustMainViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_fdf3_RustMainViewModel_add_update_listener(self.pointer, 
+    kube_viewer_e_RustMainViewModel_add_update_listener(self.pointer, 
         FfiConverterCallbackInterfaceMainViewModelUpdater.lower(`listener`), $0
     )
 }
@@ -731,6 +731,7 @@ public struct FfiConverterTypeRustMainViewModel: FfiConverter {
 
 public protocol RustNodeViewModelProtocol {
     func `addCallbackListener`(`responder`: NodeViewModelCallback) 
+    func `nodes`()  -> [Node]
     
 }
 
@@ -748,13 +749,13 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_fdf3_RustNodeViewModel_new(
+    kube_viewer_e_RustNodeViewModel_new(
         FfiConverterString.lower(`windowId`), $0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_fdf3_RustNodeViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_e_RustNodeViewModel_object_free(pointer, $0) }
     }
 
     
@@ -764,10 +765,20 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_fdf3_RustNodeViewModel_add_callback_listener(self.pointer, 
+    kube_viewer_e_RustNodeViewModel_add_callback_listener(self.pointer, 
         FfiConverterCallbackInterfaceNodeViewModelCallback.lower(`responder`), $0
     )
 }
+    }
+    public func `nodes`()  -> [Node] {
+        return try! FfiConverterSequenceTypeNode.lift(
+            try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustNodeViewModel_nodes_99ad(self.pointer, $0
+    )
+}
+        )
     }
     
 }
@@ -922,6 +933,275 @@ public func FfiConverterTypeClusterId_lower(_ value: ClusterId) -> RustBuffer {
 }
 
 
+public struct Node {
+    public var `id`: String
+    public var `name`: String
+    public var `labels`: [String: String]
+    public var `annotations`: [String: String]
+    public var `taints`: [Taint]
+    public var `addresses`: [NodeAddress]
+    public var `os`: String?
+    public var `arch`: String?
+    public var `osImage`: String?
+    public var `kernelVersion`: String?
+    public var `containerRuntime`: String?
+    public var `kubeletVersion`: String?
+    public var `conditions`: [NodeCondition]
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`id`: String, `name`: String, `labels`: [String: String], `annotations`: [String: String], `taints`: [Taint], `addresses`: [NodeAddress], `os`: String?, `arch`: String?, `osImage`: String?, `kernelVersion`: String?, `containerRuntime`: String?, `kubeletVersion`: String?, `conditions`: [NodeCondition]) {
+        self.`id` = `id`
+        self.`name` = `name`
+        self.`labels` = `labels`
+        self.`annotations` = `annotations`
+        self.`taints` = `taints`
+        self.`addresses` = `addresses`
+        self.`os` = `os`
+        self.`arch` = `arch`
+        self.`osImage` = `osImage`
+        self.`kernelVersion` = `kernelVersion`
+        self.`containerRuntime` = `containerRuntime`
+        self.`kubeletVersion` = `kubeletVersion`
+        self.`conditions` = `conditions`
+    }
+}
+
+
+extension Node: Equatable, Hashable {
+    public static func ==(lhs: Node, rhs: Node) -> Bool {
+        if lhs.`id` != rhs.`id` {
+            return false
+        }
+        if lhs.`name` != rhs.`name` {
+            return false
+        }
+        if lhs.`labels` != rhs.`labels` {
+            return false
+        }
+        if lhs.`annotations` != rhs.`annotations` {
+            return false
+        }
+        if lhs.`taints` != rhs.`taints` {
+            return false
+        }
+        if lhs.`addresses` != rhs.`addresses` {
+            return false
+        }
+        if lhs.`os` != rhs.`os` {
+            return false
+        }
+        if lhs.`arch` != rhs.`arch` {
+            return false
+        }
+        if lhs.`osImage` != rhs.`osImage` {
+            return false
+        }
+        if lhs.`kernelVersion` != rhs.`kernelVersion` {
+            return false
+        }
+        if lhs.`containerRuntime` != rhs.`containerRuntime` {
+            return false
+        }
+        if lhs.`kubeletVersion` != rhs.`kubeletVersion` {
+            return false
+        }
+        if lhs.`conditions` != rhs.`conditions` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`id`)
+        hasher.combine(`name`)
+        hasher.combine(`labels`)
+        hasher.combine(`annotations`)
+        hasher.combine(`taints`)
+        hasher.combine(`addresses`)
+        hasher.combine(`os`)
+        hasher.combine(`arch`)
+        hasher.combine(`osImage`)
+        hasher.combine(`kernelVersion`)
+        hasher.combine(`containerRuntime`)
+        hasher.combine(`kubeletVersion`)
+        hasher.combine(`conditions`)
+    }
+}
+
+
+public struct FfiConverterTypeNode: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Node {
+        return try Node(
+            `id`: FfiConverterString.read(from: &buf), 
+            `name`: FfiConverterString.read(from: &buf), 
+            `labels`: FfiConverterDictionaryStringString.read(from: &buf), 
+            `annotations`: FfiConverterDictionaryStringString.read(from: &buf), 
+            `taints`: FfiConverterSequenceTypeTaint.read(from: &buf), 
+            `addresses`: FfiConverterSequenceTypeNodeAddress.read(from: &buf), 
+            `os`: FfiConverterOptionString.read(from: &buf), 
+            `arch`: FfiConverterOptionString.read(from: &buf), 
+            `osImage`: FfiConverterOptionString.read(from: &buf), 
+            `kernelVersion`: FfiConverterOptionString.read(from: &buf), 
+            `containerRuntime`: FfiConverterOptionString.read(from: &buf), 
+            `kubeletVersion`: FfiConverterOptionString.read(from: &buf), 
+            `conditions`: FfiConverterSequenceTypeNodeCondition.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: Node, into buf: inout [UInt8]) {
+        FfiConverterString.write(value.`id`, into: &buf)
+        FfiConverterString.write(value.`name`, into: &buf)
+        FfiConverterDictionaryStringString.write(value.`labels`, into: &buf)
+        FfiConverterDictionaryStringString.write(value.`annotations`, into: &buf)
+        FfiConverterSequenceTypeTaint.write(value.`taints`, into: &buf)
+        FfiConverterSequenceTypeNodeAddress.write(value.`addresses`, into: &buf)
+        FfiConverterOptionString.write(value.`os`, into: &buf)
+        FfiConverterOptionString.write(value.`arch`, into: &buf)
+        FfiConverterOptionString.write(value.`osImage`, into: &buf)
+        FfiConverterOptionString.write(value.`kernelVersion`, into: &buf)
+        FfiConverterOptionString.write(value.`containerRuntime`, into: &buf)
+        FfiConverterOptionString.write(value.`kubeletVersion`, into: &buf)
+        FfiConverterSequenceTypeNodeCondition.write(value.`conditions`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeNode_lift(_ buf: RustBuffer) throws -> Node {
+    return try FfiConverterTypeNode.lift(buf)
+}
+
+public func FfiConverterTypeNode_lower(_ value: Node) -> RustBuffer {
+    return FfiConverterTypeNode.lower(value)
+}
+
+
+public struct NodeAddress {
+    public var `address`: String
+    public var `nodeType`: String
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`address`: String, `nodeType`: String) {
+        self.`address` = `address`
+        self.`nodeType` = `nodeType`
+    }
+}
+
+
+extension NodeAddress: Equatable, Hashable {
+    public static func ==(lhs: NodeAddress, rhs: NodeAddress) -> Bool {
+        if lhs.`address` != rhs.`address` {
+            return false
+        }
+        if lhs.`nodeType` != rhs.`nodeType` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`address`)
+        hasher.combine(`nodeType`)
+    }
+}
+
+
+public struct FfiConverterTypeNodeAddress: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> NodeAddress {
+        return try NodeAddress(
+            `address`: FfiConverterString.read(from: &buf), 
+            `nodeType`: FfiConverterString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: NodeAddress, into buf: inout [UInt8]) {
+        FfiConverterString.write(value.`address`, into: &buf)
+        FfiConverterString.write(value.`nodeType`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeNodeAddress_lift(_ buf: RustBuffer) throws -> NodeAddress {
+    return try FfiConverterTypeNodeAddress.lift(buf)
+}
+
+public func FfiConverterTypeNodeAddress_lower(_ value: NodeAddress) -> RustBuffer {
+    return FfiConverterTypeNodeAddress.lower(value)
+}
+
+
+public struct NodeCondition {
+    public var `name`: String
+    public var `status`: String
+    public var `reason`: String?
+    public var `message`: String?
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`name`: String, `status`: String, `reason`: String?, `message`: String?) {
+        self.`name` = `name`
+        self.`status` = `status`
+        self.`reason` = `reason`
+        self.`message` = `message`
+    }
+}
+
+
+extension NodeCondition: Equatable, Hashable {
+    public static func ==(lhs: NodeCondition, rhs: NodeCondition) -> Bool {
+        if lhs.`name` != rhs.`name` {
+            return false
+        }
+        if lhs.`status` != rhs.`status` {
+            return false
+        }
+        if lhs.`reason` != rhs.`reason` {
+            return false
+        }
+        if lhs.`message` != rhs.`message` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`name`)
+        hasher.combine(`status`)
+        hasher.combine(`reason`)
+        hasher.combine(`message`)
+    }
+}
+
+
+public struct FfiConverterTypeNodeCondition: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> NodeCondition {
+        return try NodeCondition(
+            `name`: FfiConverterString.read(from: &buf), 
+            `status`: FfiConverterString.read(from: &buf), 
+            `reason`: FfiConverterOptionString.read(from: &buf), 
+            `message`: FfiConverterOptionString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: NodeCondition, into buf: inout [UInt8]) {
+        FfiConverterString.write(value.`name`, into: &buf)
+        FfiConverterString.write(value.`status`, into: &buf)
+        FfiConverterOptionString.write(value.`reason`, into: &buf)
+        FfiConverterOptionString.write(value.`message`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeNodeCondition_lift(_ buf: RustBuffer) throws -> NodeCondition {
+    return try FfiConverterTypeNodeCondition.lift(buf)
+}
+
+public func FfiConverterTypeNodeCondition_lower(_ value: NodeCondition) -> RustBuffer {
+    return FfiConverterTypeNodeCondition.lower(value)
+}
+
+
 public struct Tab {
     public var `id`: TabId
     public var `icon`: String
@@ -1045,6 +1325,77 @@ public func FfiConverterTypeTabGroup_lift(_ buf: RustBuffer) throws -> TabGroup 
 
 public func FfiConverterTypeTabGroup_lower(_ value: TabGroup) -> RustBuffer {
     return FfiConverterTypeTabGroup.lower(value)
+}
+
+
+public struct Taint {
+    public var `effect`: String
+    public var `key`: String
+    public var `timeAdded`: String?
+    public var `value`: String?
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`effect`: String, `key`: String, `timeAdded`: String?, `value`: String?) {
+        self.`effect` = `effect`
+        self.`key` = `key`
+        self.`timeAdded` = `timeAdded`
+        self.`value` = `value`
+    }
+}
+
+
+extension Taint: Equatable, Hashable {
+    public static func ==(lhs: Taint, rhs: Taint) -> Bool {
+        if lhs.`effect` != rhs.`effect` {
+            return false
+        }
+        if lhs.`key` != rhs.`key` {
+            return false
+        }
+        if lhs.`timeAdded` != rhs.`timeAdded` {
+            return false
+        }
+        if lhs.`value` != rhs.`value` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`effect`)
+        hasher.combine(`key`)
+        hasher.combine(`timeAdded`)
+        hasher.combine(`value`)
+    }
+}
+
+
+public struct FfiConverterTypeTaint: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Taint {
+        return try Taint(
+            `effect`: FfiConverterString.read(from: &buf), 
+            `key`: FfiConverterString.read(from: &buf), 
+            `timeAdded`: FfiConverterOptionString.read(from: &buf), 
+            `value`: FfiConverterOptionString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: Taint, into buf: inout [UInt8]) {
+        FfiConverterString.write(value.`effect`, into: &buf)
+        FfiConverterString.write(value.`key`, into: &buf)
+        FfiConverterOptionString.write(value.`timeAdded`, into: &buf)
+        FfiConverterOptionString.write(value.`value`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeTaint_lift(_ buf: RustBuffer) throws -> Taint {
+    return try FfiConverterTypeTaint.lift(buf)
+}
+
+public func FfiConverterTypeTaint_lower(_ value: Taint) -> RustBuffer {
+    return FfiConverterTypeTaint.lower(value)
 }
 
 // Note that we don't yet support `indirect` for enums.
@@ -1304,7 +1655,7 @@ extension MainViewModelField: Equatable, Hashable {}
 public enum NodeViewModelMessage {
     
     case `clientLoaded`
-    case `pathFound`(`path`: String)
+    case `nodesLoaded`
 }
 
 public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
@@ -1316,9 +1667,7 @@ public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
         
         case 1: return .`clientLoaded`
         
-        case 2: return .`pathFound`(
-            `path`: try FfiConverterString.read(from: &buf)
-        )
+        case 2: return .`nodesLoaded`
         
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -1332,10 +1681,9 @@ public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
             writeInt(&buf, Int32(1))
         
         
-        case let .`pathFound`(`path`):
+        case .`nodesLoaded`:
             writeInt(&buf, Int32(2))
-            FfiConverterString.write(`path`, into: &buf)
-            
+        
         }
     }
 }
@@ -1861,7 +2209,7 @@ fileprivate struct FfiConverterCallbackInterfaceMainViewModelUpdater {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_fdf3_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
+                ffi_kube_viewer_e_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
         }
     }
     private static func ensureCallbackinitialized() {
@@ -1975,7 +2323,7 @@ fileprivate struct FfiConverterCallbackInterfaceNodeViewModelCallback {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_fdf3_NodeViewModelCallback_init_callback(foreignCallbackCallbackInterfaceNodeViewModelCallback, err)
+                ffi_kube_viewer_e_NodeViewModelCallback_init_callback(foreignCallbackCallbackInterfaceNodeViewModelCallback, err)
         }
     }
     private static func ensureCallbackinitialized() {
@@ -2064,6 +2412,72 @@ fileprivate struct FfiConverterOptionTypeCluster: FfiConverterRustBuffer {
     }
 }
 
+fileprivate struct FfiConverterSequenceTypeNode: FfiConverterRustBuffer {
+    typealias SwiftType = [Node]
+
+    public static func write(_ value: [Node], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeNode.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [Node] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [Node]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeNode.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+fileprivate struct FfiConverterSequenceTypeNodeAddress: FfiConverterRustBuffer {
+    typealias SwiftType = [NodeAddress]
+
+    public static func write(_ value: [NodeAddress], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeNodeAddress.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [NodeAddress] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [NodeAddress]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeNodeAddress.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+fileprivate struct FfiConverterSequenceTypeNodeCondition: FfiConverterRustBuffer {
+    typealias SwiftType = [NodeCondition]
+
+    public static func write(_ value: [NodeCondition], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeNodeCondition.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [NodeCondition] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [NodeCondition]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeNodeCondition.read(from: &buf))
+        }
+        return seq
+    }
+}
+
 fileprivate struct FfiConverterSequenceTypeTab: FfiConverterRustBuffer {
     typealias SwiftType = [Tab]
 
@@ -2105,6 +2519,51 @@ fileprivate struct FfiConverterSequenceTypeTabGroup: FfiConverterRustBuffer {
             seq.append(try FfiConverterTypeTabGroup.read(from: &buf))
         }
         return seq
+    }
+}
+
+fileprivate struct FfiConverterSequenceTypeTaint: FfiConverterRustBuffer {
+    typealias SwiftType = [Taint]
+
+    public static func write(_ value: [Taint], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeTaint.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [Taint] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [Taint]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeTaint.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+fileprivate struct FfiConverterDictionaryStringString: FfiConverterRustBuffer {
+    public static func write(_ value: [String: String], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for (key, value) in value {
+            FfiConverterString.write(key, into: &buf)
+            FfiConverterString.write(value, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [String: String] {
+        let len: Int32 = try readInt(&buf)
+        var dict = [String: String]()
+        dict.reserveCapacity(Int(len))
+        for _ in 0..<len {
+            let key = try FfiConverterString.read(from: &buf)
+            let value = try FfiConverterString.read(from: &buf)
+            dict[key] = value
+        }
+        return dict
     }
 }
 

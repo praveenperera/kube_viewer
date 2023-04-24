@@ -25,8 +25,10 @@ struct NodeView: View {
     }
 
     var body: some View {
-        ForEach(self.model.nodes) { node in
-            Text(node.name)
+        if let nodes = self.model.nodes {
+            ForEach(nodes) { node in
+                Text(node.name)
+            }
         }
     }
 }
