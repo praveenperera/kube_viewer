@@ -64,4 +64,9 @@ impl GlobalViewModel {
             .map(|clusters| clusters.clusters_map.clone())
             .unwrap_or_default()
     }
+
+    pub fn get_cluster(&self, cluster_id: &ClusterId) -> Option<Cluster> {
+        let clusters = self.clusters.as_ref()?;
+        clusters.get_cluster(cluster_id)
+    }
 }

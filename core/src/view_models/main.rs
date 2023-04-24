@@ -87,6 +87,11 @@ impl RustMainViewModel {
         self.inner.read().selected_tab.clone()
     }
 
+    pub fn set_window_closed(&self, window_id: String) {
+        let window_id = window_id.into();
+        let _ = USER_CONFIG.write().clear_window_config(&window_id);
+    }
+
     pub fn set_selected_tab(&self, selected_tab: TabId) {
         self.inner.write().select_tab(selected_tab);
     }
@@ -157,9 +162,16 @@ impl RustMainViewModel {
     }
 
     pub fn set_selected_cluster(&self, cluster: Cluster) {
-        self.inner.write().selected_cluster = Some(cluster.id.clone());
+        if GlobalViewModel::global()
+            .read()
+            .get_cluster(&cluster.id)
+            .is_none()
+        {
+            // cluster does not exist in kubeconfig clusters, do not set it as selected
+            return;
+        }
 
-        // TODO: make sure cluster exists in cluster map
+        self.inner.write().selected_cluster = Some(cluster.id.clone());
 
         if let Err(err) = USER_CONFIG
             .write()

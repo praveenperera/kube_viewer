@@ -90,4 +90,9 @@ impl UserConfig {
 
         Ok(())
     }
+
+    pub fn clear_window_config(&mut self, window_id: &WindowId) -> Result<()> {
+        self.window_configs.remove(window_id);
+        self.save()
+    }
 }
