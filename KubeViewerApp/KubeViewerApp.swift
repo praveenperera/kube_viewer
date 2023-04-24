@@ -18,6 +18,7 @@ class GlobalModel: ObservableObject {
         self.models[windowId]
     }
 
+    // TODO: clean window_id UserConfig
     func windowOpened(_ windowId: UUID) {}
     func windowClosing(_ windowId: UUID) {}
 }

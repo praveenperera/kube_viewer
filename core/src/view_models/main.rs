@@ -159,6 +159,8 @@ impl RustMainViewModel {
     pub fn set_selected_cluster(&self, cluster: Cluster) {
         self.inner.write().selected_cluster = Some(cluster.id.clone());
 
+        // TODO: make sure cluster exists in cluster map
+
         if let Err(err) = USER_CONFIG
             .write()
             .set_selected_cluster(self.window_id.clone(), cluster.id)
