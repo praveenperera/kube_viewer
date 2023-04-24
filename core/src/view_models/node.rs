@@ -10,6 +10,7 @@ pub trait NodeViewModelCallback: Send {
 
 pub enum NodeViewModelMessage {
     ClientLoaded,
+    PathFound { path: String },
 }
 
 pub struct RustNodeViewModel {
@@ -30,7 +31,6 @@ impl RustNodeViewModel {
 
     pub fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
         let addr = self.inner.clone();
-
         task::spawn(async move { send!(addr.add_callback_listener(responder)) });
     }
 }
@@ -82,6 +82,13 @@ impl NodeViewModel {
     }
 
     async fn load_client(&mut self) -> ActorResult<()> {
+        self.responder
+            .as_ref()
+            .unwrap()
+            .callback(NodeViewModelMessage::PathFound {
+                path: std::env::var("PATH").unwrap_or_default(),
+            });
+
         let selected_cluster = USER_CONFIG.read().get_selected_cluster(&self.window_id);
 
         let config = match selected_cluster {

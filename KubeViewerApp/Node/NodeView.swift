@@ -19,7 +19,7 @@ struct NodeView: View {
     }
 
     var body: some View {
-        Text("Hello word here are my nodes!")
+        Text(model.path ?? "Hello word here are my nodes!")
     }
 }
 

@@ -87,9 +87,8 @@ impl RustMainViewModel {
         self.inner.read().selected_tab.clone()
     }
 
-    pub fn set_window_closed(&self, window_id: String) {
-        let window_id = window_id.into();
-        let _ = USER_CONFIG.write().clear_window_config(&window_id);
+    pub fn set_window_closed(&self) {
+        let _ = USER_CONFIG.write().clear_window_config(&self.window_id);
     }
 
     pub fn set_selected_tab(&self, selected_tab: TabId) {
@@ -303,8 +302,6 @@ impl MainViewModel {
 
     pub fn selected_cluster(&self) -> Option<Cluster> {
         let cluster_id = &self.selected_cluster.as_ref()?;
-
-        println!("cluster_id: {:#?}", cluster_id);
 
         GlobalViewModel::global()
             .read()

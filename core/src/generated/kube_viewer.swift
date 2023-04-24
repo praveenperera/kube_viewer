@@ -19,13 +19,13 @@ fileprivate extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_kube_viewer_ba9c_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_kube_viewer_fdf3_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_kube_viewer_ba9c_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_kube_viewer_fdf3_rustbuffer_free(self, $0) }
     }
 }
 
@@ -372,12 +372,12 @@ public class FocusRegionHasher: FocusRegionHasherProtocol {
     
     rustCall() {
     
-    kube_viewer_ba9c_FocusRegionHasher_new($0)
+    kube_viewer_fdf3_FocusRegionHasher_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_ba9c_FocusRegionHasher_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_fdf3_FocusRegionHasher_object_free(pointer, $0) }
     }
 
     
@@ -448,12 +448,12 @@ public class RustGlobalViewModel: RustGlobalViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_ba9c_RustGlobalViewModel_new($0)
+    kube_viewer_fdf3_RustGlobalViewModel_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_ba9c_RustGlobalViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_fdf3_RustGlobalViewModel_object_free(pointer, $0) }
     }
 
     
@@ -514,6 +514,7 @@ public protocol RustMainViewModelProtocol {
     func `setSelectedCluster`(`cluster`: Cluster) 
     func `setSelectedTab`(`selectedTab`: TabId) 
     func `setTabGroupExpansions`(`tabGroupExpansions`: [TabGroupId: Bool]) 
+    func `setWindowClosed`() 
     func `tabGroupExpansions`()  -> [TabGroupId: Bool]
     func `tabGroups`()  -> [TabGroup]
     func `tabGroupsFiltered`(`search`: String)  -> [TabGroup]
@@ -536,13 +537,13 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_ba9c_RustMainViewModel_new(
+    kube_viewer_fdf3_RustMainViewModel_new(
         FfiConverterString.lower(`windowId`), $0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_ba9c_RustMainViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_fdf3_RustMainViewModel_object_free(pointer, $0) }
     }
 
     
@@ -552,7 +553,7 @@ public class RustMainViewModel: RustMainViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_ba9c_RustMainViewModel_add_update_listener(self.pointer, 
+    kube_viewer_fdf3_RustMainViewModel_add_update_listener(self.pointer, 
         FfiConverterCallbackInterfaceMainViewModelUpdater.lower(`listener`), $0
     )
 }
@@ -631,6 +632,14 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     _uniffi_kube_viewer_impl_RustMainViewModel_set_tab_group_expansions_ac8c(self.pointer, 
         FfiConverterDictionaryTypeTabGroupIdBool.lower(`tabGroupExpansions`), $0
+    )
+}
+    }
+    public func `setWindowClosed`()  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_set_window_closed_f1bc(self.pointer, $0
     )
 }
     }
@@ -739,13 +748,13 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_ba9c_RustNodeViewModel_new(
+    kube_viewer_fdf3_RustNodeViewModel_new(
         FfiConverterString.lower(`windowId`), $0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_ba9c_RustNodeViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_fdf3_RustNodeViewModel_object_free(pointer, $0) }
     }
 
     
@@ -755,7 +764,7 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_ba9c_RustNodeViewModel_add_callback_listener(self.pointer, 
+    kube_viewer_fdf3_RustNodeViewModel_add_callback_listener(self.pointer, 
         FfiConverterCallbackInterfaceNodeViewModelCallback.lower(`responder`), $0
     )
 }
@@ -1295,6 +1304,7 @@ extension MainViewModelField: Equatable, Hashable {}
 public enum NodeViewModelMessage {
     
     case `clientLoaded`
+    case `pathFound`(`path`: String)
 }
 
 public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
@@ -1305,6 +1315,10 @@ public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
         switch variant {
         
         case 1: return .`clientLoaded`
+        
+        case 2: return .`pathFound`(
+            `path`: try FfiConverterString.read(from: &buf)
+        )
         
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -1317,6 +1331,11 @@ public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
         case .`clientLoaded`:
             writeInt(&buf, Int32(1))
         
+        
+        case let .`pathFound`(`path`):
+            writeInt(&buf, Int32(2))
+            FfiConverterString.write(`path`, into: &buf)
+            
         }
     }
 }
@@ -1842,7 +1861,7 @@ fileprivate struct FfiConverterCallbackInterfaceMainViewModelUpdater {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_ba9c_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
+                ffi_kube_viewer_fdf3_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
         }
     }
     private static func ensureCallbackinitialized() {
@@ -1956,7 +1975,7 @@ fileprivate struct FfiConverterCallbackInterfaceNodeViewModelCallback {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_ba9c_NodeViewModelCallback_init_callback(foreignCallbackCallbackInterfaceNodeViewModelCallback, err)
+                ffi_kube_viewer_fdf3_NodeViewModelCallback_init_callback(foreignCallbackCallbackInterfaceNodeViewModelCallback, err)
         }
     }
     private static func ensureCallbackinitialized() {

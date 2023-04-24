@@ -19,7 +19,7 @@ class GlobalModel: ObservableObject {
     }
 
     func windowOpened(_ windowId: UUID) {
-        self.models[windowId]?.data.setWindowClosed(windowId)
+        self.models[windowId]?.data.setWindowClosed()
     }
 
     func windowClosing(_ windowId: UUID) {}
