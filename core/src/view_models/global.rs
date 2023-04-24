@@ -75,8 +75,4 @@ impl GlobalViewModel {
         let clusters = self.clusters.as_ref()?;
         clusters.get_cluster(cluster_id)
     }
-
-    pub fn current_context_cluster_id(&self) -> Option<ClusterId> {
-        self.clusters.as_ref()?.current_context_cluster_id()
-    }
 }

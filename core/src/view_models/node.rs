@@ -8,8 +8,6 @@ use crate::{
     cluster::ClusterId,
     kubernetes::{self, node::Node},
     task,
-    user_config::USER_CONFIG,
-    GlobalViewModel,
 };
 
 pub trait NodeViewModelCallback: Send + Sync + 'static {
@@ -45,9 +43,13 @@ impl RustNodeViewModel {
 
 #[uniffi::export]
 impl RustNodeViewModel {
-    pub fn nodes(&self) -> Vec<Node> {
+    pub fn nodes(&self, selected_cluster: ClusterId) -> Vec<Node> {
         let addr = self.inner.clone();
-        task::block_on(async move { call!(addr.nodes()).await.unwrap_or_default() })
+        task::block_on(async move {
+            call!(addr.nodes(selected_cluster))
+                .await
+                .unwrap_or_default()
+        })
     }
 }
 
@@ -84,35 +86,35 @@ impl NodeViewModel {
         }
     }
 
-    fn selected_cluster(&self) -> Option<ClusterId> {
-        match USER_CONFIG.read().get_selected_cluster(&self.window_id) {
-            Some(cluster_id) => Some(cluster_id),
-            None => GlobalViewModel::global()
-                .read()
-                .current_context_cluster_id(),
+    pub fn callback(&self, msg: NodeViewModelMessage) {
+        if let Some(responder) = self.responder.as_ref() {
+            responder.callback(msg);
         }
     }
 
-    async fn nodes(&mut self) -> ActorResult<Vec<Node>> {
+    async fn nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<Vec<Node>> {
         println!("nodes() called");
-        self.load_nodes().await?;
+        self.load_nodes(&selected_cluster).await?;
 
         Produces::ok(self.nodes.clone().expect("just loaded nodes"))
     }
 
-    async fn load_nodes(&mut self) -> ActorResult<()> {
-        let selected_cluster = self
-            .selected_cluster()
-            .ok_or_else(|| eyre::eyre!("No cluster selected"))?;
+    async fn load_nodes(&mut self, selected_cluster: &ClusterId) -> ActorResult<()> {
+        if !self.clients.contains_key(selected_cluster) {
+            self.load_client(selected_cluster.clone()).await?;
+        }
 
         let client: Client = self
             .clients
-            .get(&selected_cluster)
+            .get(selected_cluster)
             .ok_or_else(|| eyre::eyre!("Kubernetes client not loaded"))?
             .clone();
 
         let nodes = kubernetes::get_nodes(client.clone()).await?;
         self.nodes = Some(nodes);
+
+        // notify frontend, nodes loaded
+        self.callback(NodeViewModelMessage::NodesLoaded);
 
         Produces::ok(())
     }
@@ -123,45 +125,27 @@ impl NodeViewModel {
     ) -> ActorResult<()> {
         self.responder = Some(responder);
 
-        // after the responder is set, we can load the kubernetes client
-        self.load_client().await?;
-
         Produces::ok(())
     }
 
-    async fn load_client(&mut self) -> ActorResult<()> {
-        let selected_cluster = USER_CONFIG.read().get_selected_cluster(&self.window_id);
+    async fn load_client(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
+        if self.clients.contains_key(&selected_cluster) {
+            return Produces::ok(());
+        }
 
-        let config = match selected_cluster {
-            None => Config::infer().await?,
-            Some(selected_cluster) => {
-                Config::from_kubeconfig(&KubeConfigOptions {
-                    context: Some(selected_cluster.raw_value.clone()),
-                    ..Default::default()
-                })
-                .await?
-            }
-        };
+        let config = Config::from_kubeconfig(&KubeConfigOptions {
+            context: Some(selected_cluster.raw_value.clone()),
+            ..Default::default()
+        })
+        .await?;
 
         let client = Client::try_from(config)?;
 
-        let selected_cluster = self.selected_cluster().ok_or_else(|| {
-            eyre::eyre!("No cluster selected, but we should have selected one by now")
-        })?;
-
         // save client to hashmap
-        self.clients.insert(selected_cluster, client);
+        self.clients.insert(selected_cluster.clone(), client);
 
-        self.responder
-            .as_ref()
-            .unwrap()
-            .callback(NodeViewModelMessage::ClientLoaded);
-
-        self.load_nodes().await?;
-        self.responder
-            .as_ref()
-            .unwrap()
-            .callback(NodeViewModelMessage::NodesLoaded);
+        // notify frontend
+        self.callback(NodeViewModelMessage::ClientLoaded);
 
         Produces::ok(())
     }
