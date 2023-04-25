@@ -731,7 +731,8 @@ public struct FfiConverterTypeRustMainViewModel: FfiConverter {
 
 public protocol RustNodeViewModelProtocol {
     func `addCallbackListener`(`responder`: NodeViewModelCallback) 
-    func `nodes`()  -> [Node]
+    func `fetchNodes`(`selectedCluster`: ClusterId) 
+    func `nodes`(`selectedCluster`: ClusterId)  -> [Node]
     
 }
 
@@ -770,12 +771,22 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
     )
 }
     }
-    public func `nodes`()  -> [Node] {
+    public func `fetchNodes`(`selectedCluster`: ClusterId)  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustNodeViewModel_fetch_nodes_37d1(self.pointer, 
+        FfiConverterTypeClusterId.lower(`selectedCluster`), $0
+    )
+}
+    }
+    public func `nodes`(`selectedCluster`: ClusterId)  -> [Node] {
         return try! FfiConverterSequenceTypeNode.lift(
             try!
     rustCall() {
     
-    _uniffi_kube_viewer_impl_RustNodeViewModel_nodes_99ad(self.pointer, $0
+    _uniffi_kube_viewer_impl_RustNodeViewModel_nodes_ee8e(self.pointer, 
+        FfiConverterTypeClusterId.lower(`selectedCluster`), $0
     )
 }
         )

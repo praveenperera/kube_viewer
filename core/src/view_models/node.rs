@@ -43,6 +43,11 @@ impl RustNodeViewModel {
 
 #[uniffi::export]
 impl RustNodeViewModel {
+    pub fn fetch_nodes(&self, selected_cluster: ClusterId) {
+        let addr = self.inner.clone();
+        task::spawn(async move { send!(addr.fetch_nodes(selected_cluster)) });
+    }
+
     pub fn nodes(&self, selected_cluster: ClusterId) -> Vec<Node> {
         let addr = self.inner.clone();
         task::block_on(async move {
@@ -92,9 +97,22 @@ impl NodeViewModel {
         }
     }
 
+    async fn fetch_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
+        log::debug!("fetch_nodes() called");
+        println!("fetch_nodes() called");
+        self.load_nodes(&selected_cluster).await?;
+        self.callback(NodeViewModelMessage::NodesLoaded);
+
+        Produces::ok(())
+    }
+
     async fn nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<Vec<Node>> {
         println!("nodes() called");
-        self.load_nodes(&selected_cluster).await?;
+
+        if self.nodes.is_none() {
+            println!("nodes() called, but nodes is None, loading nodes");
+            self.fetch_nodes(selected_cluster).await?;
+        }
 
         Produces::ok(self.nodes.clone().expect("just loaded nodes"))
     }

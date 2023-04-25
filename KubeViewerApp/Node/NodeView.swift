@@ -17,7 +17,8 @@ struct NodeView: View {
         self.windowId = windowId
         self.globalModel = globalModel
         self.mainViewModel = mainViewModel
-        self.model = globalModel.models[windowId]?.nodes ?? NodeViewModel(windowId: windowId)
+
+        self.model = globalModel.models[windowId]?.nodes ?? NodeViewModel(windowId: windowId, selectedCluster: mainViewModel.selectedCluster)
 
         if let viewModels = globalModel.models[windowId],
            viewModels.nodes == nil
@@ -30,10 +31,12 @@ struct NodeView: View {
         if let nodes = self.model.nodes {
             ForEach(nodes) { node in
                 Text(node.name)
-            }.onReceive(self.mainViewModel.$selectedCluster, perform: { selectedCluster in
-                print("onReceive")
-                self.model.nodes(selectedCluster: selectedCluster!.id)
-            })
+            }
+            .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
+                if let selectedCluster = newSelectedCluster {
+                    self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
+                }
+            }
         }
     }
 }

@@ -138,8 +138,12 @@ void kube_viewer_e_RustNodeViewModel_add_callback_listener(
       void*_Nonnull ptr,uint64_t responder,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer _uniffi_kube_viewer_impl_RustNodeViewModel_nodes_99ad(
-      void*_Nonnull ptr,
+void _uniffi_kube_viewer_impl_RustNodeViewModel_fetch_nodes_37d1(
+      void*_Nonnull ptr,RustBuffer selected_cluster,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer _uniffi_kube_viewer_impl_RustNodeViewModel_nodes_ee8e(
+      void*_Nonnull ptr,RustBuffer selected_cluster,
     RustCallStatus *_Nonnull out_status
     );
 void ffi_kube_viewer_e_FocusRegionHasher_object_free(
