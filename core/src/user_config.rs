@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use etcetera::app_strategy::{self, AppStrategy, AppStrategyArgs, Xdg};
 use eyre::{Context, Result};
+use log::error;
 use once_cell::sync::Lazy;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
@@ -54,7 +55,7 @@ impl UserConfig {
             let config = Self::new();
 
             if let Err(err) = config.save() {
-                eprintln!("failed to save config file: {err}");
+                error!("failed to save config file: {err}");
             }
 
             return config;

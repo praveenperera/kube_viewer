@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use act_zero::*;
 use kube::{config::KubeConfigOptions, Client, Config};
+use log::debug;
 
 use super::WindowId;
 use crate::{
@@ -98,8 +99,7 @@ impl NodeViewModel {
     }
 
     async fn fetch_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
-        log::debug!("fetch_nodes() called");
-        println!("fetch_nodes() called");
+        debug!("fetch_nodes() called");
         self.load_nodes(&selected_cluster).await?;
         self.callback(NodeViewModelMessage::NodesLoaded);
 
@@ -107,17 +107,24 @@ impl NodeViewModel {
     }
 
     async fn nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<Vec<Node>> {
-        println!("nodes() called");
+        debug!("getting nodes called");
 
         if self.nodes.is_none() {
-            println!("nodes() called, but nodes is None, loading nodes");
+            debug!("nodes not laoded, fetching nodes");
             self.fetch_nodes(selected_cluster).await?;
         }
 
-        Produces::ok(self.nodes.clone().expect("just loaded nodes"))
+        let nodes = self
+            .nodes
+            .as_ref()
+            .ok_or_else(|| eyre::eyre!("nodes not loaded"))?;
+
+        Produces::ok(nodes.clone())
     }
 
     async fn load_nodes(&mut self, selected_cluster: &ClusterId) -> ActorResult<()> {
+        debug!("loading nodes");
+
         if !self.clients.contains_key(selected_cluster) {
             self.load_client(selected_cluster.clone()).await?;
         }
@@ -147,6 +154,8 @@ impl NodeViewModel {
     }
 
     async fn load_client(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
+        debug!("loading client");
+
         if self.clients.contains_key(&selected_cluster) {
             return Produces::ok(());
         }
