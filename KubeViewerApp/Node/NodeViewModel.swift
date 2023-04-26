@@ -15,14 +15,17 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
     var clientLoaded = false
     var selectedCluster: Cluster?
 
-    var nodes: [Node]? {
-        self.selectedCluster.map { self.data.nodes(selectedCluster: $0.id) }
-    }
+    @RustPublished var nodes: [Node]?
 
     init(windowId: UUID, selectedCluster: Cluster?) {
         self.windowId = windowId
         self.data = RustNodeViewModel(windowId: windowId.uuidString)
         self.selectedCluster = selectedCluster
+
+        self.nodes = nil
+        self._nodes.getter = {
+            self.selectedCluster.map { self.data.nodes(selectedCluster: $0.id) }
+        }
 
         DispatchQueue.main.async { self.setupCallback() }
     }
@@ -36,17 +39,17 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
     }
 
     func callback(msg: NodeViewModelMessage) {
-        switch msg {
-            case .clientLoaded:
-                print("client loaded loaded")
-                DispatchQueue.main.async {
-                    self.clientLoaded = true
+        Task {
+            await MainActor.run {
+                switch msg {
+                    case .clientLoaded:
+                        print("[swift] client loaded")
+                        self.clientLoaded = true
+                    case .nodesLoaded:
+                        print("[swift] nodes loaded")
+                        self.nodes = self.selectedCluster.map { self.data.nodes(selectedCluster: $0.id) }
                 }
-            case .nodesLoaded:
-                print("nodes loaded")
-                DispatchQueue.main.async {
-                    self.objectWillChange.send()
-                }
+            }
         }
     }
 }
