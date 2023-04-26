@@ -83,6 +83,7 @@
 		ACD621F1298057D400FE2CE2 /* TabViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabViewModel.swift; sourceTree = "<group>"; };
 		ACE6DFFA299C11520094C1DC /* KubeViewerApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KubeViewerApp-Bridging-Header.h"; sourceTree = "<group>"; };
 		ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "xc-universal-binary.sh"; sourceTree = "<group>"; };
+		ACFA988229F8CF30009C2A32 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DADF4C7A295E6DB9006CA792 /* KubeViewerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KubeViewerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KubeViewerApp.swift; sourceTree = "<group>"; };
 		DADF4C81295E6DBB006CA792 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -225,6 +226,7 @@
 		DADF4C7C295E6DB9006CA792 /* KubeViewerApp */ = {
 			isa = PBXGroup;
 			children = (
+				ACFA988229F8CF30009C2A32 /* Info.plist */,
 				AC95349F29F4B8490082155D /* Window */,
 				AC95349C29F4B8100082155D /* Node */,
 				ACE6E01D299D45350094C1DC /* FFIHelpers */,
@@ -522,6 +524,8 @@
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KubeViewerApp/Info.plist;
+				"INFOPLIST_FILE[sdk=*]" = "";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -555,6 +559,7 @@
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KubeViewerApp/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

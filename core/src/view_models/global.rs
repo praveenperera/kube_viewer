@@ -36,6 +36,9 @@ impl Default for GlobalViewModel {
 
 impl RustGlobalViewModel {
     pub fn new() -> Self {
+        //TODO: set manually in code for now
+        std::env::set_var("RUST_LOG", "debug");
+
         // one time init
         env_logger::init();
 

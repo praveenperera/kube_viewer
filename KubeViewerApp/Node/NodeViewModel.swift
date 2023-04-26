@@ -18,6 +18,7 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
     @RustPublished var nodes: [Node]?
 
     init(windowId: UUID, selectedCluster: Cluster?) {
+        print("loading node view model")
         self.windowId = windowId
         self.data = RustNodeViewModel(windowId: windowId.uuidString)
         self.selectedCluster = selectedCluster
