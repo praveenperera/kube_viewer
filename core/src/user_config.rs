@@ -62,7 +62,14 @@ impl UserConfig {
         }
 
         let config_str = std::fs::read_to_string(config_path).expect("failed to read config file");
-        serde_json::from_str(&config_str).expect("failed to parse config file")
+        let mut user_config: UserConfig =
+            serde_json::from_str(&config_str).expect("failed to parse config file");
+
+        // clear window_configs from old sessions, since its starting with new window ids
+        // NOTE: look into using window_configs to restore old windows when new starting app
+        user_config.window_configs = HashMap::new();
+
+        user_config
     }
 
     pub fn get_selected_cluster(&self, window_id: &WindowId) -> Option<ClusterId> {
