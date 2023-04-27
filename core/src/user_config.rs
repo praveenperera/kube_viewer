@@ -23,6 +23,7 @@ pub static USER_CONFIG: Lazy<RwLock<UserConfig>> = Lazy::new(|| RwLock::new(User
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserConfig {
+    pub selected_cluster: Option<ClusterId>,
     pub window_configs: HashMap<WindowId, WindowConfig>,
 }
 
@@ -40,6 +41,7 @@ impl Default for UserConfig {
 impl UserConfig {
     fn new() -> Self {
         Self {
+            selected_cluster: None,
             window_configs: HashMap::new(),
         }
     }
@@ -73,7 +75,16 @@ impl UserConfig {
     }
 
     pub fn get_selected_cluster(&self, window_id: &WindowId) -> Option<ClusterId> {
-        self.window_configs.get(window_id)?.selected_cluster.clone()
+        // return window_config selected_cluster if it exists
+        if let Some(WindowConfig {
+            selected_cluster: Some(window_config),
+        }) = self.window_configs.get(window_id)
+        {
+            return Some(window_config.clone());
+        }
+
+        // else return global selected_cluster
+        self.selected_cluster.clone()
     }
 
     pub fn set_selected_cluster(
@@ -81,6 +92,8 @@ impl UserConfig {
         window_id: WindowId,
         cluster_id: ClusterId,
     ) -> Result<()> {
+        self.selected_cluster = Some(cluster_id.clone());
+
         self.window_configs
             .entry(window_id)
             .or_insert_with(WindowConfig::default)
