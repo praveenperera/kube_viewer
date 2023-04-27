@@ -1,8 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use act_zero::*;
+use eyre::Result;
 use kube::{config::KubeConfigOptions, Client, Config};
-use log::debug;
+use log::{debug, error};
+use parking_lot::RwLock;
 
 use super::WindowId;
 use crate::{
@@ -21,23 +23,43 @@ pub enum NodeViewModelMessage {
 }
 
 pub struct RustNodeViewModel {
-    inner: Addr<NodeViewModel>,
+    actor: Addr<Worker>,
+    state: Arc<RwLock<State>>,
+
     #[allow(dead_code)]
     window_id: WindowId,
+}
+
+pub struct State {
+    actor: WeakAddr<Worker>,
+    nodes: Option<Vec<Node>>,
+    clients: HashMap<ClusterId, Client>,
+}
+
+pub struct Worker {
+    addr: WeakAddr<Self>,
+
+    state: Arc<RwLock<State>>,
+    responder: Option<Box<dyn NodeViewModelCallback>>,
 }
 
 impl RustNodeViewModel {
     pub fn new(window_id: String) -> Self {
         let window_id = WindowId(window_id);
 
-        let model = NodeViewModel::new(window_id.clone());
-        let inner = task::spawn_actor(model);
+        let state = Arc::new(RwLock::new(State::new(window_id.clone())));
+        let worker = Worker::new(window_id.clone(), state.clone());
+        let actor = task::spawn_actor(worker);
 
-        Self { inner, window_id }
+        Self {
+            actor,
+            state,
+            window_id,
+        }
     }
 
     pub fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
-        let addr = self.inner.clone();
+        let addr = self.actor.clone();
         task::spawn(async move { send!(addr.add_callback_listener(responder)) });
     }
 }
@@ -45,49 +67,50 @@ impl RustNodeViewModel {
 #[uniffi::export]
 impl RustNodeViewModel {
     pub fn fetch_nodes(&self, selected_cluster: ClusterId) {
-        let addr = self.inner.clone();
+        let addr = self.actor.clone();
         task::spawn(async move { send!(addr.fetch_nodes(selected_cluster)) });
     }
 
     pub fn nodes(&self, selected_cluster: ClusterId) -> Vec<Node> {
-        let addr = self.inner.clone();
-        task::block_on(async move {
-            call!(addr.nodes(selected_cluster))
-                .await
-                .unwrap_or_default()
-        })
+        // TODO: handle error
+        self.state
+            .read()
+            .nodes(selected_cluster)
+            .unwrap_or_default()
     }
 }
 
-#[async_trait::async_trait]
-impl Actor for NodeViewModel {
-    async fn started(&mut self, addr: Addr<Self>) -> ActorResult<()> {
-        self.addr = addr.downgrade();
-        Produces::ok(())
-    }
-
-    async fn error(&mut self, error: ActorError) -> bool {
-        log::error!("NodeViewModel Actor Error: {error:?}");
-        false
-    }
-}
-
-pub struct NodeViewModel {
-    addr: WeakAddr<Self>,
-    nodes: Option<Vec<Node>>,
-    clients: HashMap<ClusterId, Client>,
-    #[allow(dead_code)]
-    window_id: WindowId,
-    responder: Option<Box<dyn NodeViewModelCallback>>,
-}
-
-impl NodeViewModel {
-    pub fn new(window_id: WindowId) -> Self {
+impl State {
+    pub fn new(_window_id: WindowId) -> Self {
         Self {
-            addr: Default::default(),
+            actor: WeakAddr::detached(),
             nodes: None,
             clients: HashMap::new(),
-            window_id,
+        }
+    }
+
+    pub fn nodes(&self, selected_cluster: ClusterId) -> Result<Vec<Node>> {
+        debug!("getting nodes called");
+
+        if self.nodes.is_none() {
+            log::warn!("nodes not loaded, fetching nodes");
+            send!(self.actor.fetch_nodes(selected_cluster));
+        };
+
+        let nodes = self
+            .nodes
+            .as_ref()
+            .ok_or_else(|| eyre::eyre!("nodes not loaded"))?;
+
+        Ok(nodes.clone())
+    }
+}
+
+impl Worker {
+    pub fn new(_window_id: WindowId, state: Arc<RwLock<State>>) -> Self {
+        Self {
+            addr: Default::default(),
+            state,
             responder: None,
         }
     }
@@ -106,37 +129,23 @@ impl NodeViewModel {
         Produces::ok(())
     }
 
-    async fn nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<Vec<Node>> {
-        debug!("getting nodes called");
-
-        if self.nodes.is_none() {
-            debug!("nodes not laoded, fetching nodes");
-            self.fetch_nodes(selected_cluster).await?;
-        }
-
-        let nodes = self
-            .nodes
-            .as_ref()
-            .ok_or_else(|| eyre::eyre!("nodes not loaded"))?;
-
-        Produces::ok(nodes.clone())
-    }
-
     async fn load_nodes(&mut self, selected_cluster: &ClusterId) -> ActorResult<()> {
         debug!("loading nodes");
 
-        if !self.clients.contains_key(selected_cluster) {
+        if !self.state.read().clients.contains_key(selected_cluster) {
             self.load_client(selected_cluster.clone()).await?;
         }
 
         let client: Client = self
+            .state
+            .read()
             .clients
             .get(selected_cluster)
             .ok_or_else(|| eyre::eyre!("Kubernetes client not loaded"))?
             .clone();
 
         let nodes = kubernetes::get_nodes(client.clone()).await?;
-        self.nodes = Some(nodes);
+        self.state.write().nodes = Some(nodes);
 
         // notify frontend, nodes loaded
         self.callback(NodeViewModelMessage::NodesLoaded);
@@ -154,9 +163,9 @@ impl NodeViewModel {
     }
 
     async fn load_client(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
-        debug!("loading client");
+        debug!("load_client() called");
 
-        if self.clients.contains_key(&selected_cluster) {
+        if self.state.read().clients.contains_key(&selected_cluster) {
             return Produces::ok(());
         }
 
@@ -169,11 +178,29 @@ impl NodeViewModel {
         let client = Client::try_from(config)?;
 
         // save client to hashmap
-        self.clients.insert(selected_cluster.clone(), client);
+        self.state
+            .write()
+            .clients
+            .insert(selected_cluster.clone(), client);
 
         // notify frontend
         self.callback(NodeViewModelMessage::ClientLoaded);
 
         Produces::ok(())
+    }
+}
+
+#[async_trait::async_trait]
+impl Actor for Worker {
+    async fn started(&mut self, addr: Addr<Self>) -> ActorResult<()> {
+        self.addr = addr.downgrade();
+        self.state.write().actor = self.addr.clone();
+
+        Produces::ok(())
+    }
+
+    async fn error(&mut self, error: ActorError) -> bool {
+        error!("NodeViewModel Actor Error: {error:?}");
+        false
     }
 }
