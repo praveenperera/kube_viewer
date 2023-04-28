@@ -18,8 +18,12 @@ pub trait NodeViewModelCallback: Send + Sync + 'static {
 }
 
 pub enum NodeViewModelMessage {
+    LoadingClient,
+    LoadingNodes,
     ClientLoaded,
     NodesLoaded,
+    NodeLoadingFailed { error: String },
+    ClientLoadingFailed { error: String },
 }
 
 pub struct RustNodeViewModel {
@@ -123,6 +127,7 @@ impl Worker {
 
     async fn fetch_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
         debug!("fetch_nodes() called");
+
         self.load_nodes(&selected_cluster).await?;
         self.callback(NodeViewModelMessage::NodesLoaded);
 
