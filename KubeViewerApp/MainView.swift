@@ -70,7 +70,7 @@ struct MainView: View {
     var TabContent: some View {
         switch self.model.selectedTab {
         case TabId.nodes:
-            NodeView(windowId: self.windowId, globalModel: self.globalModel)
+            NodeView(windowId: self.windowId, globalModel: self.globalModel, mainViewModel: self.model)
         default:
             self.model.tabContentViews[self.model.selectedTab]!
             Text(self.model.windowId.uuidString)

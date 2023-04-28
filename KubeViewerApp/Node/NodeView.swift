@@ -10,12 +10,15 @@ import SwiftUI
 struct NodeView: View {
     let windowId: UUID
     @ObservedObject var globalModel: GlobalModel
+    @ObservedObject var mainViewModel: MainViewModel
     @ObservedObject var model: NodeViewModel
 
-    public init(windowId: UUID, globalModel: GlobalModel) {
+    public init(windowId: UUID, globalModel: GlobalModel, mainViewModel: MainViewModel) {
         self.windowId = windowId
         self.globalModel = globalModel
-        self.model = globalModel.models[windowId]?.nodes ?? NodeViewModel(windowId: windowId)
+        self.mainViewModel = mainViewModel
+
+        self.model = globalModel.models[windowId]?.nodes ?? NodeViewModel(windowId: windowId, selectedCluster: mainViewModel.selectedCluster)
 
         if let viewModels = globalModel.models[windowId],
            viewModels.nodes == nil
@@ -25,15 +28,27 @@ struct NodeView: View {
     }
 
     var body: some View {
-        Text(self.model.path ?? "Hello word here are my nodes!")
+        if let nodes = self.model.nodes {
+            ForEach(nodes) { node in
+                Text(node.name)
+            }
+            .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
+                if let selectedCluster = newSelectedCluster {
+                    self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
+                }
+            }
+        }
     }
 }
 
 struct NodeView_Previews: PreviewProvider {
     static var windowId = UUID()
     static var globalModel = GlobalModel()
+    static var mainViewModel = MainViewModel(windowId: windowId)
 
     static var previews: some View {
-        NodeView(windowId: windowId, globalModel: globalModel)
+        NodeView(windowId: windowId, globalModel: globalModel, mainViewModel: mainViewModel)
     }
 }
+
+extension Node: Identifiable {}

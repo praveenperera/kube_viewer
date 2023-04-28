@@ -1,11 +1,10 @@
-use chrono::{DateTime, Utc};
 use k8s_openapi::api::core::v1::{
     Node as K8sNode, NodeAddress as K8sNodeAddress, NodeCondition as K8sNodeCondition,
     NodeSystemInfo, Taint as K8sTaint,
 };
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, uniffi::Record)]
 pub struct NodeCondition {
     pub name: String,
     pub status: String,
@@ -13,10 +12,12 @@ pub struct NodeCondition {
     pub message: Option<String>,
 }
 
+#[derive(Debug, Clone, Default, uniffi::Record)]
 pub struct Node {
+    pub id: String,
     pub name: String,
-    pub labels: BTreeMap<String, String>,
-    pub annotations: BTreeMap<String, String>,
+    pub labels: HashMap<String, String>,
+    pub annotations: HashMap<String, String>,
     pub taints: Vec<Taint>,
     pub addresses: Vec<NodeAddress>,
     pub os: Option<String>,
@@ -28,14 +29,15 @@ pub struct Node {
     pub conditions: Vec<NodeCondition>,
 }
 
+#[derive(Debug, Clone, Default, uniffi::Record)]
 pub struct Taint {
     pub effect: String,
     pub key: String,
-    pub time_added: Option<DateTime<Utc>>,
+    pub time_added: Option<String>,
     pub value: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, uniffi::Record)]
 pub struct NodeAddress {
     pub address: String,
     pub node_type: String,
@@ -55,7 +57,7 @@ impl From<K8sTaint> for Taint {
         Self {
             effect: taint.effect,
             key: taint.key,
-            time_added: taint.time_added.map(|time| time.0),
+            time_added: taint.time_added.map(|time| time.0.to_rfc2822()),
             value: taint.value,
         }
     }
@@ -111,13 +113,26 @@ impl From<K8sNode> for Node {
             })
             .unwrap_or((None, None, None, None, None, None));
 
+        let node_name = node
+            .metadata
+            .name
+            .unwrap_or_else(|| "Unknown node name".to_string());
+
         Self {
-            name: node
+            id: node_name.clone(),
+            name: node_name,
+            labels: node
                 .metadata
-                .name
-                .unwrap_or_else(|| "Unknown node name".to_string()),
-            labels: node.metadata.labels.unwrap_or_default(),
-            annotations: node.metadata.annotations.unwrap_or_default(),
+                .labels
+                .unwrap_or_default()
+                .into_iter()
+                .collect(),
+            annotations: node
+                .metadata
+                .annotations
+                .unwrap_or_default()
+                .into_iter()
+                .collect(),
             taints: node
                 .spec
                 .and_then(|spec| spec.taints)

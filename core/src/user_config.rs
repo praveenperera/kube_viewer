@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use etcetera::app_strategy::{self, AppStrategy, AppStrategyArgs, Xdg};
 use eyre::{Context, Result};
+use log::error;
 use once_cell::sync::Lazy;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
@@ -22,6 +23,7 @@ pub static USER_CONFIG: Lazy<RwLock<UserConfig>> = Lazy::new(|| RwLock::new(User
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserConfig {
+    pub selected_cluster: Option<ClusterId>,
     pub window_configs: HashMap<WindowId, WindowConfig>,
 }
 
@@ -39,6 +41,7 @@ impl Default for UserConfig {
 impl UserConfig {
     fn new() -> Self {
         Self {
+            selected_cluster: None,
             window_configs: HashMap::new(),
         }
     }
@@ -54,18 +57,34 @@ impl UserConfig {
             let config = Self::new();
 
             if let Err(err) = config.save() {
-                eprintln!("failed to save config file: {err}");
+                error!("failed to save config file: {err}");
             }
 
             return config;
         }
 
         let config_str = std::fs::read_to_string(config_path).expect("failed to read config file");
-        serde_json::from_str(&config_str).expect("failed to parse config file")
+        let mut user_config: UserConfig =
+            serde_json::from_str(&config_str).expect("failed to parse config file");
+
+        // clear window_configs from old sessions, since its starting with new window ids
+        // NOTE: look into using window_configs to restore old windows when new starting app
+        user_config.window_configs = HashMap::new();
+
+        user_config
     }
 
     pub fn get_selected_cluster(&self, window_id: &WindowId) -> Option<ClusterId> {
-        self.window_configs.get(window_id)?.selected_cluster.clone()
+        // return window_config selected_cluster if it exists
+        if let Some(WindowConfig {
+            selected_cluster: Some(window_config),
+        }) = self.window_configs.get(window_id)
+        {
+            return Some(window_config.clone());
+        }
+
+        // else return global selected_cluster
+        self.selected_cluster.clone()
     }
 
     pub fn set_selected_cluster(
@@ -73,6 +92,8 @@ impl UserConfig {
         window_id: WindowId,
         cluster_id: ClusterId,
     ) -> Result<()> {
+        self.selected_cluster = Some(cluster_id.clone());
+
         self.window_configs
             .entry(window_id)
             .or_insert_with(WindowConfig::default)
