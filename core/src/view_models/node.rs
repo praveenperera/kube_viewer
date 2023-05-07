@@ -1,10 +1,12 @@
 use std::{collections::HashMap, sync::Arc};
 
 use act_zero::*;
-use eyre::Result;
+use eyre::{eyre, Result};
 use kube::{config::KubeConfigOptions, Client, Config};
 use log::{debug, error};
 use parking_lot::RwLock;
+
+use thiserror::Error;
 
 use super::WindowId;
 use crate::{
@@ -12,6 +14,15 @@ use crate::{
     kubernetes::{self, node::Node},
     task,
 };
+
+#[derive(Error, Debug)]
+pub enum NodeError {
+    #[error(transparent)]
+    NodeLoadError(eyre::Report),
+
+    #[error(transparent)]
+    ClientLoadError(eyre::Report),
+}
 
 pub trait NodeViewModelCallback: Send + Sync + 'static {
     fn callback(&self, message: NodeViewModelMessage);
@@ -40,6 +51,19 @@ pub enum NodeViewModelMessage {
     NodesLoaded,
     NodeLoadingFailed { error: String },
     ClientLoadingFailed { error: String },
+}
+
+impl From<NodeError> for NodeViewModelMessage {
+    fn from(error: NodeError) -> Self {
+        match error {
+            NodeError::NodeLoadError(e) => NodeViewModelMessage::NodeLoadingFailed {
+                error: e.to_string(),
+            },
+            NodeError::ClientLoadError(e) => NodeViewModelMessage::ClientLoadingFailed {
+                error: e.to_string(),
+            },
+        }
+    }
 }
 
 pub struct RustNodeViewModel {
@@ -120,7 +144,7 @@ impl State {
         let nodes = self
             .nodes
             .as_ref()
-            .ok_or_else(|| eyre::eyre!("nodes not loaded"))?;
+            .ok_or_else(|| eyre!("nodes not loaded"))?;
 
         Ok(nodes.clone())
     }
@@ -146,7 +170,9 @@ impl Worker {
 
         // notify and load
         self.callback(NodeViewModelMessage::LoadingNodes);
-        self.load_nodes(&selected_cluster).await?;
+        self.load_nodes(&selected_cluster)
+            .await
+            .map_err(|e| NodeError::NodeLoadError(eyre!("{e:?}")))?;
 
         self.callback(NodeViewModelMessage::NodesLoaded);
 
@@ -157,7 +183,9 @@ impl Worker {
         debug!("loading nodes");
 
         if !self.state.read().clients.contains_key(selected_cluster) {
-            self.load_client(selected_cluster.clone()).await?;
+            self.load_client(selected_cluster.clone())
+                .await
+                .map_err(|e| NodeError::ClientLoadError(eyre!("{e:?}")))?;
         }
 
         let client: Client = self
@@ -165,10 +193,13 @@ impl Worker {
             .read()
             .clients
             .get(selected_cluster)
-            .ok_or_else(|| eyre::eyre!("Kubernetes client not loaded"))?
+            .ok_or_else(|| NodeError::ClientLoadError(eyre!("Kubernetes client not loaded")))?
             .clone();
 
-        let nodes = kubernetes::get_nodes(client.clone()).await?;
+        let nodes = kubernetes::get_nodes(client.clone())
+            .await
+            .map_err(NodeError::NodeLoadError)?;
+
         self.state.write().nodes = Some(nodes);
 
         // notify frontend, nodes loaded
@@ -228,6 +259,15 @@ impl Actor for Worker {
 
     async fn error(&mut self, error: ActorError) -> bool {
         error!("NodeViewModel Actor Error: {error:?}");
+
+        if let Some(error) = error.downcast::<NodeError>().ok().map(|e| *e) {
+            self.callback(error.into())
+        } else {
+            self.callback(NodeViewModelMessage::NodeLoadingFailed {
+                error: "Unknown error, please see logs".to_string(),
+            });
+        };
+
         false
     }
 }
