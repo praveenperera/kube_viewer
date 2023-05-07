@@ -17,6 +17,22 @@ pub trait NodeViewModelCallback: Send + Sync + 'static {
     fn callback(&self, message: NodeViewModelMessage);
 }
 
+#[derive(uniffi::Enum)]
+pub enum NodeLoadStatus {
+    Initial,
+    Loading,
+    Loaded { nodes: Vec<Node> },
+    Error { error: String },
+}
+
+#[derive(uniffi::Enum)]
+pub enum ClientLoadStatus {
+    Initial,
+    Loading,
+    Loaded,
+    Error { error: String },
+}
+
 pub enum NodeViewModelMessage {
     LoadingClient,
     LoadingNodes,
@@ -128,7 +144,10 @@ impl Worker {
     async fn fetch_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
         debug!("fetch_nodes() called");
 
+        // notify and load
+        self.callback(NodeViewModelMessage::LoadingNodes);
         self.load_nodes(&selected_cluster).await?;
+
         self.callback(NodeViewModelMessage::NodesLoaded);
 
         Produces::ok(())
@@ -174,6 +193,9 @@ impl Worker {
             return Produces::ok(());
         }
 
+        // notify frontend that client is loading
+        self.callback(NodeViewModelMessage::LoadingClient);
+
         let config = Config::from_kubeconfig(&KubeConfigOptions {
             context: Some(selected_cluster.raw_value.clone()),
             ..Default::default()
@@ -188,7 +210,7 @@ impl Worker {
             .clients
             .insert(selected_cluster.clone(), client);
 
-        // notify frontend
+        // notify frontend client is loaded
         self.callback(NodeViewModelMessage::ClientLoaded);
 
         Produces::ok(())

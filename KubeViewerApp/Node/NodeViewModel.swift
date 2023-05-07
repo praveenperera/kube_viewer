@@ -12,21 +12,17 @@ import SwiftUI
 class NodeViewModel: ObservableObject, NodeViewModelCallback {
     let windowId: UUID
     var data: RustNodeViewModel
-    var clientLoaded = false
-    var selectedCluster: Cluster?
 
-    @RustPublished var nodes: [Node]?
+    @Published var client: ClientLoadStatus = .initial
+    @Published var nodes: NodeLoadStatus = .initial
+
+    var selectedCluster: Cluster?
 
     init(windowId: UUID, selectedCluster: Cluster?) {
         print("loading node view model")
         self.windowId = windowId
         self.data = RustNodeViewModel(windowId: windowId.uuidString)
         self.selectedCluster = selectedCluster
-
-        self.nodes = nil
-        self._nodes.getter = {
-            self.selectedCluster.map { self.data.nodes(selectedCluster: $0.id) }
-        }
 
         DispatchQueue.main.async { self.setupCallback() }
     }
@@ -43,12 +39,26 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
         Task {
             await MainActor.run {
                 switch msg {
+                    case .loadingClient:
+                        self.client = .loading
+
+                    case let .clientLoadingFailed(error):
+                        self.client = .error(error: error)
+
                     case .clientLoaded:
                         print("[swift] client loaded")
-                        self.clientLoaded = true
+                        self.client = .loaded
+
+                    case .loadingNodes:
+                        self.nodes = .loading
+
+                    case let .nodeLoadingFailed(error):
+                        self.nodes = .error(error: error)
+
                     case .nodesLoaded:
                         print("[swift] nodes loaded")
-                        self.nodes = self.selectedCluster.map { self.data.nodes(selectedCluster: $0.id) }
+                        let nodes = self.selectedCluster.map { self.data.nodes(selectedCluster: $0.id) }
+                        self.nodes = .loaded(nodes: nodes ?? [])
                 }
             }
         }

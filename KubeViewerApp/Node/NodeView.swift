@@ -28,7 +28,8 @@ struct NodeView: View {
     }
 
     var body: some View {
-        if let nodes = self.model.nodes {
+        switch self.model.nodes {
+        case .loaded(let nodes):
             ForEach(nodes) { node in
                 Text(node.name)
             }
@@ -37,6 +38,10 @@ struct NodeView: View {
                     self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
                 }
             }
+        case .loading, .initial:
+            Text("loading...")
+        case .error(let error):
+            Text("error: \(error)")
         }
     }
 }
