@@ -61,9 +61,9 @@ struct NodeView: View {
 
     func setLoading(_ loading: NodeLoadStatus) {
         switch loading {
-        case .loaded:
+        case .loaded, .error:
             self.isLoading = false
-        case .loading, .initial, .error:
+        case .loading, .initial:
             self.isLoading = true
         }
     }

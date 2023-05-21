@@ -140,8 +140,8 @@ struct MainView: View {
                 content: {
                     ForEach(Array(self.globalViewModel.clusters.values), id: \.self) { cluster in
                         Button(action: { self.model.selectedCluster = cluster }) {
-                            Text(cluster.name())
-                        }
+                            Text(cluster.name()).foregroundColor(Color.red.opacity(0.8))
+                        }.disabled(true)
                     }
                 },
                 label: {
