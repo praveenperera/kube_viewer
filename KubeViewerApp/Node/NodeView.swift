@@ -5,6 +5,7 @@
 //  Created by Praveen Perera on 4/22/23.
 //
 
+import AlertToast
 import SwiftUI
 
 struct NodeView: View {
@@ -12,6 +13,8 @@ struct NodeView: View {
     @ObservedObject var globalModel: GlobalModel
     @ObservedObject var mainViewModel: MainViewModel
     @ObservedObject var model: NodeViewModel
+
+    @State var isLoading: Bool = true
 
     public init(windowId: UUID, globalModel: GlobalModel, mainViewModel: MainViewModel) {
         self.windowId = windowId
@@ -28,6 +31,17 @@ struct NodeView: View {
     }
 
     var body: some View {
+        VStack {
+            self.innerBody.onChange(of: self.model.nodes, perform: self.setLoading)
+        }
+        .frame(minWidth: 100)
+        .toast(isPresenting: self.$isLoading) {
+            AlertToast(displayMode: .alert, type: .loading, title: "Loading")
+        }
+    }
+
+    @ViewBuilder
+    var innerBody: some View {
         switch self.model.nodes {
         case .loaded(let nodes):
             ForEach(nodes) { node in
@@ -39,9 +53,18 @@ struct NodeView: View {
                 }
             }
         case .loading, .initial:
-            Text("loading...")
+            HStack {}
         case .error(let error):
             Text("error: \(error)")
+        }
+    }
+
+    func setLoading(_ loading: NodeLoadStatus) {
+        switch loading {
+        case .loaded:
+            self.isLoading = false
+        case .loading, .initial, .error:
+            self.isLoading = true
         }
     }
 }

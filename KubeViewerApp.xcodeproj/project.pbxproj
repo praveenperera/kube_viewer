@@ -19,6 +19,7 @@
 		AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */; };
 		AC95349E29F4B8200082155D /* NodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC95349D29F4B8200082155D /* NodeViewModel.swift */; };
 		AC9534A129F4BB0F0082155D /* NodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9534A029F4BB0F0082155D /* NodeView.swift */; };
+		AC9B6E6B2A1AB763007BD015 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = AC9B6E6A2A1AB763007BD015 /* AlertToast */; };
 		AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9CFCEE2991F4C00095F6FB /* BlurWindow.swift */; };
 		ACA9DD8E29F07F0700164615 /* libkube_viewer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ACA9DD8D29F07F0700164615 /* libkube_viewer.a */; };
 		ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */; };
@@ -96,6 +97,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AC9B6E6B2A1AB763007BD015 /* AlertToast in Frameworks */,
 				ACA9DD8E29F07F0700164615 /* libkube_viewer.a in Frameworks */,
 				AC65E77829A7DE3F00F3A7CE /* KeyboardShortcuts in Frameworks */,
 			);
@@ -285,6 +287,7 @@
 			name = KubeViewerApp;
 			packageProductDependencies = (
 				AC65E77729A7DE3F00F3A7CE /* KeyboardShortcuts */,
+				AC9B6E6A2A1AB763007BD015 /* AlertToast */,
 			);
 			productName = KubeViewerApp;
 			productReference = DADF4C7A295E6DB9006CA792 /* KubeViewerApp.app */;
@@ -317,6 +320,7 @@
 			mainGroup = DADF4C71295E6DB9006CA792;
 			packageReferences = (
 				AC65E77629A7DE3E00F3A7CE /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+				AC9B6E692A1AB763007BD015 /* XCRemoteSwiftPackageReference "AlertToast" */,
 			);
 			productRefGroup = DADF4C7B295E6DB9006CA792 /* Products */;
 			projectDirPath = "";
@@ -608,6 +612,14 @@
 				kind = branch;
 			};
 		};
+		AC9B6E692A1AB763007BD015 /* XCRemoteSwiftPackageReference "AlertToast" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/elai950/AlertToast.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -615,6 +627,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AC65E77629A7DE3E00F3A7CE /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
 			productName = KeyboardShortcuts;
+		};
+		AC9B6E6A2A1AB763007BD015 /* AlertToast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AC9B6E692A1AB763007BD015 /* XCRemoteSwiftPackageReference "AlertToast" */;
+			productName = AlertToast;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
