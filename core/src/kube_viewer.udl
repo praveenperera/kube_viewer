@@ -21,12 +21,17 @@ callback interface NodeViewModelCallback {
 
 [Enum]
 interface NodeViewModelMessage {
-  LoadingClient();
   LoadingNodes();
-  ClientLoaded();
   NodesLoaded();
-  ClientLoadingFailed(string error);
   NodeLoadingFailed(string error);
+};
+
+
+[Enum]
+interface ClientStoreMessage {
+  LoadingClient();
+  ClientLoaded();
+  ClientLoadingFailed(string error);
 };
 
 
