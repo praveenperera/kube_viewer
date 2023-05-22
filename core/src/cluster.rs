@@ -68,27 +68,12 @@ pub struct ClusterId {
     pub raw_value: String,
 }
 
-#[derive(Debug, Clone, uniffi::Enum)]
-pub enum LoadStatus {
-    NotChecked,
-    Loaded,
-    Failed { error: String },
-}
-
-impl Default for LoadStatus {
-    fn default() -> Self {
-        Self::NotChecked
-    }
-}
-
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct Cluster {
     // set in kubeconfig
     pub id: ClusterId,
     pub server: Option<String>,
     pub proxy_url: Option<String>,
-
-    pub load_status: LoadStatus,
 
     // set by user
     pub nickname: Option<String>,
@@ -106,7 +91,6 @@ impl TryFrom<NamedCluster> for Cluster {
             nickname: None,
             id: named_cluster.name.into(),
             server: cluster.server,
-            load_status: LoadStatus::NotChecked,
             proxy_url: cluster.proxy_url,
         })
     }
