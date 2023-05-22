@@ -231,7 +231,8 @@ impl Worker {
             context: Some(selected_cluster.raw_value.clone()),
             ..Default::default()
         })
-        .await?;
+        .await
+        .map_err(|e| NodeError::ClientLoadError(eyre!("{e:?}")))?;
 
         let client = Client::try_from(config)?;
 
