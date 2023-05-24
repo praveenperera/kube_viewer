@@ -1,10 +1,12 @@
 use std::{collections::HashMap, sync::Arc};
 
 use act_zero::*;
-use eyre::Result;
+use eyre::{eyre, Result};
 use kube::{config::KubeConfigOptions, Client, Config};
 use log::{debug, error};
 use parking_lot::RwLock;
+
+use thiserror::Error;
 
 use super::WindowId;
 use crate::{
@@ -13,13 +15,55 @@ use crate::{
     task,
 };
 
+#[derive(Error, Debug)]
+pub enum NodeError {
+    #[error(transparent)]
+    NodeLoadError(eyre::Report),
+
+    #[error(transparent)]
+    ClientLoadError(eyre::Report),
+}
+
 pub trait NodeViewModelCallback: Send + Sync + 'static {
     fn callback(&self, message: NodeViewModelMessage);
 }
 
+#[derive(uniffi::Enum)]
+pub enum NodeLoadStatus {
+    Initial,
+    Loading,
+    Loaded { nodes: Vec<Node> },
+    Error { error: String },
+}
+
+#[derive(uniffi::Enum)]
+pub enum ClientLoadStatus {
+    Initial,
+    Loading,
+    Loaded,
+    Error { error: String },
+}
+
 pub enum NodeViewModelMessage {
+    LoadingClient,
+    LoadingNodes,
     ClientLoaded,
     NodesLoaded,
+    NodeLoadingFailed { error: String },
+    ClientLoadingFailed { error: String },
+}
+
+impl From<NodeError> for NodeViewModelMessage {
+    fn from(error: NodeError) -> Self {
+        match error {
+            NodeError::NodeLoadError(e) => NodeViewModelMessage::NodeLoadingFailed {
+                error: e.to_string(),
+            },
+            NodeError::ClientLoadError(e) => NodeViewModelMessage::ClientLoadingFailed {
+                error: e.to_string(),
+            },
+        }
+    }
 }
 
 pub struct RustNodeViewModel {
@@ -100,7 +144,7 @@ impl State {
         let nodes = self
             .nodes
             .as_ref()
-            .ok_or_else(|| eyre::eyre!("nodes not loaded"))?;
+            .ok_or_else(|| eyre!("nodes not loaded"))?;
 
         Ok(nodes.clone())
     }
@@ -123,7 +167,13 @@ impl Worker {
 
     async fn fetch_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
         debug!("fetch_nodes() called");
-        self.load_nodes(&selected_cluster).await?;
+
+        // notify and load
+        self.callback(NodeViewModelMessage::LoadingNodes);
+        self.load_nodes(&selected_cluster)
+            .await
+            .map_err(|e| NodeError::NodeLoadError(eyre!("{e:?}")))?;
+
         self.callback(NodeViewModelMessage::NodesLoaded);
 
         Produces::ok(())
@@ -133,7 +183,9 @@ impl Worker {
         debug!("loading nodes");
 
         if !self.state.read().clients.contains_key(selected_cluster) {
-            self.load_client(selected_cluster.clone()).await?;
+            self.load_client(selected_cluster.clone())
+                .await
+                .map_err(|e| NodeError::ClientLoadError(eyre!("{e:?}")))?;
         }
 
         let client: Client = self
@@ -141,10 +193,13 @@ impl Worker {
             .read()
             .clients
             .get(selected_cluster)
-            .ok_or_else(|| eyre::eyre!("Kubernetes client not loaded"))?
+            .ok_or_else(|| NodeError::ClientLoadError(eyre!("Kubernetes client not loaded")))?
             .clone();
 
-        let nodes = kubernetes::get_nodes(client.clone()).await?;
+        let nodes = kubernetes::get_nodes(client.clone())
+            .await
+            .map_err(NodeError::NodeLoadError)?;
+
         self.state.write().nodes = Some(nodes);
 
         // notify frontend, nodes loaded
@@ -169,6 +224,9 @@ impl Worker {
             return Produces::ok(());
         }
 
+        // notify frontend that client is loading
+        self.callback(NodeViewModelMessage::LoadingClient);
+
         let config = Config::from_kubeconfig(&KubeConfigOptions {
             context: Some(selected_cluster.raw_value.clone()),
             ..Default::default()
@@ -183,7 +241,7 @@ impl Worker {
             .clients
             .insert(selected_cluster.clone(), client);
 
-        // notify frontend
+        // notify frontend client is loaded
         self.callback(NodeViewModelMessage::ClientLoaded);
 
         Produces::ok(())
@@ -201,6 +259,15 @@ impl Actor for Worker {
 
     async fn error(&mut self, error: ActorError) -> bool {
         error!("NodeViewModel Actor Error: {error:?}");
+
+        if let Some(error) = error.downcast::<NodeError>().ok().map(|e| *e) {
+            self.callback(error.into())
+        } else {
+            self.callback(NodeViewModelMessage::NodeLoadingFailed {
+                error: "Unknown error, please see logs".to_string(),
+            });
+        };
+
         false
     }
 }
