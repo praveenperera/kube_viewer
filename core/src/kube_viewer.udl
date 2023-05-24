@@ -27,14 +27,6 @@ interface NodeViewModelMessage {
 };
 
 
-[Enum]
-interface ClientStoreMessage {
-  LoadingClient();
-  ClientLoaded();
-  ClientLoadingFailed(string error);
-};
-
-
 interface FocusRegionHasher {
   constructor();
 };

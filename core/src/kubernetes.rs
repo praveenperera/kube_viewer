@@ -1,4 +1,4 @@
-pub mod client;
+pub mod client_store;
 pub mod node;
 
 use eyre::Result;

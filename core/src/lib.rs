@@ -24,7 +24,9 @@ mod uniffi_types {
     pub(crate) use crate::key_handler::*;
 
     pub(crate) use crate::cluster::*;
-    pub(crate) use crate::kubernetes::node::*;
     pub(crate) use crate::tab::*;
     pub(crate) use crate::tab_group::*;
+
+    pub(crate) use crate::kubernetes::client_store::*;
+    pub(crate) use crate::kubernetes::node::*;
 }

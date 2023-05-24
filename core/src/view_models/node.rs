@@ -19,9 +19,6 @@ use crate::{
 pub enum NodeError {
     #[error(transparent)]
     NodeLoadError(eyre::Report),
-
-    #[error(transparent)]
-    ClientLoadError(eyre::Report),
 }
 
 pub trait NodeViewModelCallback: Send + Sync + 'static {
@@ -36,30 +33,16 @@ pub enum NodeLoadStatus {
     Error { error: String },
 }
 
-#[derive(uniffi::Enum)]
-pub enum ClientLoadStatus {
-    Initial,
-    Loading,
-    Loaded,
-    Error { error: String },
-}
-
 pub enum NodeViewModelMessage {
-    LoadingClient,
     LoadingNodes,
-    ClientLoaded,
     NodesLoaded,
     NodeLoadingFailed { error: String },
-    ClientLoadingFailed { error: String },
 }
 
 impl From<NodeError> for NodeViewModelMessage {
     fn from(error: NodeError) -> Self {
         match error {
             NodeError::NodeLoadError(e) => NodeViewModelMessage::NodeLoadingFailed {
-                error: e.to_string(),
-            },
-            NodeError::ClientLoadError(e) => NodeViewModelMessage::ClientLoadingFailed {
                 error: e.to_string(),
             },
         }
@@ -183,17 +166,15 @@ impl Worker {
         debug!("loading nodes");
 
         if !self.state.read().clients.contains_key(selected_cluster) {
-            self.load_client(selected_cluster.clone())
-                .await
-                .map_err(|e| NodeError::ClientLoadError(eyre!("{e:?}")))?;
-        }
+            self.load_client(selected_cluster.clone()).await;
+        };
 
         let client: Client = self
             .state
             .read()
             .clients
             .get(selected_cluster)
-            .ok_or_else(|| NodeError::ClientLoadError(eyre!("Kubernetes client not loaded")))?
+            .unwrap()
             .clone();
 
         let nodes = kubernetes::get_nodes(client.clone())
@@ -224,15 +205,14 @@ impl Worker {
             return Produces::ok(());
         }
 
-        // notify frontend that client is loading
-        self.callback(NodeViewModelMessage::LoadingClient);
+        // // notify frontend that client is loading
+        // self.callback(NodeViewModelMessage::LoadingClient);
 
         let config = Config::from_kubeconfig(&KubeConfigOptions {
             context: Some(selected_cluster.raw_value.clone()),
             ..Default::default()
         })
-        .await
-        .map_err(|e| NodeError::ClientLoadError(eyre!("{e:?}")))?;
+        .await?;
 
         let client = Client::try_from(config)?;
 
@@ -242,8 +222,8 @@ impl Worker {
             .clients
             .insert(selected_cluster.clone(), client);
 
-        // notify frontend client is loaded
-        self.callback(NodeViewModelMessage::ClientLoaded);
+        // // notify frontend client is loaded
+        // self.callback(NodeViewModelMessage::ClientLoaded);
 
         Produces::ok(())
     }

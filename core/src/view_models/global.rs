@@ -1,9 +1,11 @@
+use kube::Client;
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 
 use crate::{
     cluster::{Cluster, ClusterId, Clusters},
     env::Env,
+    kubernetes::client_store::ClientStore,
 };
 use std::collections::HashMap;
 
@@ -17,9 +19,9 @@ impl GlobalViewModel {
 
 pub struct RustGlobalViewModel;
 
-#[derive(Debug)]
 pub struct GlobalViewModel {
     pub clusters: Option<Clusters>,
+    pub client_store: ClientStore,
 }
 
 impl Default for RustGlobalViewModel {
@@ -61,10 +63,13 @@ impl GlobalViewModel {
 
         // init env
         let _ = Env::global();
-
         let clusters = Clusters::try_new().ok();
+        let client_store = ClientStore::new();
 
-        Self { clusters }
+        Self {
+            clusters,
+            client_store,
+        }
     }
 
     pub fn clusters(&self) -> HashMap<ClusterId, Cluster> {
@@ -77,5 +82,9 @@ impl GlobalViewModel {
     pub fn get_cluster(&self, cluster_id: &ClusterId) -> Option<Cluster> {
         let clusters = self.clusters.as_ref()?;
         clusters.get_cluster(cluster_id)
+    }
+
+    pub fn get_cluster_client(&self, cluster_id: &ClusterId) -> Option<Client> {
+        self.client_store.get_cluster_client(cluster_id)
     }
 }
