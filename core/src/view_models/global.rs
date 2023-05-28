@@ -25,6 +25,7 @@ pub trait GlobalViewModelCallback: Send + Sync + 'static {
 }
 
 pub enum GlobalViewModelMessage {
+    ClustersLoaded,
     LoadingClient,
     ClientLoaded,
     ClientLoadError { error: String },
@@ -161,10 +162,14 @@ impl Worker {
 
                 if let Some(cluster) = GlobalViewModel::global()
                     .write()
-                    .clusters()
-                    .get_mut(&cluster_id)
+                    .clusters
+                    .as_mut()
+                    .and_then(|clusters| clusters.clusters_map.get_mut(&cluster_id))
                 {
-                    cluster.load_status = LoadStatus::Loaded;
+                    if !matches!(cluster.load_status, LoadStatus::Loaded) {
+                        cluster.load_status = LoadStatus::Loaded;
+                        self.callback(GlobalViewModelMessage::ClustersLoaded);
+                    }
                 }
             }
 
@@ -175,12 +180,15 @@ impl Worker {
 
                 if let Some(cluster) = GlobalViewModel::global()
                     .write()
-                    .clusters()
-                    .get_mut(&cluster_id)
+                    .clusters
+                    .as_mut()
+                    .and_then(|clusters| clusters.clusters_map.get_mut(&cluster_id))
                 {
                     cluster.load_status = LoadStatus::Error {
                         error: error.to_string(),
-                    }
+                    };
+
+                    self.callback(GlobalViewModelMessage::ClustersLoaded);
                 };
             }
         }

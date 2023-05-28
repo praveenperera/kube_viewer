@@ -29,17 +29,20 @@ class GlobalViewModel: ObservableObject, GlobalViewModelCallback {
         Task {
             await MainActor.run {
                 switch msg {
-                    case .loadingClient:
-                        // TODO: toast to show cluster is loading
-                        ()
+                case .clustersLoaded:
+                    self.clusters = self.data.clusters()
 
-                    case .clientLoadError:
-                        //  TODO: show toast with error
-                        ()
+                case .loadingClient:
+                    // TODO: toast to show cluster is loading
+                    ()
 
-                    case .clientLoaded:
-                        //  TODO: toast with cluster loaded?
-                        print("[swift] nodes loaded")
+                case .clientLoadError:
+                    //  TODO: show toast with error
+                    ()
+
+                case .clientLoaded:
+                    //  TODO: toast with cluster loaded?
+                    print("[swift] nodes loaded")
                 }
             }
         }

@@ -12,6 +12,7 @@ callback interface GlobalViewModelCallback {
 
 [Enum]
 interface GlobalViewModelMessage {
+  ClustersLoaded();
   LoadingClient();
   ClientLoaded();
   ClientLoadError(string error);
