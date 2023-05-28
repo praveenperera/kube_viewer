@@ -1,8 +1,8 @@
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use act_zero::*;
 use eyre::{eyre, Result};
-use kube::{config::KubeConfigOptions, Client, Config};
+use kube::Client;
 use log::{debug, error};
 use parking_lot::RwLock;
 
@@ -15,6 +15,8 @@ use crate::{
     task,
 };
 
+use crate::view_models::global::GlobalViewModel;
+
 #[derive(Error, Debug)]
 pub enum NodeError {
     #[error(transparent)]
@@ -25,18 +27,18 @@ pub trait NodeViewModelCallback: Send + Sync + 'static {
     fn callback(&self, message: NodeViewModelMessage);
 }
 
+pub enum NodeViewModelMessage {
+    LoadingNodes,
+    NodesLoaded,
+    NodeLoadingFailed { error: String },
+}
+
 #[derive(uniffi::Enum)]
 pub enum NodeLoadStatus {
     Initial,
     Loading,
     Loaded { nodes: Vec<Node> },
     Error { error: String },
-}
-
-pub enum NodeViewModelMessage {
-    LoadingNodes,
-    NodesLoaded,
-    NodeLoadingFailed { error: String },
 }
 
 impl From<NodeError> for NodeViewModelMessage {
@@ -60,7 +62,6 @@ pub struct RustNodeViewModel {
 pub struct State {
     actor: WeakAddr<Worker>,
     nodes: Option<Vec<Node>>,
-    clients: HashMap<ClusterId, Client>,
 }
 
 pub struct Worker {
@@ -112,7 +113,6 @@ impl State {
         Self {
             actor: WeakAddr::detached(),
             nodes: None,
-            clients: HashMap::new(),
         }
     }
 
@@ -165,19 +165,23 @@ impl Worker {
     async fn load_nodes(&mut self, selected_cluster: &ClusterId) -> ActorResult<()> {
         debug!("loading nodes");
 
-        if !self.state.read().clients.contains_key(selected_cluster) {
-            self.load_client(selected_cluster.clone()).await;
+        // notify frontend, nodes loaded
+        self.callback(NodeViewModelMessage::LoadingNodes);
+
+        if !GlobalViewModel::global()
+            .read()
+            .client_store
+            .contains_client(selected_cluster)
+        {
+            self.load_client(selected_cluster).await?;
         };
 
-        let client: Client = self
-            .state
+        let client: Client = GlobalViewModel::global()
             .read()
-            .clients
-            .get(selected_cluster)
-            .unwrap()
-            .clone();
+            .get_cluster_client(selected_cluster)
+            .ok_or_else(|| eyre!("client not found"))?;
 
-        let nodes = kubernetes::get_nodes(client.clone())
+        let nodes = kubernetes::get_nodes(client)
             .await
             .map_err(NodeError::NodeLoadError)?;
 
@@ -198,32 +202,17 @@ impl Worker {
         Produces::ok(())
     }
 
-    async fn load_client(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
+    async fn load_client(&mut self, selected_cluster: &ClusterId) -> ActorResult<()> {
         debug!("load_client() called");
 
-        if self.state.read().clients.contains_key(&selected_cluster) {
-            return Produces::ok(());
+        if !GlobalViewModel::global()
+            .read()
+            .client_store
+            .contains_client(selected_cluster)
+        {
+            let client_worker = GlobalViewModel::global().read().worker.clone();
+            call!(client_worker.load_client(selected_cluster.clone())).await?;
         }
-
-        // // notify frontend that client is loading
-        // self.callback(NodeViewModelMessage::LoadingClient);
-
-        let config = Config::from_kubeconfig(&KubeConfigOptions {
-            context: Some(selected_cluster.raw_value.clone()),
-            ..Default::default()
-        })
-        .await?;
-
-        let client = Client::try_from(config)?;
-
-        // save client to hashmap
-        self.state
-            .write()
-            .clients
-            .insert(selected_cluster.clone(), client);
-
-        // // notify frontend client is loaded
-        // self.callback(NodeViewModelMessage::ClientLoaded);
 
         Produces::ok(())
     }

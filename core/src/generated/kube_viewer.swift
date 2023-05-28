@@ -19,13 +19,13 @@ fileprivate extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_kube_viewer_b4b1_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_kube_viewer_bbfc_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_kube_viewer_b4b1_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_kube_viewer_bbfc_rustbuffer_free(self, $0) }
     }
 }
 
@@ -372,12 +372,12 @@ public class FocusRegionHasher: FocusRegionHasherProtocol {
     
     rustCall() {
     
-    kube_viewer_b4b1_FocusRegionHasher_new($0)
+    kube_viewer_bbfc_FocusRegionHasher_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_b4b1_FocusRegionHasher_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_bbfc_FocusRegionHasher_object_free(pointer, $0) }
     }
 
     
@@ -448,12 +448,12 @@ public class RustGlobalViewModel: RustGlobalViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_b4b1_RustGlobalViewModel_new($0)
+    kube_viewer_bbfc_RustGlobalViewModel_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_b4b1_RustGlobalViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_bbfc_RustGlobalViewModel_object_free(pointer, $0) }
     }
 
     
@@ -537,13 +537,13 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_b4b1_RustMainViewModel_new(
+    kube_viewer_bbfc_RustMainViewModel_new(
         FfiConverterString.lower(`windowId`), $0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_b4b1_RustMainViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_bbfc_RustMainViewModel_object_free(pointer, $0) }
     }
 
     
@@ -553,7 +553,7 @@ public class RustMainViewModel: RustMainViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_b4b1_RustMainViewModel_add_update_listener(self.pointer, 
+    kube_viewer_bbfc_RustMainViewModel_add_update_listener(self.pointer, 
         FfiConverterCallbackInterfaceMainViewModelUpdater.lower(`listener`), $0
     )
 }
@@ -750,13 +750,13 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_b4b1_RustNodeViewModel_new(
+    kube_viewer_bbfc_RustNodeViewModel_new(
         FfiConverterString.lower(`windowId`), $0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_b4b1_RustNodeViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_bbfc_RustNodeViewModel_object_free(pointer, $0) }
     }
 
     
@@ -766,7 +766,7 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_b4b1_RustNodeViewModel_add_callback_listener(self.pointer, 
+    kube_viewer_bbfc_RustNodeViewModel_add_callback_listener(self.pointer, 
         FfiConverterCallbackInterfaceNodeViewModelCallback.lower(`responder`), $0
     )
 }
@@ -1804,11 +1804,8 @@ extension NodeLoadStatus: Equatable, Hashable {}
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum NodeViewModelMessage {
     
-    case `loadingClient`
     case `loadingNodes`
-    case `clientLoaded`
     case `nodesLoaded`
-    case `clientLoadingFailed`(`error`: String)
     case `nodeLoadingFailed`(`error`: String)
 }
 
@@ -1819,19 +1816,11 @@ public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
         let variant: Int32 = try readInt(&buf)
         switch variant {
         
-        case 1: return .`loadingClient`
+        case 1: return .`loadingNodes`
         
-        case 2: return .`loadingNodes`
+        case 2: return .`nodesLoaded`
         
-        case 3: return .`clientLoaded`
-        
-        case 4: return .`nodesLoaded`
-        
-        case 5: return .`clientLoadingFailed`(
-            `error`: try FfiConverterString.read(from: &buf)
-        )
-        
-        case 6: return .`nodeLoadingFailed`(
+        case 3: return .`nodeLoadingFailed`(
             `error`: try FfiConverterString.read(from: &buf)
         )
         
@@ -1843,29 +1832,16 @@ public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
         switch value {
         
         
-        case .`loadingClient`:
+        case .`loadingNodes`:
             writeInt(&buf, Int32(1))
         
         
-        case .`loadingNodes`:
+        case .`nodesLoaded`:
             writeInt(&buf, Int32(2))
         
         
-        case .`clientLoaded`:
-            writeInt(&buf, Int32(3))
-        
-        
-        case .`nodesLoaded`:
-            writeInt(&buf, Int32(4))
-        
-        
-        case let .`clientLoadingFailed`(`error`):
-            writeInt(&buf, Int32(5))
-            FfiConverterString.write(`error`, into: &buf)
-            
-        
         case let .`nodeLoadingFailed`(`error`):
-            writeInt(&buf, Int32(6))
+            writeInt(&buf, Int32(3))
             FfiConverterString.write(`error`, into: &buf)
             
         }
@@ -2393,7 +2369,7 @@ fileprivate struct FfiConverterCallbackInterfaceMainViewModelUpdater {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_b4b1_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
+                ffi_kube_viewer_bbfc_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
         }
     }
     private static func ensureCallbackinitialized() {
@@ -2507,7 +2483,7 @@ fileprivate struct FfiConverterCallbackInterfaceNodeViewModelCallback {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_b4b1_NodeViewModelCallback_init_callback(foreignCallbackCallbackInterfaceNodeViewModelCallback, err)
+                ffi_kube_viewer_bbfc_NodeViewModelCallback_init_callback(foreignCallbackCallbackInterfaceNodeViewModelCallback, err)
         }
     }
     private static func ensureCallbackinitialized() {

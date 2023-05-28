@@ -1,7 +1,8 @@
 use crate::cluster::ClusterId;
 use crate::task;
 use act_zero::*;
-use kube::Client;
+use kube::config::KubeConfigOptions;
+use kube::{Client, Config};
 use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -16,8 +17,14 @@ pub enum ClientLoadStatus {
 
 #[derive(Clone)]
 pub struct ClientStore {
-    worker: Addr<Worker>,
+    pub worker: Addr<Worker>,
     state: Arc<RwLock<HashMap<ClusterId, Client>>>,
+}
+
+impl Default for ClientStore {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ClientStore {
@@ -28,22 +35,41 @@ impl ClientStore {
         Self { worker, state }
     }
 
+    pub fn contains_client(&self, cluster_id: &ClusterId) -> bool {
+        self.state.read().contains_key(cluster_id)
+    }
+
     pub fn get_cluster_client(&self, cluster_id: &ClusterId) -> Option<Client> {
         self.state.read().get(cluster_id).cloned()
     }
 }
 
 #[derive(Clone)]
-struct Worker {
+pub struct Worker {
     addr: WeakAddr<Self>,
     state: Arc<RwLock<HashMap<ClusterId, Client>>>,
 }
+
 impl Worker {
     fn new(state: Arc<RwLock<HashMap<ClusterId, Client>>>) -> Self {
         Self {
             addr: WeakAddr::detached(),
             state,
         }
+    }
+
+    pub async fn load_client(&mut self, cluster_id: ClusterId) -> ActorResult<()> {
+        let config = Config::from_kubeconfig(&KubeConfigOptions {
+            context: Some(cluster_id.raw_value.clone()),
+            ..Default::default()
+        })
+        .await?;
+
+        let client = Client::try_from(config)?;
+
+        self.state.write().insert(cluster_id, client);
+
+        Produces::ok(())
     }
 }
 
