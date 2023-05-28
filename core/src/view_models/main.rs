@@ -172,6 +172,10 @@ impl RustMainViewModel {
 
         self.inner.write().selected_cluster = Some(cluster.id.clone());
 
+        // load client for selected cluster in the background
+        let global_view_model = GlobalViewModel::global().read();
+        act_zero::send!(global_view_model.worker.load_client(cluster.id.clone()));
+
         if let Err(err) = USER_CONFIG
             .write()
             .set_selected_cluster(self.window_id.clone(), cluster.id)
@@ -287,6 +291,14 @@ impl MainViewModel {
             .clusters
             .as_ref()
             .and_then(|clusters| clusters.selected_or_context_cluster(selected_cluster));
+
+        if let Some(selected_cluster) = selected_cluster_checked.as_ref() {
+            // load client for selected cluster in the background
+            let global_view_model = GlobalViewModel::global().read();
+            act_zero::send!(global_view_model
+                .worker
+                .load_client(selected_cluster.clone()))
+        }
 
         Self {
             window_id,
