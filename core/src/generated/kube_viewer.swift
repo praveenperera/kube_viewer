@@ -19,13 +19,13 @@ fileprivate extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_kube_viewer_bbfc_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_kube_viewer_c6f1_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_kube_viewer_bbfc_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_kube_viewer_c6f1_rustbuffer_free(self, $0) }
     }
 }
 
@@ -372,12 +372,12 @@ public class FocusRegionHasher: FocusRegionHasherProtocol {
     
     rustCall() {
     
-    kube_viewer_bbfc_FocusRegionHasher_new($0)
+    kube_viewer_c6f1_FocusRegionHasher_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_bbfc_FocusRegionHasher_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_c6f1_FocusRegionHasher_object_free(pointer, $0) }
     }
 
     
@@ -430,7 +430,9 @@ public struct FfiConverterTypeFocusRegionHasher: FfiConverter {
 
 
 public protocol RustGlobalViewModelProtocol {
+    func `addCallbackListener`(`responder`: GlobalViewModelCallback) 
     func `clusters`()  -> [ClusterId: Cluster]
+    func `loadClient`(`clusterId`: ClusterId) 
     
 }
 
@@ -448,17 +450,26 @@ public class RustGlobalViewModel: RustGlobalViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_bbfc_RustGlobalViewModel_new($0)
+    kube_viewer_c6f1_RustGlobalViewModel_new($0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_bbfc_RustGlobalViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_c6f1_RustGlobalViewModel_object_free(pointer, $0) }
     }
 
     
 
     
+    public func `addCallbackListener`(`responder`: GlobalViewModelCallback)  {
+        try!
+    rustCall() {
+    
+    kube_viewer_c6f1_RustGlobalViewModel_add_callback_listener(self.pointer, 
+        FfiConverterCallbackInterfaceGlobalViewModelCallback.lower(`responder`), $0
+    )
+}
+    }
     public func `clusters`()  -> [ClusterId: Cluster] {
         return try! FfiConverterDictionaryTypeClusterIdTypeCluster.lift(
             try!
@@ -468,6 +479,15 @@ public class RustGlobalViewModel: RustGlobalViewModelProtocol {
     )
 }
         )
+    }
+    public func `loadClient`(`clusterId`: ClusterId)  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustGlobalViewModel_load_client_8507(self.pointer, 
+        FfiConverterTypeClusterId.lower(`clusterId`), $0
+    )
+}
     }
     
 }
@@ -537,13 +557,13 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_bbfc_RustMainViewModel_new(
+    kube_viewer_c6f1_RustMainViewModel_new(
         FfiConverterString.lower(`windowId`), $0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_bbfc_RustMainViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_c6f1_RustMainViewModel_object_free(pointer, $0) }
     }
 
     
@@ -553,7 +573,7 @@ public class RustMainViewModel: RustMainViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_bbfc_RustMainViewModel_add_update_listener(self.pointer, 
+    kube_viewer_c6f1_RustMainViewModel_add_update_listener(self.pointer, 
         FfiConverterCallbackInterfaceMainViewModelUpdater.lower(`listener`), $0
     )
 }
@@ -750,13 +770,13 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
     
     rustCall() {
     
-    kube_viewer_bbfc_RustNodeViewModel_new(
+    kube_viewer_c6f1_RustNodeViewModel_new(
         FfiConverterString.lower(`windowId`), $0)
 })
     }
 
     deinit {
-        try! rustCall { ffi_kube_viewer_bbfc_RustNodeViewModel_object_free(pointer, $0) }
+        try! rustCall { ffi_kube_viewer_c6f1_RustNodeViewModel_object_free(pointer, $0) }
     }
 
     
@@ -766,7 +786,7 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
         try!
     rustCall() {
     
-    kube_viewer_bbfc_RustNodeViewModel_add_callback_listener(self.pointer, 
+    kube_viewer_c6f1_RustNodeViewModel_add_callback_listener(self.pointer, 
         FfiConverterCallbackInterfaceNodeViewModelCallback.lower(`responder`), $0
     )
 }
@@ -831,14 +851,16 @@ public struct Cluster {
     public var `server`: String?
     public var `proxyUrl`: String?
     public var `nickname`: String?
+    public var `loadStatus`: LoadStatus
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(`id`: ClusterId, `server`: String?, `proxyUrl`: String?, `nickname`: String?) {
+    public init(`id`: ClusterId, `server`: String?, `proxyUrl`: String?, `nickname`: String?, `loadStatus`: LoadStatus) {
         self.`id` = `id`
         self.`server` = `server`
         self.`proxyUrl` = `proxyUrl`
         self.`nickname` = `nickname`
+        self.`loadStatus` = `loadStatus`
     }
 }
 
@@ -857,6 +879,9 @@ extension Cluster: Equatable, Hashable {
         if lhs.`nickname` != rhs.`nickname` {
             return false
         }
+        if lhs.`loadStatus` != rhs.`loadStatus` {
+            return false
+        }
         return true
     }
 
@@ -865,6 +890,7 @@ extension Cluster: Equatable, Hashable {
         hasher.combine(`server`)
         hasher.combine(`proxyUrl`)
         hasher.combine(`nickname`)
+        hasher.combine(`loadStatus`)
     }
 }
 
@@ -875,7 +901,8 @@ public struct FfiConverterTypeCluster: FfiConverterRustBuffer {
             `id`: FfiConverterTypeClusterId.read(from: &buf), 
             `server`: FfiConverterOptionString.read(from: &buf), 
             `proxyUrl`: FfiConverterOptionString.read(from: &buf), 
-            `nickname`: FfiConverterOptionString.read(from: &buf)
+            `nickname`: FfiConverterOptionString.read(from: &buf), 
+            `loadStatus`: FfiConverterTypeLoadStatus.read(from: &buf)
         )
     }
 
@@ -884,6 +911,7 @@ public struct FfiConverterTypeCluster: FfiConverterRustBuffer {
         FfiConverterOptionString.write(value.`server`, into: &buf)
         FfiConverterOptionString.write(value.`proxyUrl`, into: &buf)
         FfiConverterOptionString.write(value.`nickname`, into: &buf)
+        FfiConverterTypeLoadStatus.write(value.`loadStatus`, into: &buf)
     }
 }
 
@@ -1411,74 +1439,6 @@ public func FfiConverterTypeTaint_lower(_ value: Taint) -> RustBuffer {
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
-public enum ClientLoadStatus {
-    
-    case `initial`
-    case `loading`
-    case `loaded`
-    case `error`(`error`: String)
-}
-
-public struct FfiConverterTypeClientLoadStatus: FfiConverterRustBuffer {
-    typealias SwiftType = ClientLoadStatus
-
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ClientLoadStatus {
-        let variant: Int32 = try readInt(&buf)
-        switch variant {
-        
-        case 1: return .`initial`
-        
-        case 2: return .`loading`
-        
-        case 3: return .`loaded`
-        
-        case 4: return .`error`(
-            `error`: try FfiConverterString.read(from: &buf)
-        )
-        
-        default: throw UniffiInternalError.unexpectedEnumCase
-        }
-    }
-
-    public static func write(_ value: ClientLoadStatus, into buf: inout [UInt8]) {
-        switch value {
-        
-        
-        case .`initial`:
-            writeInt(&buf, Int32(1))
-        
-        
-        case .`loading`:
-            writeInt(&buf, Int32(2))
-        
-        
-        case .`loaded`:
-            writeInt(&buf, Int32(3))
-        
-        
-        case let .`error`(`error`):
-            writeInt(&buf, Int32(4))
-            FfiConverterString.write(`error`, into: &buf)
-            
-        }
-    }
-}
-
-
-public func FfiConverterTypeClientLoadStatus_lift(_ buf: RustBuffer) throws -> ClientLoadStatus {
-    return try FfiConverterTypeClientLoadStatus.lift(buf)
-}
-
-public func FfiConverterTypeClientLoadStatus_lower(_ value: ClientLoadStatus) -> RustBuffer {
-    return FfiConverterTypeClientLoadStatus.lower(value)
-}
-
-
-extension ClientLoadStatus: Equatable, Hashable {}
-
-
-// Note that we don't yet support `indirect` for enums.
-// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum FocusRegion {
     
     case `sidebarSearch`
@@ -1555,6 +1515,67 @@ public func FfiConverterTypeFocusRegion_lower(_ value: FocusRegion) -> RustBuffe
 
 
 extension FocusRegion: Equatable, Hashable {}
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+public enum GlobalViewModelMessage {
+    
+    case `loadingClient`
+    case `clientLoaded`
+    case `clientLoadError`(`error`: String)
+}
+
+public struct FfiConverterTypeGlobalViewModelMessage: FfiConverterRustBuffer {
+    typealias SwiftType = GlobalViewModelMessage
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> GlobalViewModelMessage {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .`loadingClient`
+        
+        case 2: return .`clientLoaded`
+        
+        case 3: return .`clientLoadError`(
+            `error`: try FfiConverterString.read(from: &buf)
+        )
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: GlobalViewModelMessage, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .`loadingClient`:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .`clientLoaded`:
+            writeInt(&buf, Int32(2))
+        
+        
+        case let .`clientLoadError`(`error`):
+            writeInt(&buf, Int32(3))
+            FfiConverterString.write(`error`, into: &buf)
+            
+        }
+    }
+}
+
+
+public func FfiConverterTypeGlobalViewModelMessage_lift(_ buf: RustBuffer) throws -> GlobalViewModelMessage {
+    return try FfiConverterTypeGlobalViewModelMessage.lift(buf)
+}
+
+public func FfiConverterTypeGlobalViewModelMessage_lower(_ value: GlobalViewModelMessage) -> RustBuffer {
+    return FfiConverterTypeGlobalViewModelMessage.lower(value)
+}
+
+
+extension GlobalViewModelMessage: Equatable, Hashable {}
 
 
 // Note that we don't yet support `indirect` for enums.
@@ -1669,6 +1690,74 @@ public func FfiConverterTypeKeyAwareEvent_lower(_ value: KeyAwareEvent) -> RustB
 
 
 extension KeyAwareEvent: Equatable, Hashable {}
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+public enum LoadStatus {
+    
+    case `initial`
+    case `loading`
+    case `loaded`
+    case `error`(`error`: String)
+}
+
+public struct FfiConverterTypeLoadStatus: FfiConverterRustBuffer {
+    typealias SwiftType = LoadStatus
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> LoadStatus {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .`initial`
+        
+        case 2: return .`loading`
+        
+        case 3: return .`loaded`
+        
+        case 4: return .`error`(
+            `error`: try FfiConverterString.read(from: &buf)
+        )
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: LoadStatus, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .`initial`:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .`loading`:
+            writeInt(&buf, Int32(2))
+        
+        
+        case .`loaded`:
+            writeInt(&buf, Int32(3))
+        
+        
+        case let .`error`(`error`):
+            writeInt(&buf, Int32(4))
+            FfiConverterString.write(`error`, into: &buf)
+            
+        }
+    }
+}
+
+
+public func FfiConverterTypeLoadStatus_lift(_ buf: RustBuffer) throws -> LoadStatus {
+    return try FfiConverterTypeLoadStatus.lift(buf)
+}
+
+public func FfiConverterTypeLoadStatus_lower(_ value: LoadStatus) -> RustBuffer {
+    return FfiConverterTypeLoadStatus.lower(value)
+}
+
+
+extension LoadStatus: Equatable, Hashable {}
 
 
 // Note that we don't yet support `indirect` for enums.
@@ -2304,6 +2393,120 @@ fileprivate class UniFFICallbackHandleMap<T> {
 // to free the callback once it's dropped by Rust.
 private let IDX_CALLBACK_FREE: Int32 = 0
 
+// Declaration and FfiConverters for GlobalViewModelCallback Callback Interface
+
+public protocol GlobalViewModelCallback : AnyObject {
+    func `callback`(`msg`: GlobalViewModelMessage) 
+    
+}
+
+// The ForeignCallback that is passed to Rust.
+fileprivate let foreignCallbackCallbackInterfaceGlobalViewModelCallback : ForeignCallback =
+    { (handle: UniFFICallbackHandle, method: Int32, args: RustBuffer, out_buf: UnsafeMutablePointer<RustBuffer>) -> Int32 in
+        func `invokeCallback`(_ swiftCallbackInterface: GlobalViewModelCallback, _ args: RustBuffer) throws -> RustBuffer {
+        defer { args.deallocate() }
+
+            var reader = createReader(data: Data(rustBuffer: args))
+            swiftCallbackInterface.`callback`(
+                    `msg`:  try FfiConverterTypeGlobalViewModelMessage.read(from: &reader)
+                    )
+            return RustBuffer()
+                // TODO catch errors and report them back to Rust.
+                // https://github.com/mozilla/uniffi-rs/issues/351
+
+        }
+        
+
+        let cb: GlobalViewModelCallback
+        do {
+            cb = try FfiConverterCallbackInterfaceGlobalViewModelCallback.lift(handle)
+        } catch {
+            out_buf.pointee = FfiConverterString.lower("GlobalViewModelCallback: Invalid handle")
+            return -1
+        }
+
+        switch method {
+            case IDX_CALLBACK_FREE:
+                FfiConverterCallbackInterfaceGlobalViewModelCallback.drop(handle: handle)
+                // No return value.
+                // See docs of ForeignCallback in `uniffi/src/ffi/foreigncallbacks.rs`
+                return 0
+            case 1:
+                do {
+                    out_buf.pointee = try `invokeCallback`(cb, args)
+                    // Value written to out buffer.
+                    // See docs of ForeignCallback in `uniffi/src/ffi/foreigncallbacks.rs`
+                    return 1
+                } catch let error {
+                    out_buf.pointee = FfiConverterString.lower(String(describing: error))
+                    return -1
+                }
+            
+            // This should never happen, because an out of bounds method index won't
+            // ever be used. Once we can catch errors, we should return an InternalError.
+            // https://github.com/mozilla/uniffi-rs/issues/351
+            default:
+                // An unexpected error happened.
+                // See docs of ForeignCallback in `uniffi/src/ffi/foreigncallbacks.rs`
+                return -1
+        }
+    }
+
+// FfiConverter protocol for callback interfaces
+fileprivate struct FfiConverterCallbackInterfaceGlobalViewModelCallback {
+    // Initialize our callback method with the scaffolding code
+    private static var callbackInitialized = false
+    private static func initCallback() {
+        try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
+                ffi_kube_viewer_c6f1_GlobalViewModelCallback_init_callback(foreignCallbackCallbackInterfaceGlobalViewModelCallback, err)
+        }
+    }
+    private static func ensureCallbackinitialized() {
+        if !callbackInitialized {
+            initCallback()
+            callbackInitialized = true
+        }
+    }
+
+    static func drop(handle: UniFFICallbackHandle) {
+        handleMap.remove(handle: handle)
+    }
+
+    private static var handleMap = UniFFICallbackHandleMap<GlobalViewModelCallback>()
+}
+
+extension FfiConverterCallbackInterfaceGlobalViewModelCallback : FfiConverter {
+    typealias SwiftType = GlobalViewModelCallback
+    // We can use Handle as the FfiType because it's a typealias to UInt64
+    typealias FfiType = UniFFICallbackHandle
+
+    public static func lift(_ handle: UniFFICallbackHandle) throws -> SwiftType {
+        ensureCallbackinitialized();
+        guard let callback = handleMap.get(handle: handle) else {
+            throw UniffiInternalError.unexpectedStaleHandle
+        }
+        return callback
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        ensureCallbackinitialized();
+        let handle: UniFFICallbackHandle = try readInt(&buf)
+        return try lift(handle)
+    }
+
+    public static func lower(_ v: SwiftType) -> UniFFICallbackHandle {
+        ensureCallbackinitialized();
+        return handleMap.insert(obj: v)
+    }
+
+    public static func write(_ v: SwiftType, into buf: inout [UInt8]) {
+        ensureCallbackinitialized();
+        writeInt(&buf, lower(v))
+    }
+}
+
+
+
 // Declaration and FfiConverters for MainViewModelUpdater Callback Interface
 
 public protocol MainViewModelUpdater : AnyObject {
@@ -2369,7 +2572,7 @@ fileprivate struct FfiConverterCallbackInterfaceMainViewModelUpdater {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_bbfc_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
+                ffi_kube_viewer_c6f1_MainViewModelUpdater_init_callback(foreignCallbackCallbackInterfaceMainViewModelUpdater, err)
         }
     }
     private static func ensureCallbackinitialized() {
@@ -2483,7 +2686,7 @@ fileprivate struct FfiConverterCallbackInterfaceNodeViewModelCallback {
     private static var callbackInitialized = false
     private static func initCallback() {
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
-                ffi_kube_viewer_bbfc_NodeViewModelCallback_init_callback(foreignCallbackCallbackInterfaceNodeViewModelCallback, err)
+                ffi_kube_viewer_c6f1_NodeViewModelCallback_init_callback(foreignCallbackCallbackInterfaceNodeViewModelCallback, err)
         }
     }
     private static func ensureCallbackinitialized() {

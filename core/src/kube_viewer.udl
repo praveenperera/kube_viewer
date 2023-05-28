@@ -2,6 +2,19 @@ namespace kube_viewer {};
 
 interface RustGlobalViewModel {
   constructor();
+  void add_callback_listener(GlobalViewModelCallback responder);
+};
+
+
+callback interface GlobalViewModelCallback {
+  void callback(GlobalViewModelMessage msg);
+};
+
+[Enum]
+interface GlobalViewModelMessage {
+  LoadingClient();
+  ClientLoaded();
+  ClientLoadError(string error);
 };
 
 interface RustMainViewModel {

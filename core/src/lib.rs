@@ -14,6 +14,14 @@ pub mod view_models;
 use crate::uniffi_types::*;
 uniffi::include_scaffolding!("kube_viewer");
 
+#[derive(Debug, Clone, uniffi::Enum)]
+pub enum LoadStatus {
+    Initial,
+    Loading,
+    Loaded,
+    Error { error: String },
+}
+
 mod uniffi_types {
     // view models
     pub(crate) use crate::view_models::global::*;
@@ -27,6 +35,7 @@ mod uniffi_types {
     pub(crate) use crate::tab::*;
     pub(crate) use crate::tab_group::*;
 
-    pub(crate) use crate::kubernetes::client_store::*;
     pub(crate) use crate::kubernetes::node::*;
+
+    pub(crate) use crate::LoadStatus;
 }

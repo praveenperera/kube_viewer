@@ -7,14 +7,6 @@ use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-#[derive(uniffi::Enum)]
-pub enum ClientLoadStatus {
-    Initial,
-    Loading,
-    Loaded,
-    Error { error: String },
-}
-
 #[derive(Clone)]
 pub struct ClientStore {
     pub worker: Addr<Worker>,

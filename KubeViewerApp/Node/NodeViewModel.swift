@@ -13,7 +13,6 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
     let windowId: UUID
     var data: RustNodeViewModel
 
-    @Published var client: ClientLoadStatus = .initial
     @Published var nodes: NodeLoadStatus = .initial
 
     var selectedCluster: Cluster?

@@ -9,7 +9,7 @@ use crate::{
     cluster::{Cluster, ClusterId, Clusters},
     env::Env,
     kubernetes::client_store::ClientStore,
-    task,
+    task, LoadStatus,
 };
 
 static INSTANCE: OnceCell<RwLock<GlobalViewModel>> = OnceCell::new();
@@ -20,7 +20,7 @@ impl GlobalViewModel {
     }
 }
 
-pub trait GloabalViewModelCallback: Send + Sync + 'static {
+pub trait GlobalViewModelCallback: Send + Sync + 'static {
     fn callback(&self, message: GlobalViewModelMessage);
 }
 
@@ -60,7 +60,7 @@ impl RustGlobalViewModel {
         GlobalViewModel::global()
     }
 
-    pub fn add_callback_listener(&self, responder: Box<dyn GloabalViewModelCallback>) {
+    pub fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
         let addr = GlobalViewModel::global().read().worker.clone();
         task::spawn(async move { send!(addr.add_callback_listener(responder)) });
     }
@@ -119,7 +119,7 @@ impl GlobalViewModel {
 
 pub struct Worker {
     addr: WeakAddr<Self>,
-    responder: Option<Box<dyn GloabalViewModelCallback>>,
+    responder: Option<Box<dyn GlobalViewModelCallback>>,
 }
 
 impl Default for Worker {
@@ -144,7 +144,7 @@ impl Worker {
 
     async fn add_callback_listener(
         &mut self,
-        responder: Box<dyn GloabalViewModelCallback>,
+        responder: Box<dyn GlobalViewModelCallback>,
     ) -> ActorResult<()> {
         self.responder = Some(responder);
         Produces::ok(())
@@ -155,11 +155,34 @@ impl Worker {
 
         let client_store_worker = GlobalViewModel::global().read().client_store.worker.clone();
 
-        match call!(client_store_worker.load_client(cluster_id)).await {
-            Ok(_) => self.callback(GlobalViewModelMessage::ClientLoaded),
-            Err(error) => self.callback(GlobalViewModelMessage::ClientLoadError {
-                error: error.to_string(),
-            }),
+        match call!(client_store_worker.load_client(cluster_id.clone())).await {
+            Ok(_) => {
+                self.callback(GlobalViewModelMessage::ClientLoaded);
+
+                if let Some(cluster) = GlobalViewModel::global()
+                    .write()
+                    .clusters()
+                    .get_mut(&cluster_id)
+                {
+                    cluster.load_status = LoadStatus::Loaded;
+                }
+            }
+
+            Err(error) => {
+                self.callback(GlobalViewModelMessage::ClientLoadError {
+                    error: error.to_string(),
+                });
+
+                if let Some(cluster) = GlobalViewModel::global()
+                    .write()
+                    .clusters()
+                    .get_mut(&cluster_id)
+                {
+                    cluster.load_status = LoadStatus::Error {
+                        error: error.to_string(),
+                    }
+                };
+            }
         }
 
         Produces::ok(())
