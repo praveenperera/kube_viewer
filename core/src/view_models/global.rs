@@ -1,7 +1,8 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 
 use act_zero::*;
 use kube::Client;
+use log::debug;
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 
@@ -120,6 +121,7 @@ impl GlobalViewModel {
 pub struct Worker {
     addr: WeakAddr<Self>,
     responder: Option<Box<dyn GlobalViewModelCallback>>,
+    responder_queue: VecDeque<GlobalViewModelMessage>,
 }
 
 impl Default for Worker {
@@ -133,12 +135,16 @@ impl Worker {
         Self {
             addr: Default::default(),
             responder: None,
+            responder_queue: VecDeque::new(),
         }
     }
 
-    pub fn callback(&self, msg: GlobalViewModelMessage) {
+    pub fn callback(&mut self, msg: GlobalViewModelMessage) {
         if let Some(responder) = self.responder.as_ref() {
             responder.callback(msg);
+        } else {
+            log::warn!("no responder set for global view model worker, adding to queue");
+            self.responder_queue.push_back(msg);
         }
     }
 
@@ -147,10 +153,16 @@ impl Worker {
         responder: Box<dyn GlobalViewModelCallback>,
     ) -> ActorResult<()> {
         self.responder = Some(responder);
+
+        while let Some(msg) = self.responder_queue.pop_front() {
+            self.callback(msg);
+        }
+
         Produces::ok(())
     }
 
-    pub async fn load_client(&self, cluster_id: ClusterId) -> ActorResult<()> {
+    pub async fn load_client(&mut self, cluster_id: ClusterId) -> ActorResult<()> {
+        debug!("loading client for cluster: {}", &cluster_id.raw_value);
         self.callback(GlobalViewModelMessage::LoadingClient);
 
         let client_store_worker = GlobalViewModel::global().read().client_store.worker.clone();
@@ -165,6 +177,11 @@ impl Worker {
                     .as_mut()
                     .and_then(|clusters| clusters.clusters_map.get_mut(&cluster_id))
                 {
+                    debug!(
+                        "client loaded for cluster: {}, load_status: {:?}",
+                        &cluster_id.raw_value, cluster.load_status
+                    );
+
                     if !matches!(cluster.load_status, LoadStatus::Loaded) {
                         cluster.load_status = LoadStatus::Loaded;
                         self.callback(GlobalViewModelMessage::ClustersLoaded);
@@ -173,6 +190,12 @@ impl Worker {
             }
 
             Err(error) => {
+                log::warn!(
+                    "client loaded erorr for: {:?}, error: {:?}",
+                    cluster_id,
+                    error
+                );
+
                 self.callback(GlobalViewModelMessage::ClientLoadError {
                     error: error.to_string(),
                 });

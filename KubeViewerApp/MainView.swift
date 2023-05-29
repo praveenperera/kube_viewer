@@ -167,6 +167,7 @@ struct ClusterSelectionButton: View {
         case .initial, .loading:
             Button(action: self.action) {
                 Text(self.cluster.name())
+                    .foregroundColor(Color.primary.opacity(0.75))
             }
 
         case .loaded:
@@ -176,7 +177,8 @@ struct ClusterSelectionButton: View {
 
         case .error:
             Button(action: {}) {
-                Text(self.cluster.name()).foregroundColor(Color.red.opacity(0.8))
+                Text(self.cluster.name())
+                    .foregroundColor(Color.red.opacity(0.7))
             }.disabled(true)
         }
     }

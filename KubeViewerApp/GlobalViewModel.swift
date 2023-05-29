@@ -30,6 +30,7 @@ class GlobalViewModel: ObservableObject, GlobalViewModelCallback {
             await MainActor.run {
                 switch msg {
                 case .clustersLoaded:
+                    print("[swift] clusters loaded")
                     self.clusters = self.data.clusters()
 
                 case .loadingClient:

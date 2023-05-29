@@ -172,6 +172,7 @@ impl Worker {
         {
             self.load_client(selected_cluster).await?;
         };
+
         let client: Client = GlobalViewModel::global()
             .read()
             .get_cluster_client(selected_cluster)
