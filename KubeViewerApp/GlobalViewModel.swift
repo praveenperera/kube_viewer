@@ -9,7 +9,7 @@ import Combine
 import Foundation
 import SwiftUI
 
-class GlobalViewModel: ObservableObject {
+class GlobalViewModel: ObservableObject, GlobalViewModelCallback {
     var data: RustGlobalViewModel
     @RustPublished var clusters: [ClusterId: Cluster]
 
@@ -18,6 +18,33 @@ class GlobalViewModel: ObservableObject {
 
         self.clusters = self.data.clusters()
         self._clusters.getter = self.data.clusters
+        DispatchQueue.main.async { self.setupCallback() }
+    }
+
+    private func setupCallback() {
+        self.data.addCallbackListener(responder: self)
+    }
+
+    func callback(msg: GlobalViewModelMessage) {
+        Task {
+            await MainActor.run {
+                switch msg {
+                case .clustersLoaded:
+                    self.clusters = self.data.clusters()
+
+                case .loadingClient:
+                    // TODO: toast to show cluster is loading
+                    ()
+
+                case .clientLoadError:
+                    //  TODO: show toast with error
+                    ()
+
+                case .clientLoaded:
+                    print("[swift] client loaded")
+                }
+            }
+        }
     }
 }
 

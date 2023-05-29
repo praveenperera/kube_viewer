@@ -139,9 +139,7 @@ struct MainView: View {
             Menu(
                 content: {
                     ForEach(Array(self.globalViewModel.clusters.values), id: \.self) { cluster in
-                        Button(action: { self.model.selectedCluster = cluster }) {
-                            Text(cluster.name())
-                        }
+                        ClusterSelectionButton(action: { self.model.selectedCluster = cluster }, cluster: cluster)
                     }
                 },
                 label: {
@@ -157,6 +155,30 @@ struct MainView: View {
             }
             .menuStyle(CustomMenuStyle())
         }.padding(.bottom, 7)
+    }
+}
+
+struct ClusterSelectionButton: View {
+    let action: () -> ()
+    let cluster: Cluster
+
+    var body: some View {
+        switch self.cluster.loadStatus {
+        case .initial, .loading:
+            Button(action: self.action) {
+                Text(self.cluster.name())
+            }
+
+        case .loaded:
+            Button(action: self.action) {
+                Text(self.cluster.name()).bold()
+            }
+
+        case .error:
+            Button(action: {}) {
+                Text(self.cluster.name()).foregroundColor(Color.red.opacity(0.8))
+            }.disabled(true)
+        }
     }
 }
 

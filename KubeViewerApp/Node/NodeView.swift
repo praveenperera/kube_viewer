@@ -32,7 +32,13 @@ struct NodeView: View {
 
     var body: some View {
         VStack {
-            self.innerBody.onChange(of: self.model.nodes, perform: self.setLoading)
+            self.innerBody
+                .onChange(of: self.model.nodes, perform: self.setLoading)
+                .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
+                    if let selectedCluster = newSelectedCluster {
+                        self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
+                    }
+                }
         }
         .frame(minWidth: 100)
         .toast(isPresenting: self.$isLoading) {
@@ -47,13 +53,10 @@ struct NodeView: View {
             ForEach(nodes) { node in
                 Text(node.name)
             }
-            .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
-                if let selectedCluster = newSelectedCluster {
-                    self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
-                }
-            }
+
         case .loading, .initial:
             HStack {}
+
         case .error(let error):
             Text("error: \(error)")
         }
@@ -61,9 +64,9 @@ struct NodeView: View {
 
     func setLoading(_ loading: NodeLoadStatus) {
         switch loading {
-        case .loaded:
+        case .loaded, .error:
             self.isLoading = false
-        case .loading, .initial, .error:
+        case .loading, .initial:
             self.isLoading = true
         }
     }

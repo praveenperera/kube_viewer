@@ -13,7 +13,6 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
     let windowId: UUID
     var data: RustNodeViewModel
 
-    @Published var client: ClientLoadStatus = .initial
     @Published var nodes: NodeLoadStatus = .initial
 
     var selectedCluster: Cluster?
@@ -39,16 +38,6 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
         Task {
             await MainActor.run {
                 switch msg {
-                    case .loadingClient:
-                        self.client = .loading
-
-                    case let .clientLoadingFailed(error):
-                        self.client = .error(error: error)
-
-                    case .clientLoaded:
-                        print("[swift] client loaded")
-                        self.client = .loaded
-
                     case .loadingNodes:
                         self.nodes = .loading
 

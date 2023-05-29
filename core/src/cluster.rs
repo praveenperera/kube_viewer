@@ -5,6 +5,8 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
+use crate::LoadStatus;
+
 #[derive(Debug, Clone)]
 pub struct Clusters {
     pub kube_config: kube::config::Kubeconfig,
@@ -32,6 +34,10 @@ impl Clusters {
 
     pub fn get_cluster(&self, cluster_id: &ClusterId) -> Option<Cluster> {
         self.clusters_map.get(cluster_id).cloned()
+    }
+
+    pub fn get_cluster_mut(&mut self, cluster_id: &ClusterId) -> Option<&mut Cluster> {
+        self.clusters_map.get_mut(cluster_id)
     }
 
     pub fn selected_or_context_cluster(
@@ -77,6 +83,9 @@ pub struct Cluster {
 
     // set by user
     pub nickname: Option<String>,
+
+    // status
+    pub load_status: LoadStatus,
 }
 
 impl TryFrom<NamedCluster> for Cluster {
@@ -92,6 +101,7 @@ impl TryFrom<NamedCluster> for Cluster {
             id: named_cluster.name.into(),
             server: cluster.server,
             proxy_url: cluster.proxy_url,
+            load_status: LoadStatus::Initial,
         })
     }
 }
