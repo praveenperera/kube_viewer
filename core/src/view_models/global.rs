@@ -36,7 +36,6 @@ pub struct RustGlobalViewModel;
 pub struct GlobalViewModel {
     pub clusters: Option<Clusters>,
     pub client_store: ClientStore,
-
     pub worker: Addr<Worker>,
 }
 
@@ -201,7 +200,6 @@ impl Worker {
 impl Actor for Worker {
     async fn started(&mut self, addr: Addr<Self>) -> ActorResult<()> {
         self.addr = addr.downgrade();
-
         GlobalViewModel::global().write().worker = addr;
 
         Produces::ok(())
@@ -209,7 +207,6 @@ impl Actor for Worker {
 
     async fn error(&mut self, error: ActorError) -> bool {
         log::error!("GlobalViewModel Actor Error: {error:?}");
-
         false
     }
 }

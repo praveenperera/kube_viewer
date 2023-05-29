@@ -58,7 +58,6 @@ impl Worker {
         .await?;
 
         let client = Client::try_from(config)?;
-
         self.state.write().insert(cluster_id, client);
 
         Produces::ok(())
@@ -69,13 +68,11 @@ impl Worker {
 impl Actor for Worker {
     async fn started(&mut self, addr: Addr<Self>) -> ActorResult<()> {
         self.addr = addr.downgrade();
-
         Produces::ok(())
     }
 
     async fn error(&mut self, error: ActorError) -> bool {
         log::error!("ClientActor Actor Error: {error:?}");
-
         false
     }
 }

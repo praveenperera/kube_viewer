@@ -41,8 +41,7 @@ class GlobalViewModel: ObservableObject, GlobalViewModelCallback {
                     ()
 
                 case .clientLoaded:
-                    //  TODO: toast with cluster loaded?
-                    print("[swift] nodes loaded")
+                    print("[swift] client loaded")
                 }
             }
         }

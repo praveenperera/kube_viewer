@@ -52,7 +52,6 @@ impl From<NodeError> for NodeViewModelMessage {
 }
 
 pub struct RustNodeViewModel {
-    actor: Addr<Worker>,
     state: Arc<RwLock<State>>,
 
     #[allow(dead_code)]
@@ -60,15 +59,14 @@ pub struct RustNodeViewModel {
 }
 
 pub struct State {
-    actor: WeakAddr<Worker>,
+    worker: Addr<Worker>,
     nodes: Option<Vec<Node>>,
+    responder: Option<Box<dyn NodeViewModelCallback>>,
 }
 
 pub struct Worker {
     addr: WeakAddr<Self>,
-
     state: Arc<RwLock<State>>,
-    responder: Option<Box<dyn NodeViewModelCallback>>,
 }
 
 impl RustNodeViewModel {
@@ -76,27 +74,21 @@ impl RustNodeViewModel {
         let window_id = WindowId(window_id);
 
         let state = Arc::new(RwLock::new(State::new(window_id.clone())));
-        let worker = Worker::new(window_id.clone(), state.clone());
-        let actor = task::spawn_actor(worker);
+        state.write().worker = Worker::start_actor(state.clone());
 
-        Self {
-            actor,
-            state,
-            window_id,
-        }
+        Self { state, window_id }
     }
 
     pub fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
-        let addr = self.actor.clone();
-        task::spawn(async move { send!(addr.add_callback_listener(responder)) });
+        self.state.write().responder = Some(responder);
     }
 }
 
 #[uniffi::export]
 impl RustNodeViewModel {
     pub fn fetch_nodes(&self, selected_cluster: ClusterId) {
-        let addr = self.actor.clone();
-        task::spawn(async move { send!(addr.fetch_nodes(selected_cluster)) });
+        let worker = Worker::start_actor(self.state.clone());
+        task::spawn(async move { send!(worker.fetch_nodes(selected_cluster)) });
     }
 
     pub fn nodes(&self, selected_cluster: ClusterId) -> Vec<Node> {
@@ -111,8 +103,9 @@ impl RustNodeViewModel {
 impl State {
     pub fn new(_window_id: WindowId) -> Self {
         Self {
-            actor: WeakAddr::detached(),
+            worker: Default::default(),
             nodes: None,
+            responder: None,
         }
     }
 
@@ -121,7 +114,7 @@ impl State {
 
         if self.nodes.is_none() {
             log::warn!("nodes not loaded, fetching nodes");
-            send!(self.actor.fetch_nodes(selected_cluster));
+            send!(self.worker.fetch_nodes(selected_cluster));
         };
 
         let nodes = self
@@ -134,16 +127,19 @@ impl State {
 }
 
 impl Worker {
-    pub fn new(_window_id: WindowId, state: Arc<RwLock<State>>) -> Self {
+    pub fn start_actor(state: Arc<RwLock<State>>) -> Addr<Self> {
+        task::spawn_actor(Self::new(state))
+    }
+
+    pub fn new(state: Arc<RwLock<State>>) -> Self {
         Self {
             addr: Default::default(),
             state,
-            responder: None,
         }
     }
 
     pub fn callback(&self, msg: NodeViewModelMessage) {
-        if let Some(responder) = self.responder.as_ref() {
+        if let Some(responder) = self.state.read().responder.as_ref() {
             responder.callback(msg);
         }
     }
@@ -153,6 +149,7 @@ impl Worker {
 
         // notify and load
         self.callback(NodeViewModelMessage::LoadingNodes);
+
         self.load_nodes(&selected_cluster)
             .await
             .map_err(|e| NodeError::NodeLoadError(eyre!("{e:?}")))?;
@@ -175,7 +172,6 @@ impl Worker {
         {
             self.load_client(selected_cluster).await?;
         };
-
         let client: Client = GlobalViewModel::global()
             .read()
             .get_cluster_client(selected_cluster)
@@ -189,15 +185,6 @@ impl Worker {
 
         // notify frontend, nodes loaded
         self.callback(NodeViewModelMessage::NodesLoaded);
-
-        Produces::ok(())
-    }
-
-    async fn add_callback_listener(
-        &mut self,
-        responder: Box<dyn NodeViewModelCallback>,
-    ) -> ActorResult<()> {
-        self.responder = Some(responder);
 
         Produces::ok(())
     }
@@ -222,7 +209,6 @@ impl Worker {
 impl Actor for Worker {
     async fn started(&mut self, addr: Addr<Self>) -> ActorResult<()> {
         self.addr = addr.downgrade();
-        self.state.write().actor = self.addr.clone();
 
         Produces::ok(())
     }

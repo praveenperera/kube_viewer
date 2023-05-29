@@ -1,6 +1,7 @@
 mod key_handler;
 
 use crate::GlobalViewModel;
+use act_zero::send;
 use crossbeam::channel::Sender;
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
@@ -174,7 +175,7 @@ impl RustMainViewModel {
 
         // load client for selected cluster in the background
         let global_view_model = GlobalViewModel::global().read();
-        act_zero::send!(global_view_model.worker.load_client(cluster.id.clone()));
+        send!(global_view_model.worker.load_client(cluster.id.clone()));
 
         if let Err(err) = USER_CONFIG
             .write()
@@ -295,7 +296,7 @@ impl MainViewModel {
         if let Some(selected_cluster) = selected_cluster_checked.as_ref() {
             // load client for selected cluster in the background
             let global_view_model = GlobalViewModel::global().read();
-            act_zero::send!(global_view_model
+            send!(global_view_model
                 .worker
                 .load_client(selected_cluster.clone()))
         }
