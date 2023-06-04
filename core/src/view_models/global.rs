@@ -9,7 +9,7 @@ use parking_lot::RwLock;
 use crate::{
     cluster::{Cluster, ClusterId, Clusters},
     env::Env,
-    kubernetes::client_store::ClientStore,
+    kubernetes::{client_store::ClientStore, kube_config::KubeConfigWatcher},
     task, LoadStatus,
 };
 
@@ -90,9 +90,8 @@ impl GlobalViewModel {
         // init env
         let _ = Env::global();
         let clusters = Clusters::try_new().ok();
-        let client_store = ClientStore::new();
-
         let worker = task::spawn_actor(Worker::new());
+        let client_store = ClientStore::new();
 
         Self {
             clusters,
@@ -120,6 +119,7 @@ impl GlobalViewModel {
 
 pub struct Worker {
     addr: WeakAddr<Self>,
+    kube_config_watcher: Addr<KubeConfigWatcher>,
     responder: Option<Box<dyn GlobalViewModelCallback>>,
     responder_queue: VecDeque<GlobalViewModelMessage>,
 }
@@ -134,6 +134,7 @@ impl Worker {
     pub fn new() -> Self {
         Self {
             addr: Default::default(),
+            kube_config_watcher: Default::default(),
             responder: None,
             responder_queue: VecDeque::new(),
         }
@@ -157,6 +158,28 @@ impl Worker {
         while let Some(msg) = self.responder_queue.pop_front() {
             self.callback(msg);
         }
+
+        Produces::ok(())
+    }
+
+    pub async fn start_new_kube_config_watcher(&mut self) -> ActorResult<()> {
+        debug!("starting new kube config watch");
+
+        let kube_config_watcher = KubeConfigWatcher::new(self.addr.clone());
+        self.kube_config_watcher = task::spawn_actor(kube_config_watcher);
+
+        self.callback(GlobalViewModelMessage::ClustersLoaded);
+
+        Produces::ok(())
+    }
+
+    pub async fn reload_clusters(&mut self) -> ActorResult<()> {
+        debug!("reloading clusters");
+
+        let clusters = Clusters::try_new()?;
+        GlobalViewModel::global().write().clusters = Some(clusters);
+
+        self.callback(GlobalViewModelMessage::ClustersLoaded);
 
         Produces::ok(())
     }
@@ -223,7 +246,9 @@ impl Worker {
 impl Actor for Worker {
     async fn started(&mut self, addr: Addr<Self>) -> ActorResult<()> {
         self.addr = addr.downgrade();
+
         GlobalViewModel::global().write().worker = addr;
+        send!(self.addr.start_new_kube_config_watcher());
 
         Produces::ok(())
     }

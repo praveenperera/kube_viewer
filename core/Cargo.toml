@@ -41,6 +41,9 @@ parking_lot = "0.12.1"
 # config files
 etcetera = "0.7"
 
+# file watcher
+notify = { version = "6.0.0", default-features = false, features = ["macos_kqueue"] }
+
 # json
 serde = {version = "1.0.130", features = ["derive"]}
 serde_json = "1.0.96"
