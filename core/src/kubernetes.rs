@@ -1,4 +1,5 @@
 pub mod client_store;
+pub mod kube_config;
 pub mod node;
 
 use eyre::Result;
