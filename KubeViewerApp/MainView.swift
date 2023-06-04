@@ -18,6 +18,11 @@ struct MainView: View {
     @State private var search: String = ""
     @State private var window: NSWindow?
 
+    private func sortedClusterIds() -> [ClusterId] {
+        var keys = self.globalViewModel.clusters.keys
+        return keys.sorted(by: { $0.rawValue < $1.rawValue })
+    }
+
     public init(windowId: Binding<UUID?>, globalModel: GlobalModel) {
         self.windowId = windowId.wrappedValue ?? UUID()
         self.globalModel = globalModel
@@ -138,7 +143,8 @@ struct MainView: View {
         VStack {
             Menu(
                 content: {
-                    ForEach(Array(self.globalViewModel.clusters.values), id: \.self) { cluster in
+                    ForEach(self.sortedClusterIds(), id: \.self) { clusterId in
+                        let cluster = self.globalViewModel.clusters[clusterId]!
                         ClusterSelectionButton(action: { self.model.selectedCluster = cluster }, cluster: cluster)
                     }
                 },
