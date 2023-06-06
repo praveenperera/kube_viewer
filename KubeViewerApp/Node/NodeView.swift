@@ -52,6 +52,8 @@ struct NodeView: View {
         case .loaded(let nodes):
             Table(nodes) {
                 TableColumn("Name", value: \.name)
+                TableColumn("Kubelet Version") { node in Text(node.kubeletVersion ?? "") }
+                TableColumn("Conditions", value: \.name)
             }
         case .loading, .initial:
             HStack {}
