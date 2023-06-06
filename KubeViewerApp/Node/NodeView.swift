@@ -50,10 +50,9 @@ struct NodeView: View {
     var innerBody: some View {
         switch self.model.nodes {
         case .loaded(let nodes):
-            ForEach(nodes) { node in
-                Text(node.name)
+            Table(nodes) {
+                TableColumn("Name", value: \.name)
             }
-
         case .loading, .initial:
             HStack {}
 
