@@ -15,7 +15,7 @@ struct NodeView: View {
     @ObservedObject var mainViewModel: MainViewModel
     @ObservedObject var model: NodeViewModel
 
-    @State var isLoading: Bool = true
+    @State var isLoading: Bool = false
 
     public init(windowId: UUID, globalModel: GlobalModel, mainViewModel: MainViewModel) {
         self.windowId = windowId
