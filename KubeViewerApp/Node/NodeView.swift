@@ -50,10 +50,20 @@ struct NodeView: View {
     var innerBody: some View {
         switch self.model.nodes {
         case .loaded(let nodes):
-            Table(nodes) {
-                TableColumn("Name", value: \.name)
-                TableColumn("Kubelet Version") { node in Text(node.kubeletVersion ?? "") }
-                TableColumn("Conditions", value: \.name)
+            HStack {
+                Table(nodes) {
+                    TableColumn("Name", value: \.name)
+                    TableColumn("Version") { node in Text(node.kubeletVersion ?? "") }
+                    TableColumn("Taints") { node in
+                        Text(String(node.taints.count))
+                    }
+                    TableColumn("Age") { AgeView(node: $0) }
+                    TableColumn("Conditions") { node in
+                        ForEach(node.trueConditions(), id: \.self) { condition in
+                            Text(condition)
+                        }
+                    }
+                }
             }
         case .loading, .initial:
             HStack {}
@@ -73,6 +83,25 @@ struct NodeView: View {
     }
 }
 
+struct AgeView: View {
+    let node: Node
+
+    var body: some View {
+        switch Date().timeIntervalSince1970 - Double(self.node.createdAt ?? 0) {
+        case 0 ... 60:
+            TimelineView(.periodic(from: Date(), by: 1)) { _ in
+                Text(self.node.age() ?? "")
+            }
+        case 60 ... (60 * 60):
+            TimelineView(.periodic(from: Date(), by: 60)) { _ in
+                Text(self.node.age() ?? "")
+            }
+        default:
+            Text(self.node.age() ?? "")
+        }
+    }
+}
+
 struct NodeView_Previews: PreviewProvider {
     static var windowId = UUID()
     static var globalModel = GlobalModel()
@@ -82,5 +111,3 @@ struct NodeView_Previews: PreviewProvider {
         NodeView(windowId: windowId, globalModel: globalModel, mainViewModel: mainViewModel)
     }
 }
-
-extension Node: Identifiable {}

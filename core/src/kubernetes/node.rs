@@ -16,6 +16,7 @@ pub struct NodeCondition {
 pub struct Node {
     pub id: String,
     pub name: String,
+    pub created_at: Option<i64>,
     pub labels: HashMap<String, String>,
     pub annotations: HashMap<String, String>,
     pub taints: Vec<Taint>,
@@ -121,6 +122,10 @@ impl From<K8sNode> for Node {
         Self {
             id: node_name.clone(),
             name: node_name,
+            created_at: node
+                .metadata
+                .creation_timestamp
+                .map(|time| time.0.timestamp()),
             labels: node
                 .metadata
                 .labels

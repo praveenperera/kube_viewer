@@ -293,6 +293,19 @@ fileprivate struct FfiConverterUInt64: FfiConverterPrimitive {
     }
 }
 
+fileprivate struct FfiConverterInt64: FfiConverterPrimitive {
+    typealias FfiType = Int64
+    typealias SwiftType = Int64
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Int64 {
+        return try lift(readInt(&buf))
+    }
+
+    public static func write(_ value: Int64, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
 fileprivate struct FfiConverterBool : FfiConverter {
     typealias FfiType = Int8
     typealias SwiftType = Bool
@@ -975,6 +988,7 @@ public func FfiConverterTypeClusterId_lower(_ value: ClusterId) -> RustBuffer {
 public struct Node {
     public var `id`: String
     public var `name`: String
+    public var `createdAt`: Int64?
     public var `labels`: [String: String]
     public var `annotations`: [String: String]
     public var `taints`: [Taint]
@@ -989,9 +1003,10 @@ public struct Node {
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(`id`: String, `name`: String, `labels`: [String: String], `annotations`: [String: String], `taints`: [Taint], `addresses`: [NodeAddress], `os`: String?, `arch`: String?, `osImage`: String?, `kernelVersion`: String?, `containerRuntime`: String?, `kubeletVersion`: String?, `conditions`: [NodeCondition]) {
+    public init(`id`: String, `name`: String, `createdAt`: Int64?, `labels`: [String: String], `annotations`: [String: String], `taints`: [Taint], `addresses`: [NodeAddress], `os`: String?, `arch`: String?, `osImage`: String?, `kernelVersion`: String?, `containerRuntime`: String?, `kubeletVersion`: String?, `conditions`: [NodeCondition]) {
         self.`id` = `id`
         self.`name` = `name`
+        self.`createdAt` = `createdAt`
         self.`labels` = `labels`
         self.`annotations` = `annotations`
         self.`taints` = `taints`
@@ -1013,6 +1028,9 @@ extension Node: Equatable, Hashable {
             return false
         }
         if lhs.`name` != rhs.`name` {
+            return false
+        }
+        if lhs.`createdAt` != rhs.`createdAt` {
             return false
         }
         if lhs.`labels` != rhs.`labels` {
@@ -1054,6 +1072,7 @@ extension Node: Equatable, Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(`id`)
         hasher.combine(`name`)
+        hasher.combine(`createdAt`)
         hasher.combine(`labels`)
         hasher.combine(`annotations`)
         hasher.combine(`taints`)
@@ -1074,6 +1093,7 @@ public struct FfiConverterTypeNode: FfiConverterRustBuffer {
         return try Node(
             `id`: FfiConverterString.read(from: &buf), 
             `name`: FfiConverterString.read(from: &buf), 
+            `createdAt`: FfiConverterOptionInt64.read(from: &buf), 
             `labels`: FfiConverterDictionaryStringString.read(from: &buf), 
             `annotations`: FfiConverterDictionaryStringString.read(from: &buf), 
             `taints`: FfiConverterSequenceTypeTaint.read(from: &buf), 
@@ -1091,6 +1111,7 @@ public struct FfiConverterTypeNode: FfiConverterRustBuffer {
     public static func write(_ value: Node, into buf: inout [UInt8]) {
         FfiConverterString.write(value.`id`, into: &buf)
         FfiConverterString.write(value.`name`, into: &buf)
+        FfiConverterOptionInt64.write(value.`createdAt`, into: &buf)
         FfiConverterDictionaryStringString.write(value.`labels`, into: &buf)
         FfiConverterDictionaryStringString.write(value.`annotations`, into: &buf)
         FfiConverterSequenceTypeTaint.write(value.`taints`, into: &buf)
@@ -2737,6 +2758,27 @@ extension FfiConverterCallbackInterfaceNodeViewModelCallback : FfiConverter {
     public static func write(_ v: SwiftType, into buf: inout [UInt8]) {
         ensureCallbackinitialized();
         writeInt(&buf, lower(v))
+    }
+}
+
+fileprivate struct FfiConverterOptionInt64: FfiConverterRustBuffer {
+    typealias SwiftType = Int64?
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        guard let value = value else {
+            writeInt(&buf, Int8(0))
+            return
+        }
+        writeInt(&buf, Int8(1))
+        FfiConverterInt64.write(value, into: &buf)
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        switch try readInt(&buf) as Int8 {
+        case 0: return nil
+        case 1: return try FfiConverterInt64.read(from: &buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
+        }
     }
 }
 

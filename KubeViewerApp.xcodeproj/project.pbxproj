@@ -33,6 +33,7 @@
 		ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621EA2980415E00FE2CE2 /* TabContentView.swift */; };
 		ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621ED2980569500FE2CE2 /* MainViewModel.swift */; };
 		ACD621F2298057D400FE2CE2 /* TabViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621F1298057D400FE2CE2 /* TabViewModel.swift */; };
+		ACFE71B82A30E8C400A767EE /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACFE71B72A30E8C400A767EE /* Node.swift */; };
 		DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */; };
 		DADF4C82295E6DBB006CA792 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DADF4C81295E6DBB006CA792 /* Assets.xcassets */; };
 		DADF4C85295E6DBB006CA792 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DADF4C84295E6DBB006CA792 /* Preview Assets.xcassets */; };
@@ -85,6 +86,7 @@
 		ACE6DFFA299C11520094C1DC /* KubeViewerApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KubeViewerApp-Bridging-Header.h"; sourceTree = "<group>"; };
 		ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "xc-universal-binary.sh"; sourceTree = "<group>"; };
 		ACFA988229F8CF30009C2A32 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		ACFE71B72A30E8C400A767EE /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		DADF4C7A295E6DB9006CA792 /* KubeViewerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KubeViewerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KubeViewerApp.swift; sourceTree = "<group>"; };
 		DADF4C81295E6DBB006CA792 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 			children = (
 				AC95349D29F4B8200082155D /* NodeViewModel.swift */,
 				AC9534A029F4BB0F0082155D /* NodeView.swift */,
+				ACFE71B72A30E8C400A767EE /* Node.swift */,
 			);
 			path = Node;
 			sourceTree = "<group>";
@@ -301,7 +304,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1420;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					DADF4C79295E6DB9006CA792 = {
 						CreatedOnToolsVersion = 14.2;
@@ -370,6 +373,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AC95349E29F4B8200082155D /* NodeViewModel.swift in Sources */,
+				ACFE71B82A30E8C400A767EE /* Node.swift in Sources */,
 				AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */,
 				AC9534A129F4BB0F0082155D /* NodeView.swift in Sources */,
 				ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */,
@@ -432,6 +436,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -492,6 +497,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -523,6 +529,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"KubeViewerApp/Preview Content\"";
 				DEVELOPMENT_TEAM = 4PZ3NJBYLZ;
 				ENABLE_PREVIEWS = YES;
@@ -558,6 +565,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"KubeViewerApp/Preview Content\"";
 				DEVELOPMENT_TEAM = 4PZ3NJBYLZ;
 				ENABLE_PREVIEWS = YES;
