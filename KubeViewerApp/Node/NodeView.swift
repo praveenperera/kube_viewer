@@ -60,7 +60,9 @@ struct NodeView: View {
                     TableColumn("Age") { AgeView(node: $0) }
                     TableColumn("Conditions") { node in
                         ForEach(node.trueConditions(), id: \.self) { condition in
-                            Text(condition)
+                            Text(condition).if(condition == "Ready") { view in
+                                view.foregroundColor(Color.green).brightness(-0.15)
+                            }
                         }
                     }
                 }
