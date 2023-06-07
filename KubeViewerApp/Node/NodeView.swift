@@ -10,6 +10,7 @@ import SwiftUI
 
 struct NodeView: View {
     let windowId: UUID
+    @Environment(\.colorScheme) var colorScheme
     @ObservedObject var globalModel: GlobalModel
     @ObservedObject var mainViewModel: MainViewModel
     @ObservedObject var model: NodeViewModel
@@ -61,7 +62,9 @@ struct NodeView: View {
                     TableColumn("Conditions") { node in
                         ForEach(node.trueConditions(), id: \.self) { condition in
                             Text(condition).if(condition == "Ready") { view in
-                                view.foregroundColor(Color.green).brightness(-0.15)
+                                view.foregroundColor(Color.green).if(self.colorScheme == .light) { view in
+                                    view.brightness(-0.15)
+                                }
                             }
                         }
                     }
