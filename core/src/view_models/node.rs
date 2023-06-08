@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::Duration};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use act_zero::*;
 use eyre::{eyre, Result};
@@ -12,7 +12,10 @@ use tokio::time;
 use super::WindowId;
 use crate::{
     cluster::ClusterId,
-    kubernetes::{self, node::Node},
+    kubernetes::{
+        self,
+        node::{Node, NodeId},
+    },
     task,
 };
 
@@ -63,7 +66,7 @@ pub struct State {
     extra_worker: Addr<Worker>,
     current_worker: Addr<Worker>,
 
-    nodes: Option<Vec<Node>>,
+    nodes: Option<HashMap<NodeId, Node>>,
     responder: Option<Box<dyn NodeViewModelCallback>>,
 }
 
@@ -150,7 +153,7 @@ impl State {
             .as_ref()
             .ok_or_else(|| eyre!("nodes not loaded"))?;
 
-        Ok(nodes.clone())
+        Ok(nodes.values().cloned().collect())
     }
 }
 

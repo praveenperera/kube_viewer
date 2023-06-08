@@ -1,8 +1,28 @@
+use derive_more::From;
 use k8s_openapi::api::core::v1::{
     Node as K8sNode, NodeAddress as K8sNodeAddress, NodeCondition as K8sNodeCondition,
     NodeSystemInfo, Taint as K8sTaint,
 };
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+#[derive(
+    Debug,
+    Clone,
+    Default,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    From,
+    Hash,
+    uniffi::Record,
+    Serialize,
+    Deserialize,
+)]
+pub struct NodeId {
+    pub raw_value: String,
+}
 
 #[derive(Debug, Clone, Default, uniffi::Record)]
 pub struct NodeCondition {
@@ -14,7 +34,7 @@ pub struct NodeCondition {
 
 #[derive(Debug, Clone, Default, uniffi::Record)]
 pub struct Node {
-    pub id: String,
+    pub id: NodeId,
     pub name: String,
     pub created_at: Option<i64>,
     pub labels: HashMap<String, String>,
@@ -120,7 +140,7 @@ impl From<K8sNode> for Node {
             .unwrap_or_else(|| "Unknown node name".to_string());
 
         Self {
-            id: node_name.clone(),
+            id: node_name.clone().into(),
             name: node_name,
             created_at: node
                 .metadata
