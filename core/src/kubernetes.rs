@@ -4,12 +4,15 @@ pub mod node;
 
 use std::collections::HashMap;
 
+use act_zero::{send, WeakAddr};
 use eyre::Result;
 use futures::{StreamExt, TryStreamExt};
 use k8s_openapi::api::core::v1::Node as K8sNode;
 use log::debug;
 
-use kube::{api::ResourceExt, runtime::watcher, Api, Client};
+use kube::{runtime::watcher, Api, Client};
+
+use crate::{cluster::ClusterId, view_models::node::Worker as NodeWorker};
 
 use self::node::{Node, NodeId};
 
@@ -26,7 +29,11 @@ pub async fn get_nodes(client: Client) -> Result<HashMap<NodeId, Node>> {
     Ok(nodes_hash_map)
 }
 
-pub async fn watch_nodes(client: Client) -> Result<()> {
+pub async fn watch_nodes(
+    addr: WeakAddr<NodeWorker>,
+    selected_cluster: ClusterId,
+    client: Client,
+) -> Result<()> {
     debug!("watch_nodes called");
 
     let nodes_api: Api<K8sNode> = Api::all(client);
@@ -35,20 +42,14 @@ pub async fn watch_nodes(client: Client) -> Result<()> {
 
     while let Some(status) = stream.try_next().await? {
         match status {
-            watcher::Event::Applied(res) => {
-                debug!("Applied: {}", res.name_any());
+            watcher::Event::Applied(node) => {
+                send!(addr.applied(node.into()))
             }
-            watcher::Event::Deleted(res) => {
-                debug!("Deleted: {}", res.name_any());
+            watcher::Event::Deleted(node) => {
+                send!(addr.deleted(node.into()))
             }
-            watcher::Event::Restarted(res) => {
-                debug!(
-                    "Restarted: {}",
-                    res.iter()
-                        .map(|n| n.name_any())
-                        .collect::<Vec<String>>()
-                        .join(", ")
-                );
+            watcher::Event::Restarted(_) => {
+                send!(addr.load_nodes(selected_cluster.clone()))
             }
         }
     }

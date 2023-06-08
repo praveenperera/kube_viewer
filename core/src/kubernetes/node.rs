@@ -24,7 +24,7 @@ pub struct NodeId {
     pub raw_value: String,
 }
 
-#[derive(Debug, Clone, Default, uniffi::Record)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, uniffi::Record)]
 pub struct NodeCondition {
     pub name: String,
     pub status: String,
@@ -32,7 +32,7 @@ pub struct NodeCondition {
     pub message: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, uniffi::Record)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, uniffi::Record)]
 pub struct Node {
     pub id: NodeId,
     pub name: String,
@@ -50,7 +50,7 @@ pub struct Node {
     pub conditions: Vec<NodeCondition>,
 }
 
-#[derive(Debug, Clone, Default, uniffi::Record)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, uniffi::Record)]
 pub struct Taint {
     pub effect: String,
     pub key: String,
@@ -58,7 +58,7 @@ pub struct Taint {
     pub value: Option<String>,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, uniffi::Record)]
 pub struct NodeAddress {
     pub address: String,
     pub node_type: String,

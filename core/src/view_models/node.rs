@@ -175,6 +175,65 @@ impl Worker {
         }
     }
 
+    pub async fn applied(&mut self, node: Node) -> ActorResult<()> {
+        if let Some(ref nodes) = self.state.read().nodes {
+            if let Some(existing_node) = nodes.get(&node.id) {
+                if existing_node == &node {
+                    debug!("same node already exists, ignoring");
+                    return Produces::ok(());
+                }
+            }
+        };
+
+        if let Some(ref mut nodes) = self.state.write().nodes {
+            debug!("node updated, notifying listeners");
+            nodes.insert(node.id.clone(), node);
+            self.callback(NodeViewModelMessage::NodesLoaded);
+        };
+
+        Produces::ok(())
+    }
+
+    pub async fn deleted(&mut self, node: Node) -> ActorResult<()> {
+        self.state.write().nodes.as_mut().map(|nodes| {
+            debug!("node deleted, notifying listeners");
+            nodes.remove(&node.id);
+            self.callback(NodeViewModelMessage::NodesLoaded);
+        });
+
+        Produces::ok(())
+    }
+
+    pub async fn load_nodes(&mut self, selected_cluster: impl AsRef<ClusterId>) -> ActorResult<()> {
+        debug!("loading nodes");
+
+        let selected_cluster = selected_cluster.as_ref();
+
+        if !GlobalViewModel::global()
+            .read()
+            .client_store
+            .contains_client(selected_cluster)
+        {
+            self.load_client(selected_cluster).await?;
+        };
+
+        let client: Client = GlobalViewModel::global()
+            .read()
+            .get_cluster_client(selected_cluster)
+            .ok_or_else(|| eyre!("client not found"))?;
+
+        let nodes = kubernetes::get_nodes(client.clone())
+            .await
+            .map_err(NodeError::NodeLoadError)?;
+
+        self.state.write().nodes = Some(nodes);
+
+        // notify frontend, nodes loaded
+        self.callback(NodeViewModelMessage::NodesLoaded);
+
+        Produces::ok(())
+    }
+
     async fn load_client(&mut self, selected_cluster: &ClusterId) -> ActorResult<()> {
         debug!("load_client() called");
 
@@ -205,45 +264,17 @@ impl Worker {
         Produces::ok(())
     }
 
-    async fn load_nodes(&mut self, selected_cluster: impl AsRef<ClusterId>) -> ActorResult<()> {
-        debug!("loading nodes");
-
-        let selected_cluster = selected_cluster.as_ref();
-
-        if !GlobalViewModel::global()
-            .read()
-            .client_store
-            .contains_client(selected_cluster)
-        {
-            self.load_client(selected_cluster).await?;
-        };
-
-        let client: Client = GlobalViewModel::global()
-            .read()
-            .get_cluster_client(selected_cluster)
-            .ok_or_else(|| eyre!("client not found"))?;
-
-        let nodes = kubernetes::get_nodes(client.clone())
-            .await
-            .map_err(NodeError::NodeLoadError)?;
-
-        self.state.write().nodes = Some(nodes);
-
-        // notify frontend, nodes loaded
-        self.callback(NodeViewModelMessage::NodesLoaded);
-
-        Produces::ok(())
-    }
-
-    async fn start_watcher(&mut self, selected_cluster: impl AsRef<ClusterId>) -> ActorResult<()> {
+    async fn start_watcher(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
         let client: Client = GlobalViewModel::global()
             .read()
             .get_cluster_client(selected_cluster.as_ref())
             .ok_or_else(|| eyre!("client not found"))?;
 
         // start watcher
-        self.addr.send_fut(async move {
-            kubernetes::watch_nodes(client).await.unwrap();
+        self.addr.send_fut_with(|addr| async move {
+            kubernetes::watch_nodes(addr, selected_cluster, client)
+                .await
+                .unwrap();
         });
 
         Produces::ok(())
