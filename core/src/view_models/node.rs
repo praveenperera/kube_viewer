@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use act_zero::*;
 use eyre::{eyre, Result};
@@ -7,6 +7,7 @@ use log::{debug, error, warn};
 use parking_lot::RwLock;
 
 use thiserror::Error;
+use tokio::time;
 
 use super::WindowId;
 use crate::{
@@ -93,7 +94,11 @@ impl RustNodeViewModel {
         let worker = Worker::start_actor(self.state.clone());
         self.state.write().current_worker = worker.clone();
 
-        task::spawn(async move { send!(worker.notify_and_load_nodes(selected_cluster)) });
+        task::spawn(async move {
+            let _ = call!(worker.notify_and_load_nodes(selected_cluster.clone())).await;
+            send!(worker.start_watcher(selected_cluster.clone()));
+            send!(worker.refresh_on_interval(selected_cluster));
+        });
     }
 
     /// Gets the new nodes without changing the loading status, used for background refreshes of
@@ -102,7 +107,11 @@ impl RustNodeViewModel {
         let worker = Worker::start_actor(self.state.clone());
         self.state.write().current_worker = worker.clone();
 
-        task::spawn(async move { send!(worker.load_nodes(selected_cluster)) });
+        task::spawn(async move {
+            let _ = call!(worker.load_nodes(selected_cluster.clone())).await;
+            send!(worker.start_watcher(selected_cluster.clone()));
+            send!(worker.refresh_on_interval(selected_cluster));
+        });
     }
 
     pub fn stop_watcher(&self) {
@@ -163,6 +172,21 @@ impl Worker {
         }
     }
 
+    async fn load_client(&mut self, selected_cluster: &ClusterId) -> ActorResult<()> {
+        debug!("load_client() called");
+
+        if !GlobalViewModel::global()
+            .read()
+            .client_store
+            .contains_client(selected_cluster)
+        {
+            let client_worker = GlobalViewModel::global().read().worker.clone();
+            call!(client_worker.load_client(selected_cluster.clone())).await?;
+        }
+
+        Produces::ok(())
+    }
+
     async fn notify_and_load_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
         debug!("fetch_nodes() called");
 
@@ -202,30 +226,35 @@ impl Worker {
 
         self.state.write().nodes = Some(nodes);
 
-        // start watcher
-        self.addr.send_fut(async move {
-            kubernetes::watch_nodes(client).await.unwrap();
-        });
-
         // notify frontend, nodes loaded
         self.callback(NodeViewModelMessage::NodesLoaded);
 
         Produces::ok(())
     }
 
-    async fn load_client(&mut self, selected_cluster: &ClusterId) -> ActorResult<()> {
-        debug!("load_client() called");
-
-        if !GlobalViewModel::global()
+    async fn start_watcher(&mut self, selected_cluster: impl AsRef<ClusterId>) -> ActorResult<()> {
+        let client: Client = GlobalViewModel::global()
             .read()
-            .client_store
-            .contains_client(selected_cluster)
-        {
-            let client_worker = GlobalViewModel::global().read().worker.clone();
-            call!(client_worker.load_client(selected_cluster.clone())).await?;
-        }
+            .get_cluster_client(selected_cluster.as_ref())
+            .ok_or_else(|| eyre!("client not found"))?;
+
+        // start watcher
+        self.addr.send_fut(async move {
+            kubernetes::watch_nodes(client).await.unwrap();
+        });
 
         Produces::ok(())
+    }
+
+    async fn refresh_on_interval(&mut self, selected_cluster: ClusterId) {
+        self.addr.send_fut_with(|addr| async move {
+            let mut interval = time::interval(Duration::from_secs(60));
+
+            loop {
+                interval.tick().await;
+                send!(addr.load_nodes(selected_cluster.clone()));
+            }
+        })
     }
 }
 
