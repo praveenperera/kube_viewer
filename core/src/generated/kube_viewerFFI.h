@@ -154,6 +154,14 @@ RustBuffer _uniffi_kube_viewer_impl_RustNodeViewModel_nodes_ee8e(
       void*_Nonnull ptr,RustBuffer selected_cluster,
     RustCallStatus *_Nonnull out_status
     );
+void _uniffi_kube_viewer_impl_RustNodeViewModel_refresh_nodes_3509(
+      void*_Nonnull ptr,RustBuffer selected_cluster,
+    RustCallStatus *_Nonnull out_status
+    );
+void _uniffi_kube_viewer_impl_RustNodeViewModel_stop_watcher_6919(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
 void ffi_kube_viewer_8eda_FocusRegionHasher_object_free(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status

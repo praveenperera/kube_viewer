@@ -88,11 +88,25 @@ impl RustNodeViewModel {
 
 #[uniffi::export]
 impl RustNodeViewModel {
+    /// Sets the the loading status to loading and fetches the nodes for the selected cluster.
     pub fn fetch_nodes(&self, selected_cluster: ClusterId) {
         let worker = Worker::start_actor(self.state.clone());
         self.state.write().current_worker = worker.clone();
 
-        task::spawn(async move { send!(worker.fetch_nodes(selected_cluster)) });
+        task::spawn(async move { send!(worker.notify_and_load_nodes(selected_cluster)) });
+    }
+
+    /// Gets the new nodes without changing the loading status, used for background refreshes of
+    /// the nodes of the same cluster
+    pub fn refresh_nodes(&self, selected_cluster: ClusterId) {
+        let worker = Worker::start_actor(self.state.clone());
+        self.state.write().current_worker = worker.clone();
+
+        task::spawn(async move { send!(worker.load_nodes(selected_cluster)) });
+    }
+
+    pub fn stop_watcher(&self) {
+        self.state.write().current_worker = Default::default();
     }
 
     pub fn nodes(&self, selected_cluster: ClusterId) -> Vec<Node> {
@@ -119,7 +133,7 @@ impl State {
 
         if self.nodes.is_none() {
             warn!("nodes not loaded, fetching nodes");
-            send!(self.extra_worker.fetch_nodes(selected_cluster));
+            send!(self.extra_worker.notify_and_load_nodes(selected_cluster));
         };
 
         let nodes = self
@@ -149,7 +163,7 @@ impl Worker {
         }
     }
 
-    async fn fetch_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
+    async fn notify_and_load_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
         debug!("fetch_nodes() called");
 
         // notify and load
@@ -164,11 +178,10 @@ impl Worker {
         Produces::ok(())
     }
 
-    async fn load_nodes(&mut self, selected_cluster: &ClusterId) -> ActorResult<()> {
+    async fn load_nodes(&mut self, selected_cluster: impl AsRef<ClusterId>) -> ActorResult<()> {
         debug!("loading nodes");
 
-        // notify frontend, nodes loaded
-        self.callback(NodeViewModelMessage::LoadingNodes);
+        let selected_cluster = selected_cluster.as_ref();
 
         if !GlobalViewModel::global()
             .read()
@@ -189,6 +202,7 @@ impl Worker {
 
         self.state.write().nodes = Some(nodes);
 
+        // start watcher
         self.addr.send_fut(async move {
             kubernetes::watch_nodes(client).await.unwrap();
         });

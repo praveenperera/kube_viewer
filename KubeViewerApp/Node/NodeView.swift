@@ -45,6 +45,19 @@ struct NodeView: View {
         .toast(isPresenting: self.$isLoading) {
             AlertToast(displayMode: .alert, type: .loading, title: "Loading")
         }
+        .onAppear {
+            if let selectedCluster = self.mainViewModel.selectedCluster {
+                if selectedCluster != self.model.selectedCluster {
+                    self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
+                    self.model.selectedCluster = selectedCluster
+                } else {
+                    self.model.data.refreshNodes(selectedCluster: selectedCluster.id)
+                }
+            }
+        }
+        .onDisappear {
+            self.model.data.stopWatcher()
+        }
     }
 
     @ViewBuilder

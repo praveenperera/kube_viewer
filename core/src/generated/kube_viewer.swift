@@ -766,6 +766,8 @@ public protocol RustNodeViewModelProtocol {
     func `addCallbackListener`(`responder`: NodeViewModelCallback) 
     func `fetchNodes`(`selectedCluster`: ClusterId) 
     func `nodes`(`selectedCluster`: ClusterId)  -> [Node]
+    func `refreshNodes`(`selectedCluster`: ClusterId) 
+    func `stopWatcher`() 
     
 }
 
@@ -823,6 +825,23 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
     )
 }
         )
+    }
+    public func `refreshNodes`(`selectedCluster`: ClusterId)  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustNodeViewModel_refresh_nodes_3509(self.pointer, 
+        FfiConverterTypeClusterId.lower(`selectedCluster`), $0
+    )
+}
+    }
+    public func `stopWatcher`()  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustNodeViewModel_stop_watcher_6919(self.pointer, $0
+    )
+}
     }
     
 }
