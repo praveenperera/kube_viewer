@@ -3,7 +3,7 @@ use std::sync::Arc;
 use act_zero::*;
 use eyre::{eyre, Result};
 use kube::Client;
-use log::{debug, error};
+use log::{debug, error, warn};
 use parking_lot::RwLock;
 
 use thiserror::Error;
@@ -59,7 +59,9 @@ pub struct RustNodeViewModel {
 }
 
 pub struct State {
-    worker: Addr<Worker>,
+    extra_worker: Addr<Worker>,
+    current_worker: Addr<Worker>,
+
     nodes: Option<Vec<Node>>,
     responder: Option<Box<dyn NodeViewModelCallback>>,
 }
@@ -74,7 +76,7 @@ impl RustNodeViewModel {
         let window_id = WindowId(window_id);
 
         let state = Arc::new(RwLock::new(State::new(window_id.clone())));
-        state.write().worker = Worker::start_actor(state.clone());
+        state.write().extra_worker = Worker::start_actor(state.clone());
 
         Self { state, window_id }
     }
@@ -88,6 +90,8 @@ impl RustNodeViewModel {
 impl RustNodeViewModel {
     pub fn fetch_nodes(&self, selected_cluster: ClusterId) {
         let worker = Worker::start_actor(self.state.clone());
+        self.state.write().current_worker = worker.clone();
+
         task::spawn(async move { send!(worker.fetch_nodes(selected_cluster)) });
     }
 
@@ -103,7 +107,8 @@ impl RustNodeViewModel {
 impl State {
     pub fn new(_window_id: WindowId) -> Self {
         Self {
-            worker: Default::default(),
+            extra_worker: Default::default(),
+            current_worker: Default::default(),
             nodes: None,
             responder: None,
         }
@@ -113,8 +118,8 @@ impl State {
         debug!("getting nodes called");
 
         if self.nodes.is_none() {
-            log::warn!("nodes not loaded, fetching nodes");
-            send!(self.worker.fetch_nodes(selected_cluster));
+            warn!("nodes not loaded, fetching nodes");
+            send!(self.extra_worker.fetch_nodes(selected_cluster));
         };
 
         let nodes = self
@@ -178,11 +183,15 @@ impl Worker {
             .get_cluster_client(selected_cluster)
             .ok_or_else(|| eyre!("client not found"))?;
 
-        let nodes = kubernetes::get_nodes(client)
+        let nodes = kubernetes::get_nodes(client.clone())
             .await
             .map_err(NodeError::NodeLoadError)?;
 
         self.state.write().nodes = Some(nodes);
+
+        self.addr.send_fut(async move {
+            kubernetes::watch_nodes(client).await.unwrap();
+        });
 
         // notify frontend, nodes loaded
         self.callback(NodeViewModelMessage::NodesLoaded);

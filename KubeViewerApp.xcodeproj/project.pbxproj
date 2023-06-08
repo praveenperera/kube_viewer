@@ -10,6 +10,7 @@
 		AC1651B829874DB000CBC220 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1651B729874DB000CBC220 /* Theme.swift */; };
 		AC16FF4F29C3FE6C00AAEBD7 /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */; };
 		AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */; };
+		AC29BCDF2A3175B1009CC33C /* SwiftUITooltip in Frameworks */ = {isa = PBXBuildFile; productRef = AC29BCDE2A3175B1009CC33C /* SwiftUITooltip */; };
 		AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D66299B325000429CDB /* RustPublished.swift */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
 		AC65E77529A7DCC200F3A7CE /* KeyAware.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC65E77429A7DCC200F3A7CE /* KeyAware.swift */; };
@@ -99,6 +100,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AC29BCDF2A3175B1009CC33C /* SwiftUITooltip in Frameworks */,
 				AC9B6E6B2A1AB763007BD015 /* AlertToast in Frameworks */,
 				ACA9DD8E29F07F0700164615 /* libkube_viewer.a in Frameworks */,
 				AC65E77829A7DE3F00F3A7CE /* KeyboardShortcuts in Frameworks */,
@@ -291,6 +293,7 @@
 			packageProductDependencies = (
 				AC65E77729A7DE3F00F3A7CE /* KeyboardShortcuts */,
 				AC9B6E6A2A1AB763007BD015 /* AlertToast */,
+				AC29BCDE2A3175B1009CC33C /* SwiftUITooltip */,
 			);
 			productName = KubeViewerApp;
 			productReference = DADF4C7A295E6DB9006CA792 /* KubeViewerApp.app */;
@@ -324,6 +327,7 @@
 			packageReferences = (
 				AC65E77629A7DE3E00F3A7CE /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
 				AC9B6E692A1AB763007BD015 /* XCRemoteSwiftPackageReference "AlertToast" */,
+				AC29BCDD2A3175B1009CC33C /* XCRemoteSwiftPackageReference "SwiftUI-Tooltip" */,
 			);
 			productRefGroup = DADF4C7B295E6DB9006CA792 /* Products */;
 			projectDirPath = "";
@@ -612,6 +616,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		AC29BCDD2A3175B1009CC33C /* XCRemoteSwiftPackageReference "SwiftUI-Tooltip" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/quassum/SwiftUI-Tooltip.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		AC65E77629A7DE3E00F3A7CE /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts";
@@ -631,6 +643,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AC29BCDE2A3175B1009CC33C /* SwiftUITooltip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AC29BCDD2A3175B1009CC33C /* XCRemoteSwiftPackageReference "SwiftUI-Tooltip" */;
+			productName = SwiftUITooltip;
+		};
 		AC65E77729A7DE3F00F3A7CE /* KeyboardShortcuts */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AC65E77629A7DE3E00F3A7CE /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
