@@ -69,6 +69,13 @@ struct NodeView: View {
                         }
                     }
                 }
+                .toolbar {
+                    ToolbarItem(placement: .navigation) {
+                        VStack {
+                            Text("Nodes").font(.headline)
+                        }
+                    }
+                }
             }
         case .loading, .initial:
             HStack {}
