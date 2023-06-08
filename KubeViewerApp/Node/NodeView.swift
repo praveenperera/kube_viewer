@@ -18,6 +18,17 @@ struct NodeView: View {
     @State var isLoading: Bool = false
     @State var nodes: [Node] = []
     @State private var sortOrder = [KeyPathComparator(\Node.name)]
+    @State private var selectedNodes = Set<Node.ID>()
+
+    var selectedNode: Node? {
+        if self.selectedNodes.count != 1 {
+            return nil
+        }
+
+        return self.nodes.first {
+            $0.id == self.selectedNodes.first!
+        }
+    }
 
     public init(windowId: UUID, globalModel: GlobalModel, mainViewModel: MainViewModel) {
         self.windowId = windowId
@@ -77,7 +88,7 @@ struct NodeView: View {
     @ViewBuilder
     func DisplayNodes(_ nodes: [Node]) -> some View {
         HStack {
-            Table(nodes, sortOrder: self.$sortOrder) {
+            Table(nodes, selection: self.$selectedNodes, sortOrder: self.$sortOrder) {
                 TableColumn("Name", value: \.name)
                 TableColumn("Version", value: \.kubeletVersion, comparator: OptionalStringComparator())
                     { Text($0.kubeletVersion ?? "") }
@@ -102,6 +113,15 @@ struct NodeView: View {
                     }
                 }
             }
+
+            self.DetailsView
+        }
+    }
+
+    @ViewBuilder
+    var DetailsView: some View {
+        if case .some(let node) = selectedNode {
+            Text(node.name)
         }
     }
 
