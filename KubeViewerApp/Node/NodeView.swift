@@ -16,6 +16,8 @@ struct NodeView: View {
     @ObservedObject var model: NodeViewModel
 
     @State var isLoading: Bool = false
+    @State var nodes: [Node] = []
+    @State private var sortOrder = [KeyPathComparator(\Node.name)]
 
     public init(windowId: UUID, globalModel: GlobalModel, mainViewModel: MainViewModel) {
         self.windowId = windowId
@@ -63,33 +65,7 @@ struct NodeView: View {
     @ViewBuilder
     var innerBody: some View {
         switch self.model.nodes {
-        case .loaded(let nodes):
-            HStack {
-                Table(nodes) {
-                    TableColumn("Name", value: \.name)
-                    TableColumn("Version") { node in Text(node.kubeletVersion ?? "") }
-                    TableColumn("Taints") { node in
-                        Text(String(node.taints.count))
-                    }
-                    TableColumn("Age") { AgeView(node: $0) }
-                    TableColumn("Conditions") { node in
-                        ForEach(node.trueConditions(), id: \.self) { condition in
-                            Text(condition).if(condition == "Ready") { view in
-                                view.foregroundColor(Color.green).if(self.colorScheme == .light) { view in
-                                    view.brightness(-0.15)
-                                }
-                            }
-                        }
-                    }
-                }
-                .toolbar {
-                    ToolbarItem(placement: .navigation) {
-                        VStack {
-                            Text("Nodes").font(.headline)
-                        }
-                    }
-                }
-            }
+        case .loaded: self.DisplayNodes(self.nodes)
         case .loading, .initial:
             HStack {}
 
@@ -98,10 +74,55 @@ struct NodeView: View {
         }
     }
 
+    @ViewBuilder
+    func DisplayNodes(_ nodes: [Node]) -> some View {
+        HStack {
+            Table(nodes, sortOrder: self.$sortOrder) {
+                TableColumn("Name", value: \.name)
+                TableColumn("Version", value: \.kubeletVersion, comparator: OptionalStringComparator())
+                    { Text($0.kubeletVersion ?? "") }
+                TableColumn("Taints", value: \.taints, comparator: CountComparator())
+                    { Text(String($0.taints.count)) }
+                TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator())
+                    { AgeView(node: $0) }
+                TableColumn("Conditions", value: \.conditions, comparator: ConditionsComparator())
+                    { self.ConditionsColumnContent($0) }
+            }
+            .onChange(of: self.sortOrder) { sortOrder in
+                switch sortOrder {
+                case [KeyPathComparator(\Node.name)]: ()
+                case [KeyPathComparator(\Node.createdAt)]: ()
+                case let keyPath: self.nodes.sort(using: keyPath)
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigation) {
+                    VStack {
+                        Text("Nodes").font(.headline)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    func ConditionsColumnContent(_ node: Node) -> some View {
+        ForEach(node.trueConditions(), id: \.self) { condition in
+            Text(condition).if(condition == "Ready") { view in
+                view.foregroundColor(Color.green).if(self.colorScheme == .light) { view in
+                    view.brightness(-0.15)
+                }
+            }
+        }
+    }
+
     func setLoading(_ loading: NodeLoadStatus) {
         switch loading {
         case .loaded, .error:
             self.isLoading = false
+            if case .loaded(let nodes) = self.model.nodes {
+                self.nodes = nodes
+            }
         case .loading, .initial:
             self.isLoading = true
         }

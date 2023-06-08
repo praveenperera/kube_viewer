@@ -25,6 +25,8 @@
 		ACA9DD8E29F07F0700164615 /* libkube_viewer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ACA9DD8D29F07F0700164615 /* libkube_viewer.a */; };
 		ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */; };
 		ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */; };
+		ACB49CB12A32694100488B72 /* GeneralComparators.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB49CB02A32694100488B72 /* GeneralComparators.swift */; };
+		ACB49CB32A32715200488B72 /* NodeComparators.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB49CB22A32715200488B72 /* NodeComparators.swift */; };
 		ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */; };
 		ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA25829A00BD300ACB131 /* readSize.swift */; };
 		ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */; };
@@ -75,6 +77,8 @@
 		ACA9DD8D29F07F0700164615 /* libkube_viewer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkube_viewer.a; path = core/target/universal/libkube_viewer.a; sourceTree = "<group>"; };
 		ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleList.swift; sourceTree = "<group>"; };
 		ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Searchbar.swift; sourceTree = "<group>"; };
+		ACB49CB02A32694100488B72 /* GeneralComparators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralComparators.swift; sourceTree = "<group>"; };
+		ACB49CB22A32715200488B72 /* NodeComparators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeComparators.swift; sourceTree = "<group>"; };
 		ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarDisclosureGroupStyle.swift; sourceTree = "<group>"; };
 		ACBEA25829A00BD300ACB131 /* readSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = readSize.swift; sourceTree = "<group>"; };
 		ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideUpDown.swift; sourceTree = "<group>"; };
@@ -171,6 +175,8 @@
 				ACC45D562995EFDF0063B358 /* View */,
 				AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */,
 				AC65E77429A7DCC200F3A7CE /* KeyAware.swift */,
+				ACB49CB02A32694100488B72 /* GeneralComparators.swift */,
+				ACB49CB22A32715200488B72 /* NodeComparators.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -394,6 +400,8 @@
 				AC65E77D29A9278600F3A7CE /* StandardFocusRing.swift in Sources */,
 				AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */,
 				AC1651B829874DB000CBC220 /* Theme.swift in Sources */,
+				ACB49CB12A32694100488B72 /* GeneralComparators.swift in Sources */,
+				ACB49CB32A32715200488B72 /* NodeComparators.swift in Sources */,
 				ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */,
 				AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */,
 				ACD621F2298057D400FE2CE2 /* TabViewModel.swift in Sources */,

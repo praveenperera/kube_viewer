@@ -13,8 +13,6 @@ extension Node: Identifiable {
     }
 
     func age() -> String? {
-        let dateFormatter = ISO8601DateFormatter()
-
         guard let timestamp = self.createdAt else {
             return nil
         }

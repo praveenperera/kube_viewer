@@ -1005,7 +1005,7 @@ public func FfiConverterTypeClusterId_lower(_ value: ClusterId) -> RustBuffer {
 
 
 public struct Node {
-    public var `id`: String
+    public var `id`: NodeId
     public var `name`: String
     public var `createdAt`: Int64?
     public var `labels`: [String: String]
@@ -1022,7 +1022,7 @@ public struct Node {
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(`id`: String, `name`: String, `createdAt`: Int64?, `labels`: [String: String], `annotations`: [String: String], `taints`: [Taint], `addresses`: [NodeAddress], `os`: String?, `arch`: String?, `osImage`: String?, `kernelVersion`: String?, `containerRuntime`: String?, `kubeletVersion`: String?, `conditions`: [NodeCondition]) {
+    public init(`id`: NodeId, `name`: String, `createdAt`: Int64?, `labels`: [String: String], `annotations`: [String: String], `taints`: [Taint], `addresses`: [NodeAddress], `os`: String?, `arch`: String?, `osImage`: String?, `kernelVersion`: String?, `containerRuntime`: String?, `kubeletVersion`: String?, `conditions`: [NodeCondition]) {
         self.`id` = `id`
         self.`name` = `name`
         self.`createdAt` = `createdAt`
@@ -1110,7 +1110,7 @@ extension Node: Equatable, Hashable {
 public struct FfiConverterTypeNode: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Node {
         return try Node(
-            `id`: FfiConverterString.read(from: &buf), 
+            `id`: FfiConverterTypeNodeId.read(from: &buf), 
             `name`: FfiConverterString.read(from: &buf), 
             `createdAt`: FfiConverterOptionInt64.read(from: &buf), 
             `labels`: FfiConverterDictionaryStringString.read(from: &buf), 
@@ -1128,7 +1128,7 @@ public struct FfiConverterTypeNode: FfiConverterRustBuffer {
     }
 
     public static func write(_ value: Node, into buf: inout [UInt8]) {
-        FfiConverterString.write(value.`id`, into: &buf)
+        FfiConverterTypeNodeId.write(value.`id`, into: &buf)
         FfiConverterString.write(value.`name`, into: &buf)
         FfiConverterOptionInt64.write(value.`createdAt`, into: &buf)
         FfiConverterDictionaryStringString.write(value.`labels`, into: &buf)
@@ -1278,6 +1278,53 @@ public func FfiConverterTypeNodeCondition_lift(_ buf: RustBuffer) throws -> Node
 
 public func FfiConverterTypeNodeCondition_lower(_ value: NodeCondition) -> RustBuffer {
     return FfiConverterTypeNodeCondition.lower(value)
+}
+
+
+public struct NodeId {
+    public var `rawValue`: String
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`rawValue`: String) {
+        self.`rawValue` = `rawValue`
+    }
+}
+
+
+extension NodeId: Equatable, Hashable {
+    public static func ==(lhs: NodeId, rhs: NodeId) -> Bool {
+        if lhs.`rawValue` != rhs.`rawValue` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`rawValue`)
+    }
+}
+
+
+public struct FfiConverterTypeNodeId: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> NodeId {
+        return try NodeId(
+            `rawValue`: FfiConverterString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: NodeId, into buf: inout [UInt8]) {
+        FfiConverterString.write(value.`rawValue`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeNodeId_lift(_ buf: RustBuffer) throws -> NodeId {
+    return try FfiConverterTypeNodeId.lift(buf)
+}
+
+public func FfiConverterTypeNodeId_lower(_ value: NodeId) -> RustBuffer {
+    return FfiConverterTypeNodeId.lower(value)
 }
 
 
