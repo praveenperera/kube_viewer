@@ -121,7 +121,10 @@ struct NodeView: View {
     @ViewBuilder
     var DetailsView: some View {
         if case .some(let node) = selectedNode {
-            Text(node.name)
+            VStack {
+                Text(node.name)
+            }
+            .background(.ultraThickMaterial)
         }
     }
 
