@@ -8,29 +8,47 @@
 import SwiftUI
 
 struct CollapsibleList<Content: View, Label: View>: View {
-    @Binding var isExpanded: Bool
+    var isExpanded: Binding<Bool>? = nil
     @State var isHovering = false
+    @State var startExpanded: Bool = true
 
-    @ViewBuilder var content: Content
-    @ViewBuilder var label: Label
+    @ViewBuilder
+    var content: Content
+
+    @ViewBuilder
+    var label: Label
+
+    func toggleExpand() {
+        if let isExpanded = isExpanded {
+            return isExpanded.wrappedValue.toggle()
+        } else {
+            return self.startExpanded.toggle()
+        }
+    }
+
+    var expanded: Bool {
+        self.isExpanded?.wrappedValue ?? self.startExpanded
+    }
 
     var body: some View {
         VStack {
             Button {
                 withAnimation {
-                    self.isExpanded.toggle()
+                    self.toggleExpand()
                 }
+
             } label: {
                 HStack(alignment: .firstTextBaseline) {
-                    self.label.animation(nil, value: self.isExpanded)
+                    self.label.animation(nil, value: self.expanded)
                     Spacer()
 
-                    if isHovering {
-                        Image(systemName: self.isExpanded ? "chevron.down" : "chevron.right")
+                    if self.isHovering {
+                        Image(systemName: self.expanded ? "chevron.down" : "chevron.right")
                             .font(.caption)
-                            .animation(nil, value: self.isExpanded)
-                            .animation(.easeIn, value: isHovering)
+                            .animation(nil, value: self.expanded)
+                            .animation(.easeIn, value: self.isHovering)
                             .transition(.opacity)
+                            .padding(.trailing, 10)
                     }
                 }
                 .padding(.bottom, 0)
@@ -44,7 +62,7 @@ struct CollapsibleList<Content: View, Label: View>: View {
                 }
             }
 
-            if self.isExpanded {
+            if self.expanded {
                 self.content.padding(.leading, -5)
             }
         }

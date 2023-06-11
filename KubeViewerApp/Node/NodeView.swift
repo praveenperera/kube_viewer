@@ -95,7 +95,7 @@ struct NodeView: View {
 
     func DisplayNodes(_ nodes: [Node]) -> some View {
         GeometryReader { geo in
-            HStack {
+            HStack(spacing: 0) {
                 Table(nodes, selection: self.$selectedNodes, sortOrder: self.$sortOrder) {
                     TableColumn("Name", value: \.name)
                     TableColumn("Version", value: \.kubeletVersion, comparator: OptionalStringComparator())
@@ -141,12 +141,34 @@ struct NodeView: View {
     func DetailsView(_ geo: GeometryProxy) -> some View {
         if case .some(let node) = selectedNode {
             ZStack(alignment: .leading) {
-                HStack {
-                    Text(node.name)
+                VStack(alignment: .leading) {
+                    CollapsibleList(
+                        content: {
+                            HStack {
+                                Text("Node Name")
+                                Text(node.name)
+                                Spacer()
+                            }
+                            .padding(.leading, 20)
+                        },
+                        label: {
+                            Text("General")
+                                .font(.title)
+                                .padding(.horizontal, 10)
+                        }
+                    )
+                    .padding(.vertical, 25)
+                    .if(self.colorScheme == .light) { view in
+                        view.background(Color.white.opacity(0.6))
+                    }
+                    .background(.ultraThinMaterial)
                 }
                 .background(.ultraThickMaterial)
-                .frame(maxWidth: self.detailsWidth, maxHeight: .infinity)
+                .frame(maxWidth: self.detailsWidth)
+                .cornerRadius(4)
+                .padding(.horizontal, 10)
 
+                // drag to resize handle
                 Color.primary
                     .opacity(0.001)
                     .frame(maxWidth: 5, maxHeight: .infinity)
@@ -174,7 +196,6 @@ struct NodeView: View {
         }
     }
 
-    @ViewBuilder
     func ConditionsColumnContent(_ node: Node) -> some View {
         ForEach(node.trueConditions(), id: \.self) { condition in
             Text(condition).if(condition == "Ready") { view in
