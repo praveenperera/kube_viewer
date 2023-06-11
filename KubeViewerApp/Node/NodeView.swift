@@ -19,11 +19,13 @@ struct NodeView: View {
     @State var nodes: [Node] = []
     @State private var sortOrder = [KeyPathComparator(\Node.name)]
     @State private var selectedNodes = Set<Node.ID>()
-    @State private var detailsWidth: CGFloat = 367
+
+    @State private var detailsWidth: CGFloat = 300
+    @State private var detailsResized: Bool = false
     @State private var isDetailsHover = false
 
     var nodeIsSelected: Bool {
-        return self.selectedNodes.count == 1
+        self.selectedNodes.count == 1
     }
 
     var selectedNode: Node? {
@@ -120,10 +122,17 @@ struct NodeView: View {
                     }
                 }
                 .if(self.nodeIsSelected) { view in
-                    view.frame(minWidth: 0, maxWidth: geo.size.width - self.detailsWidth)
+                    view.frame(minWidth: 0, maxWidth: max(200, geo.size.width - self.detailsWidth))
                 }
-                Spacer()
                 self.DetailsView(geo)
+            }
+            .onChange(of: geo.size) { _ in
+                if !self.detailsResized {
+                    self.detailsWidth = geo.size.width / 4
+                }
+            }
+            .onAppear {
+                self.detailsWidth = geo.size.width / 4
             }
         }
     }
@@ -157,9 +166,10 @@ struct NodeView: View {
                                 DispatchQueue.main.async {
                                     let detailsWidth = min(geo.size.width - 300, self.detailsWidth + (drag.translation.width * -1))
                                     self.detailsWidth = max(detailsWidth, 200)
+                                    self.detailsResized = true
                                 }
                             }
-                            .onEnded { done in print("Drag done", done) })
+                    )
             }
         }
     }
