@@ -19,6 +19,12 @@ struct NodeView: View {
     @State var nodes: [Node] = []
     @State private var sortOrder = [KeyPathComparator(\Node.name)]
     @State private var selectedNodes = Set<Node.ID>()
+    @State private var detailsWidth: CGFloat = 367
+    @State private var isDetailsHover = false
+
+    var nodeIsSelected: Bool {
+        return self.selectedNodes.count == 1
+    }
 
     var selectedNode: Node? {
         if self.selectedNodes.count != 1 {
@@ -85,46 +91,76 @@ struct NodeView: View {
         }
     }
 
-    @ViewBuilder
     func DisplayNodes(_ nodes: [Node]) -> some View {
-        HStack {
-            Table(nodes, selection: self.$selectedNodes, sortOrder: self.$sortOrder) {
-                TableColumn("Name", value: \.name)
-                TableColumn("Version", value: \.kubeletVersion, comparator: OptionalStringComparator())
-                    { Text($0.kubeletVersion ?? "") }
-                TableColumn("Taints", value: \.taints, comparator: CountComparator())
-                    { Text(String($0.taints.count)) }
-                TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator())
-                    { AgeView(node: $0) }
-                TableColumn("Conditions", value: \.conditions, comparator: ConditionsComparator())
-                    { self.ConditionsColumnContent($0) }
-            }
-            .onChange(of: self.sortOrder) { sortOrder in
-                switch sortOrder {
-                case [KeyPathComparator(\Node.name)]: ()
-                case [KeyPathComparator(\Node.createdAt)]: ()
-                case let keyPath: self.nodes.sort(using: keyPath)
+        GeometryReader { geo in
+            HStack {
+                Table(nodes, selection: self.$selectedNodes, sortOrder: self.$sortOrder) {
+                    TableColumn("Name", value: \.name)
+                    TableColumn("Version", value: \.kubeletVersion, comparator: OptionalStringComparator())
+                        { Text($0.kubeletVersion ?? "") }
+                    TableColumn("Taints", value: \.taints, comparator: CountComparator())
+                        { Text(String($0.taints.count)) }
+                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator())
+                        { AgeView(node: $0) }
+                    TableColumn("Conditions", value: \.conditions, comparator: ConditionsComparator())
+                        { self.ConditionsColumnContent($0) }
                 }
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigation) {
-                    VStack {
-                        Text("Nodes").font(.headline)
+                .onChange(of: self.sortOrder) { sortOrder in
+                    switch sortOrder {
+                    case [KeyPathComparator(\Node.name)]: ()
+                    case [KeyPathComparator(\Node.createdAt)]: ()
+                    case let keyPath: self.nodes.sort(using: keyPath)
                     }
                 }
+                .toolbar {
+                    ToolbarItem(placement: .navigation) {
+                        VStack {
+                            Text("Nodes").font(.headline)
+                        }
+                    }
+                }
+                .if(self.nodeIsSelected) { view in
+                    view.frame(minWidth: 0, maxWidth: geo.size.width - self.detailsWidth)
+                }
+                Spacer()
+                self.DetailsView(geo)
             }
-
-            self.DetailsView
         }
     }
 
     @ViewBuilder
-    var DetailsView: some View {
+    func DetailsView(_ geo: GeometryProxy) -> some View {
         if case .some(let node) = selectedNode {
-            VStack {
-                Text(node.name)
+            ZStack(alignment: .leading) {
+                HStack {
+                    Text(node.name)
+                }
+                .background(.ultraThickMaterial)
+                .frame(maxWidth: self.detailsWidth, maxHeight: .infinity)
+
+                Color.primary
+                    .opacity(0.001)
+                    .frame(maxWidth: 5, maxHeight: .infinity)
+                    .shadow(radius: 2)
+                    .offset(x: -8)
+                    .onHover(perform: { hovering in
+                        self.isDetailsHover = hovering
+                        if self.isDetailsHover {
+                            NSCursor.resizeLeftRight.push()
+                        } else {
+                            NSCursor.pop()
+                        }
+                    })
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { drag in
+                                DispatchQueue.main.async {
+                                    let detailsWidth = min(geo.size.width - 300, self.detailsWidth + (drag.translation.width * -1))
+                                    self.detailsWidth = max(detailsWidth, 200)
+                                }
+                            }
+                            .onEnded { done in print("Drag done", done) })
             }
-            .background(.ultraThickMaterial)
         }
     }
 
