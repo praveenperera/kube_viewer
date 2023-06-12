@@ -1,10 +1,12 @@
 use derive_more::From;
+use fake::{Dummy, Fake, Faker};
 use k8s_openapi::api::core::v1::{
     Node as K8sNode, NodeAddress as K8sNodeAddress, NodeCondition as K8sNodeCondition,
     NodeSystemInfo, Taint as K8sTaint,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use uniffi::Record;
 
 #[derive(
     Debug,
@@ -16,15 +18,16 @@ use std::collections::HashMap;
     Ord,
     From,
     Hash,
-    uniffi::Record,
+    Record,
     Serialize,
     Deserialize,
+    Dummy,
 )]
 pub struct NodeId {
     pub raw_value: String,
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, uniffi::Record)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct NodeCondition {
     pub name: String,
     pub status: String,
@@ -32,7 +35,7 @@ pub struct NodeCondition {
     pub message: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, uniffi::Record)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct Node {
     pub id: NodeId,
     pub name: String,
@@ -50,7 +53,7 @@ pub struct Node {
     pub conditions: Vec<NodeCondition>,
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, uniffi::Record)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct Taint {
     pub effect: String,
     pub key: String,
@@ -58,7 +61,7 @@ pub struct Taint {
     pub value: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, uniffi::Record)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct NodeAddress {
     pub address: String,
     pub node_type: String,
@@ -172,5 +175,11 @@ impl From<K8sNode> for Node {
             kubelet_version,
             conditions,
         }
+    }
+}
+
+impl Node {
+    pub fn preview() -> Self {
+        Faker.fake()
     }
 }

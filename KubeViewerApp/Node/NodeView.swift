@@ -38,12 +38,14 @@ struct NodeView: View {
         }
     }
 
-    public init(windowId: UUID, globalModel: GlobalModel, mainViewModel: MainViewModel) {
+    public init(windowId: UUID, globalModel: GlobalModel, mainViewModel: MainViewModel, model: NodeViewModel? = nil) {
         self.windowId = windowId
         self.globalModel = globalModel
         self.mainViewModel = mainViewModel
 
-        self.model = globalModel.models[windowId]?.nodes ?? NodeViewModel(windowId: windowId, selectedCluster: mainViewModel.selectedCluster)
+        self.model = model ??
+            globalModel.models[windowId]?.nodes ??
+            NodeViewModel(windowId: windowId, selectedCluster: mainViewModel.selectedCluster)
 
         if let viewModels = globalModel.models[windowId],
            viewModels.nodes == nil
@@ -242,8 +244,9 @@ struct NodeView_Previews: PreviewProvider {
     static var windowId = UUID()
     static var globalModel = GlobalModel()
     static var mainViewModel = MainViewModel(windowId: windowId)
+    static var model: NodeViewModel = .init(windowId: windowId)
 
     static var previews: some View {
-        NodeView(windowId: windowId, globalModel: globalModel, mainViewModel: mainViewModel)
+        NodeView(windowId: windowId, globalModel: globalModel, mainViewModel: mainViewModel, model: model)
     }
 }

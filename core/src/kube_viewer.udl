@@ -27,6 +27,9 @@ interface RustMainViewModel {
 interface RustNodeViewModel {
   constructor(string window_id);
   void add_callback_listener(NodeViewModelCallback responder);
+
+  [Name=preview]
+  constructor(string window_id);
 };
 
 callback interface NodeViewModelCallback {

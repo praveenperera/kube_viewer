@@ -6,6 +6,8 @@ use kube::Client;
 use log::{debug, error, warn};
 use parking_lot::RwLock;
 
+use fake::{Fake, Faker};
+
 use thiserror::Error;
 use tokio::time;
 
@@ -85,6 +87,13 @@ impl RustNodeViewModel {
         Self { state, window_id }
     }
 
+    pub fn preview(window_id: String) -> Self {
+        let window_id = WindowId(window_id);
+
+        let state = Arc::new(RwLock::new(State::preview(window_id.clone())));
+        Self { state, window_id }
+    }
+
     pub fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
         self.state.write().responder = Some(responder);
     }
@@ -131,6 +140,22 @@ impl RustNodeViewModel {
 }
 
 impl State {
+    fn preview(_window_id: WindowId) -> Self {
+        let mut nodes = HashMap::new();
+
+        for _ in 0..16 {
+            let node = Faker.fake::<Node>();
+            nodes.insert(node.id.clone(), node);
+        }
+
+        Self {
+            extra_worker: Default::default(),
+            current_worker: Default::default(),
+            nodes: Some(nodes),
+            responder: None,
+        }
+    }
+
     pub fn new(_window_id: WindowId) -> Self {
         Self {
             extra_worker: Default::default(),
