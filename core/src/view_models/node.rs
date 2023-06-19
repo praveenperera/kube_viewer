@@ -90,7 +90,7 @@ impl RustNodeViewModel {
     pub fn preview(window_id: String) -> Self {
         let window_id = WindowId(window_id);
 
-        let state = Arc::new(RwLock::new(State::preview(window_id.clone())));
+        let state = Arc::new(RwLock::new(State::preview()));
         Self { state, window_id }
     }
 
@@ -140,7 +140,7 @@ impl RustNodeViewModel {
 }
 
 impl State {
-    fn preview(_window_id: WindowId) -> Self {
+    pub fn preview() -> Self {
         let mut nodes = HashMap::new();
 
         for _ in 0..16 {
@@ -220,11 +220,11 @@ impl Worker {
     }
 
     pub async fn deleted(&mut self, node: Node) -> ActorResult<()> {
-        self.state.write().nodes.as_mut().map(|nodes| {
+        if let Some(nodes) = self.state.write().nodes.as_mut() {
             debug!("node deleted, notifying listeners");
             nodes.remove(&node.id);
             self.callback(NodeViewModelMessage::NodesLoaded);
-        });
+        };
 
         Produces::ok(())
     }

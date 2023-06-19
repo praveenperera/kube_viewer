@@ -190,6 +190,10 @@ void ffi_kube_viewer_6949_MainViewModelUpdater_init_callback(
       ForeignCallback  _Nonnull callback_stub,
     RustCallStatus *_Nonnull out_status
     );
+RustBuffer _uniffi_kube_viewer_node_preview_4d4f(
+      
+    RustCallStatus *_Nonnull out_status
+    );
 RustBuffer ffi_kube_viewer_6949_rustbuffer_alloc(
       int32_t size,
     RustCallStatus *_Nonnull out_status

@@ -76,3 +76,17 @@ struct NodeDetailView: View {
         }
     }
 }
+
+struct NodeDetailsView_Previews: PreviewProvider {
+    static var nodeModel = RustNodeViewModel.preview(windowId: UUID().uuidString)
+
+    static var previews: some View {
+        GeometryReader { geo in
+            NodeDetailView(geo: geo,
+                           selectedNode: nodePreview(),
+                           detailsWidth: Binding.constant(300),
+                           detailsResized: Binding.constant(true),
+                           isDetailsHover: Binding.constant(false))
+        }
+    }
+}

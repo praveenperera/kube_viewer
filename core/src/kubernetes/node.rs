@@ -183,3 +183,8 @@ impl Node {
         Faker.fake()
     }
 }
+
+#[uniffi::export]
+pub fn node_preview() -> Node {
+    Node::preview()
+}

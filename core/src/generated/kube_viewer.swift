@@ -3124,6 +3124,19 @@ fileprivate struct FfiConverterDictionaryTypeTabIdTypeTab: FfiConverterRustBuffe
     }
 }
 
+public func `nodePreview`()  -> Node {
+    return try! FfiConverterTypeNode.lift(
+        try!
+    
+    rustCall() {
+    
+    _uniffi_kube_viewer_node_preview_4d4f($0)
+}
+    )
+}
+
+
+
 /**
  * Top level initializers and tear down methods.
  *
