@@ -17,12 +17,13 @@ struct NodeView: View {
 
     @State var isLoading: Bool = false
     @State var nodes: [Node] = []
+
     @State private var sortOrder = [KeyPathComparator(\Node.name)]
     @State private var selectedNodes = Set<Node.ID>()
 
-    @State private var detailsWidth: CGFloat = 300
-    @State private var detailsResized: Bool = false
-    @State private var isDetailsHover = false
+    @State var detailsWidth: CGFloat = 300
+    @State var detailsResized: Bool = false
+    @State var isDetailsHover = false
 
     var nodeIsSelected: Bool {
         self.selectedNodes.count == 1
@@ -45,6 +46,7 @@ struct NodeView: View {
 
         self.model = model ??
             globalModel.models[windowId]?.nodes ??
+
             NodeViewModel(windowId: windowId, selectedCluster: mainViewModel.selectedCluster)
 
         if let viewModels = globalModel.models[windowId],
@@ -126,7 +128,12 @@ struct NodeView: View {
                 .if(self.nodeIsSelected) { view in
                     view.frame(minWidth: 0, maxWidth: max(200, geo.size.width - self.detailsWidth))
                 }
-                self.DetailsView(geo)
+
+                NodeDetailView(geo: geo,
+                               selectedNode: self.selectedNode,
+                               detailsWidth: self.$detailsWidth,
+                               detailsResized: self.$detailsResized,
+                               isDetailsHover: self.$isDetailsHover)
             }
             .onChange(of: geo.size) { _ in
                 if !self.detailsResized {
@@ -135,65 +142,6 @@ struct NodeView: View {
             }
             .onAppear {
                 self.detailsWidth = geo.size.width / 4
-            }
-        }
-    }
-
-    @ViewBuilder
-    func DetailsView(_ geo: GeometryProxy) -> some View {
-        if case .some(let node) = selectedNode {
-            ZStack(alignment: .leading) {
-                VStack(alignment: .leading) {
-                    CollapsibleList(
-                        content: {
-                            HStack {
-                                Text("Node Name")
-                                Text(node.name)
-                                Spacer()
-                            }
-                            .padding(.leading, 20)
-                        },
-                        label: {
-                            Text("General")
-                                .font(.title)
-                                .padding(.horizontal, 10)
-                        }
-                    )
-                    .padding(.vertical, 25)
-                    .if(self.colorScheme == .light) { view in
-                        view.background(Color.white.opacity(0.6))
-                    }
-                    .background(.ultraThinMaterial)
-                }
-                .background(.ultraThickMaterial)
-                .frame(maxWidth: self.detailsWidth)
-                .cornerRadius(4)
-                .padding(.horizontal, 10)
-
-                // drag to resize handle
-                Color.primary
-                    .opacity(0.001)
-                    .frame(maxWidth: 5, maxHeight: .infinity)
-                    .shadow(radius: 2)
-                    .offset(x: -8)
-                    .onHover(perform: { hovering in
-                        self.isDetailsHover = hovering
-                        if self.isDetailsHover {
-                            NSCursor.resizeLeftRight.push()
-                        } else {
-                            NSCursor.pop()
-                        }
-                    })
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { drag in
-                                DispatchQueue.main.async {
-                                    let detailsWidth = min(geo.size.width - 300, self.detailsWidth + (drag.translation.width * -1))
-                                    self.detailsWidth = max(detailsWidth, 200)
-                                    self.detailsResized = true
-                                }
-                            }
-                    )
             }
         }
     }
