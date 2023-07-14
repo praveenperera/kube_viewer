@@ -34,13 +34,9 @@ struct NodeDetailView: View {
                         HStack {
                             Text("General")
                                 .font(.title)
-                                .padding(.horizontal, 10)
+                                .padding([.horizontal], 10)
                                 .matchedGeometryEffect(id: Section.general, in: namespace)
-                                .onTapGesture {
-                                    withAnimation {
-                                        generalIsExpanded.toggle()
-                                    }
-                                }
+                                .background(Color.gray.opacity(0))
 
                             Spacer()
 
@@ -48,6 +44,11 @@ struct NodeDetailView: View {
                                 .font(.caption)
                                 .transition(.opacity)
                                 .padding(.trailing, 10)
+                        }
+                        .onTapGesture {
+                            withAnimation {
+                                generalIsExpanded.toggle()
+                            }
                         }
                     }
 
@@ -82,7 +83,6 @@ struct NodeDetailView: View {
                     .background(.ultraThinMaterial)
                     .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
-                .background(.ultraThickMaterial)
                 .frame(maxWidth: self.detailsWidth)
                 .cornerRadius(4)
                 .padding(.horizontal, 10)
