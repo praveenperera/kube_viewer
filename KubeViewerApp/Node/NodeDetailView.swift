@@ -8,9 +8,17 @@
 import Foundation
 import SwiftUI
 
+enum Section {
+    case general
+}
+
 struct NodeDetailView: View {
     let geo: GeometryProxy
     let selectedNode: Node?
+
+    @Namespace var namespace
+
+    @State var generalIsExpanded = true
 
     @Binding var detailsWidth: CGFloat
     @Binding var detailsResized: Bool
@@ -22,26 +30,57 @@ struct NodeDetailView: View {
         if case .some(let node) = self.selectedNode {
             ZStack(alignment: .leading) {
                 VStack(alignment: .leading) {
-                    CollapsibleList(
-                        content: {
-                            HStack {
-                                Text("Node Name")
-                                Text(node.name)
-                                Spacer()
-                            }
-                            .padding(.leading, 20)
-                        },
-                        label: {
+                    if generalIsExpanded {
+                        HStack {
                             Text("General")
                                 .font(.title)
                                 .padding(.horizontal, 10)
+                                .matchedGeometryEffect(id: Section.general, in: namespace)
+                                .onTapGesture {
+                                    withAnimation {
+                                        generalIsExpanded.toggle()
+                                    }
+                                }
+
+                            Spacer()
+
+                            Image(systemName: "chevron.down")
+                                .font(.caption)
+                                .transition(.opacity)
+                                .padding(.trailing, 10)
+                        }
+                    }
+
+                    CollapsibleList(
+                        isExpanded: $generalIsExpanded,
+                        content: {
+                            HStack(alignment: .top) {
+                                Text("Node Name").bold().textSelection(.enabled)
+                                Spacer()
+                                Text(node.name).textSelection(.enabled)
+                            }
+                            .padding(.horizontal, 20)
+                            .onTapGesture {
+                                withAnimation {
+                                    generalIsExpanded.toggle()
+                                }
+                            }
+                        },
+                        label: {
+                            if !generalIsExpanded {
+                                Text("General")
+                                    .font(.title)
+                                    .padding(.horizontal, 15)
+                                    .matchedGeometryEffect(id: Section.general, in: namespace)
+                            }
                         }
                     )
-                    .padding(.vertical, 25)
+                    .padding(.vertical, 20)
                     .if(self.colorScheme == .light) { view in
                         view.background(Color.white.opacity(0.6))
                     }
                     .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
                 .background(.ultraThickMaterial)
                 .frame(maxWidth: self.detailsWidth)
