@@ -24,4 +24,14 @@ extension Node: Identifiable {
 
         return formatter.localizedString(for: createdAt, relativeTo: Date())
     }
+
+    func createdAtTimestamp() -> String? {
+        guard let timestamp = self.createdAt else {
+            return nil
+        }
+
+        let createdAt = Date(timeIntervalSince1970: Double(timestamp))
+
+        return createdAt.formatted()
+    }
 }

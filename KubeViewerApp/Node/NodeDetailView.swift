@@ -55,10 +55,35 @@ struct NodeDetailView: View {
                     CollapsibleList(
                         isExpanded: $generalIsExpanded,
                         content: {
-                            HStack(alignment: .top) {
-                                Text("Node Name").bold().textSelection(.enabled)
-                                Spacer()
-                                Text(node.name).textSelection(.enabled)
+                            VStack {
+                                HStack {
+                                    Text("Node Name").bold()
+                                    Spacer()
+                                    Text(node.name)
+                                        .textSelection(.enabled)
+                                        .truncationMode(.tail)
+                                        .lineLimit(1)
+                                        .padding(.trailing, 15)
+                                }
+                                .padding(.bottom, 5)
+
+                                HStack {
+                                    Text("Created At").bold()
+                                    Spacer()
+                                    Text(node.createdAtTimestamp() ?? "").textSelection(.enabled)
+                                }
+                                .padding(.bottom, 5)
+
+                                HStack {
+                                    Text("Labels").bold()
+                                    Spacer()
+                                    VStack(alignment: .leading) {
+                                        ForEach(node.labels.sorted(by: >), id: \.key) { key, value in
+                                            Text("\(key)=\(value)").textSelection(.enabled)
+                                        }
+                                    }
+                                }
+                                .padding(.bottom, 5)
                             }
                             .padding(.horizontal, 20)
                             .onTapGesture {
