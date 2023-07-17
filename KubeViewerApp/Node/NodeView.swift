@@ -137,11 +137,11 @@ struct NodeView: View {
             }
             .onChange(of: geo.size) { _ in
                 if !self.detailsResized {
-                    self.detailsWidth = geo.size.width / 4
+                    self.detailsWidth = geo.size.width / 3.5
                 }
             }
             .onAppear {
-                self.detailsWidth = geo.size.width / 4
+                self.detailsWidth = geo.size.width / 3.5
             }
         }
     }
@@ -164,6 +164,7 @@ struct NodeView: View {
                 self.nodes = nodes
             }
         case .loading, .initial:
+            self.selectedNodes = .init()
             self.isLoading = true
         }
     }
