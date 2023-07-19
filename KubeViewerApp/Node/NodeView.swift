@@ -99,7 +99,7 @@ struct NodeView: View {
 
     func DisplayNodes(_ nodes: [Node]) -> some View {
         GeometryReader { geo in
-            HStack(spacing: 0) {
+            HStack(alignment: .top, spacing: 0) {
                 Table(nodes, selection: self.$selectedNodes, sortOrder: self.$sortOrder) {
                     TableColumn("Name", value: \.name)
                     TableColumn("Version", value: \.kubeletVersion, comparator: OptionalStringComparator())

@@ -8,10 +8,6 @@
 import Foundation
 import SwiftUI
 
-enum Section {
-    case general
-}
-
 struct NodeDetailView: View {
     let geo: GeometryProxy
     let selectedNode: Node?
@@ -25,51 +21,74 @@ struct NodeDetailView: View {
     var body: some View {
         if case .some(let node) = self.selectedNode {
             ZStack(alignment: .leading) {
-                VStack(alignment: .leading) {
-                    // MARK: general
-
-                    NodeDetailDropDown(title: "General", content: {
-                        VStack {
-                            HStack {
-                                Text("Node Name").bold()
-                                Spacer()
-                                Text(node.name)
-                                    .textSelection(.enabled)
-                                    .truncationMode(.tail)
-                                    .lineLimit(1)
-                                    .padding(.trailing, 15)
-                            }
-                            .padding(.bottom, 5)
-
-                            HStack {
-                                Text("Created At").bold()
-                                Spacer()
-                                Text(node.createdAtTimestamp() ?? "").textSelection(.enabled)
-                            }
-                            .padding(.bottom, 5)
-
-                            if !node.taints.isEmpty {
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        // general
+                        NodeDetailDropDown(title: "General", content: {
+                            VStack {
                                 HStack {
-                                    Text("Taints").bold()
+                                    Text("Node Name").bold()
                                     Spacer()
-                                    VStack(alignment: .leading) {
-                                        ForEach(node.taints, id: \.key) { taint in
-                                            if let value = taint.value {
-                                                Text("\(taint.key)=\(value)").textSelection(.enabled)
-                                            } else {
-                                                Text("\(taint.key)").textSelection(.enabled)
+                                    Text(node.name)
+                                        .textSelection(.enabled)
+                                        .truncationMode(.tail)
+                                        .lineLimit(1)
+                                        .padding(.trailing, 15)
+                                }
+                                .padding(.bottom, 5)
+
+                                HStack {
+                                    Text("Created At").bold()
+                                    Spacer()
+                                    Text(node.createdAtTimestamp() ?? "").textSelection(.enabled)
+                                }
+                                .padding(.bottom, 5)
+
+                                if !node.taints.isEmpty {
+                                    HStack {
+                                        Text("Taints").bold()
+                                        Spacer()
+                                        VStack(alignment: .leading) {
+                                            ForEach(node.taints, id: \.key) { taint in
+                                                if let value = taint.value {
+                                                    Text("\(taint.key)=\(value)").textSelection(.enabled)
+                                                } else {
+                                                    Text("\(taint.key)").textSelection(.enabled)
+                                                }
                                             }
                                         }
                                     }
+                                    .padding(.bottom, 5)
                                 }
-                                .padding(.bottom, 5)
                             }
-                        }
-                    })
+                        })
+
+                        // Labels
+                        NodeDetailDropDown(title: "Labels", isExpanded: false, content: {
+                            VStack(alignment: .leading) {
+                                ForEach(node.labels.sorted(by: >), id: \.key) { key, value in
+                                    HStack {
+                                        Text("\(key)=\(value)").textSelection(.enabled)
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 5)
+                                            .background(Color.primary.opacity(0.05))
+                                            .background(.ultraThinMaterial)
+                                            .clipShape(RoundedRectangle(cornerRadius: 4))
+
+                                        Spacer()
+                                    }
+                                    // padding between pills
+                                    .padding(.bottom, 2)
+                                }
+                            }
+                        })
+                    }
+                    // VStack
+                    .frame(maxWidth: self.detailsWidth)
+                    .cornerRadius(4)
+                    .padding(.horizontal, 10)
+                    .padding(.bottom, 20)
                 }
-                .frame(maxWidth: self.detailsWidth)
-                .cornerRadius(4)
-                .padding(.horizontal, 10)
 
                 // drag to resize handle
                 Color.primary

@@ -10,11 +10,10 @@ import SwiftUI
 struct NodeDetailDropDown<Content: View>: View {
     var title: String
 
+    @Namespace var namespace
     @Environment(\.colorScheme) var colorScheme
 
     @State var isExpanded: Bool = true
-    @Namespace var namespace
-
     @ViewBuilder var content: Content
 
     var body: some View {
@@ -23,9 +22,9 @@ struct NodeDetailDropDown<Content: View>: View {
                 HStack {
                     Text(title)
                         .font(.title)
-                        .padding([.horizontal], 10)
+//                        .padding([.horizontal], 15)
+                        .foregroundColor(Color.primary.opacity(0.8))
                         .matchedGeometryEffect(id: title, in: namespace)
-                        .background(Color.gray.opacity(0))
 
                     Spacer()
 
@@ -39,6 +38,7 @@ struct NodeDetailDropDown<Content: View>: View {
                         isExpanded.toggle()
                     }
                 }
+                .padding(.top, 15)
             }
 
             CollapsibleList(
@@ -57,17 +57,21 @@ struct NodeDetailDropDown<Content: View>: View {
                         Text(title)
                             .font(.title)
                             .padding(.horizontal, 15)
+                            .foregroundColor(Color.primary.opacity(0.8))
                             .matchedGeometryEffect(id: title, in: namespace)
                     }
                 }
             )
-            .padding(.vertical, 20)
+            // padding between card and content
+            .padding(.vertical, 10)
             .if(self.colorScheme == .light) { view in
                 view.background(Color.white.opacity(0.6))
             }
             .background(.ultraThinMaterial)
             .clipShape(RoundedRectangle(cornerRadius: 4))
         }
+        // padding between cards
+        .padding(.top, 10)
     }
 }
 
