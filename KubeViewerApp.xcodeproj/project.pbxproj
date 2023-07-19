@@ -12,6 +12,7 @@
 		AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */; };
 		AC186F932A40FD1F00AC20A9 /* NodeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */; };
 		AC29BCDF2A3175B1009CC33C /* SwiftUITooltip in Frameworks */ = {isa = PBXBuildFile; productRef = AC29BCDE2A3175B1009CC33C /* SwiftUITooltip */; };
+		AC3995D22A6879450063A3E7 /* NodeDetailDropDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3995D12A6879450063A3E7 /* NodeDetailDropDownView.swift */; };
 		AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D66299B325000429CDB /* RustPublished.swift */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
 		AC65E77529A7DCC200F3A7CE /* KeyAware.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC65E77429A7DCC200F3A7CE /* KeyAware.swift */; };
@@ -67,6 +68,7 @@
 		AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = core/src/kube_viewer.udl; sourceTree = "<group>"; };
 		AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalViewModel.swift; sourceTree = "<group>"; };
 		AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDetailView.swift; sourceTree = "<group>"; };
+		AC3995D12A6879450063A3E7 /* NodeDetailDropDownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDetailDropDownView.swift; sourceTree = "<group>"; };
 		AC3F4D66299B325000429CDB /* RustPublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustPublished.swift; sourceTree = "<group>"; };
 		AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalBinding.swift; sourceTree = "<group>"; };
 		AC65E77429A7DCC200F3A7CE /* KeyAware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyAware.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 				AC9534A029F4BB0F0082155D /* NodeView.swift */,
 				AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */,
 				ACFE71B72A30E8C400A767EE /* Node.swift */,
+				AC3995D12A6879450063A3E7 /* NodeDetailDropDownView.swift */,
 			);
 			path = Node;
 			sourceTree = "<group>";
@@ -393,6 +396,7 @@
 				ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */,
 				ACC45D552995EFA00063B358 /* whenHovered.swift in Sources */,
 				AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */,
+				AC3995D22A6879450063A3E7 /* NodeDetailDropDownView.swift in Sources */,
 				ACC45D532995AE480063B358 /* if.swift in Sources */,
 				ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */,
 				AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */,

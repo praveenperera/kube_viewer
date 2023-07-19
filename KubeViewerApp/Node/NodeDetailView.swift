@@ -16,10 +16,6 @@ struct NodeDetailView: View {
     let geo: GeometryProxy
     let selectedNode: Node?
 
-    @Namespace var namespace
-
-    @State var generalIsExpanded = true
-
     @Binding var detailsWidth: CGFloat
     @Binding var detailsResized: Bool
     @Binding var isDetailsHover: Bool
@@ -30,83 +26,46 @@ struct NodeDetailView: View {
         if case .some(let node) = self.selectedNode {
             ZStack(alignment: .leading) {
                 VStack(alignment: .leading) {
-                    if generalIsExpanded {
-                        HStack {
-                            Text("General")
-                                .font(.title)
-                                .padding([.horizontal], 10)
-                                .matchedGeometryEffect(id: Section.general, in: namespace)
-                                .background(Color.gray.opacity(0))
+                    // MARK: general
 
-                            Spacer()
-
-                            Image(systemName: "chevron.down")
-                                .font(.caption)
-                                .transition(.opacity)
-                                .padding(.trailing, 10)
-                        }
-                        .onTapGesture {
-                            withAnimation {
-                                generalIsExpanded.toggle()
+                    NodeDetailDropDown(title: "General", content: {
+                        VStack {
+                            HStack {
+                                Text("Node Name").bold()
+                                Spacer()
+                                Text(node.name)
+                                    .textSelection(.enabled)
+                                    .truncationMode(.tail)
+                                    .lineLimit(1)
+                                    .padding(.trailing, 15)
                             }
-                        }
-                    }
+                            .padding(.bottom, 5)
 
-                    CollapsibleList(
-                        isExpanded: $generalIsExpanded,
-                        content: {
-                            VStack {
-                                HStack {
-                                    Text("Node Name").bold()
-                                    Spacer()
-                                    Text(node.name)
-                                        .textSelection(.enabled)
-                                        .truncationMode(.tail)
-                                        .lineLimit(1)
-                                        .padding(.trailing, 15)
-                                }
-                                .padding(.bottom, 5)
+                            HStack {
+                                Text("Created At").bold()
+                                Spacer()
+                                Text(node.createdAtTimestamp() ?? "").textSelection(.enabled)
+                            }
+                            .padding(.bottom, 5)
 
+                            if !node.taints.isEmpty {
                                 HStack {
-                                    Text("Created At").bold()
-                                    Spacer()
-                                    Text(node.createdAtTimestamp() ?? "").textSelection(.enabled)
-                                }
-                                .padding(.bottom, 5)
-
-                                HStack {
-                                    Text("Labels").bold()
+                                    Text("Taints").bold()
                                     Spacer()
                                     VStack(alignment: .leading) {
-                                        ForEach(node.labels.sorted(by: >), id: \.key) { key, value in
-                                            Text("\(key)=\(value)").textSelection(.enabled)
+                                        ForEach(node.taints, id: \.key) { taint in
+                                            if let value = taint.value {
+                                                Text("\(taint.key)=\(value)").textSelection(.enabled)
+                                            } else {
+                                                Text("\(taint.key)").textSelection(.enabled)
+                                            }
                                         }
                                     }
                                 }
                                 .padding(.bottom, 5)
                             }
-                            .padding(.horizontal, 20)
-                            .onTapGesture {
-                                withAnimation {
-                                    generalIsExpanded.toggle()
-                                }
-                            }
-                        },
-                        label: {
-                            if !generalIsExpanded {
-                                Text("General")
-                                    .font(.title)
-                                    .padding(.horizontal, 15)
-                                    .matchedGeometryEffect(id: Section.general, in: namespace)
-                            }
                         }
-                    )
-                    .padding(.vertical, 20)
-                    .if(self.colorScheme == .light) { view in
-                        view.background(Color.white.opacity(0.6))
-                    }
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    })
                 }
                 .frame(maxWidth: self.detailsWidth)
                 .cornerRadius(4)
