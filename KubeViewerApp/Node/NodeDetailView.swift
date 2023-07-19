@@ -71,7 +71,7 @@ struct NodeDetailView: View {
                                         Text("\(key)=\(value)").textSelection(.enabled)
                                             .padding(.horizontal, 10)
                                             .padding(.vertical, 5)
-                                            .background(Color.primary.opacity(0.05))
+                                            .background(Color.primary.opacity(colorScheme == .light ? 0.05 : 0.1))
                                             .background(.ultraThinMaterial)
                                             .clipShape(RoundedRectangle(cornerRadius: 4))
 
