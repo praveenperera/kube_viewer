@@ -107,10 +107,6 @@ impl RustMainViewModel {
         self.inner.read().tabs_map.clone()
     }
 
-    pub fn tab_groups(&self) -> Vec<TabGroup> {
-        self.inner.read().tab_groups.0.clone().into_iter().collect()
-    }
-
     pub fn tab_groups_filtered(&self, search: String) -> Vec<TabGroup> {
         if search.is_empty() {
             self.inner.write().search = None;
