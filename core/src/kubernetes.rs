@@ -2,15 +2,57 @@ pub mod client_store;
 pub mod kube_config;
 pub mod node;
 
+use std::collections::HashMap;
+
+use act_zero::{send, WeakAddr};
 use eyre::Result;
+use futures::{StreamExt, TryStreamExt};
 use k8s_openapi::api::core::v1::Node as K8sNode;
-use kube::{Api, Client};
+use log::debug;
 
-use self::node::Node;
+use kube::{runtime::watcher, Api, Client};
 
-pub async fn get_nodes(client: Client) -> Result<Vec<Node>> {
+use crate::{cluster::ClusterId, view_models::node::Worker as NodeWorker};
+
+use self::node::{Node, NodeId};
+
+pub async fn get_nodes(client: Client) -> Result<HashMap<NodeId, Node>> {
     let nodes_api: Api<K8sNode> = Api::all(client);
     let nodes = nodes_api.list(&Default::default()).await?;
 
-    Ok(nodes.into_iter().map(Into::into).collect())
+    let nodes_hash_map = nodes
+        .into_iter()
+        .map(Into::<Node>::into)
+        .map(|node| (node.id.clone(), node))
+        .collect();
+
+    Ok(nodes_hash_map)
+}
+
+pub async fn watch_nodes(
+    addr: WeakAddr<NodeWorker>,
+    selected_cluster: ClusterId,
+    client: Client,
+) -> Result<()> {
+    debug!("watch_nodes called");
+
+    let nodes_api: Api<K8sNode> = Api::all(client);
+
+    let mut stream = watcher(nodes_api, watcher::Config::default()).boxed();
+
+    while let Some(status) = stream.try_next().await? {
+        match status {
+            watcher::Event::Applied(node) => {
+                send!(addr.applied(node.into()))
+            }
+            watcher::Event::Deleted(node) => {
+                send!(addr.deleted(node.into()))
+            }
+            watcher::Event::Restarted(_) => {
+                send!(addr.load_nodes(selected_cluster.clone()))
+            }
+        }
+    }
+
+    Ok(())
 }

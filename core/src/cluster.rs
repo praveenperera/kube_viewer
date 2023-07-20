@@ -74,6 +74,12 @@ pub struct ClusterId {
     pub raw_value: String,
 }
 
+impl AsRef<ClusterId> for ClusterId {
+    fn as_ref(&self) -> &ClusterId {
+        self
+    }
+}
+
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct Cluster {
     // set in kubeconfig

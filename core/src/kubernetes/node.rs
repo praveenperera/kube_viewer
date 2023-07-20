@@ -1,10 +1,33 @@
+use derive_more::From;
+use fake::{Dummy, Fake, Faker};
 use k8s_openapi::api::core::v1::{
     Node as K8sNode, NodeAddress as K8sNodeAddress, NodeCondition as K8sNodeCondition,
     NodeSystemInfo, Taint as K8sTaint,
 };
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use uniffi::Record;
 
-#[derive(Debug, Clone, Default, uniffi::Record)]
+#[derive(
+    Debug,
+    Clone,
+    Default,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    From,
+    Hash,
+    Record,
+    Serialize,
+    Deserialize,
+    Dummy,
+)]
+pub struct NodeId {
+    pub raw_value: String,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct NodeCondition {
     pub name: String,
     pub status: String,
@@ -12,10 +35,11 @@ pub struct NodeCondition {
     pub message: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, uniffi::Record)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct Node {
-    pub id: String,
+    pub id: NodeId,
     pub name: String,
+    pub created_at: Option<i64>,
     pub labels: HashMap<String, String>,
     pub annotations: HashMap<String, String>,
     pub taints: Vec<Taint>,
@@ -29,7 +53,7 @@ pub struct Node {
     pub conditions: Vec<NodeCondition>,
 }
 
-#[derive(Debug, Clone, Default, uniffi::Record)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct Taint {
     pub effect: String,
     pub key: String,
@@ -37,7 +61,7 @@ pub struct Taint {
     pub value: Option<String>,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct NodeAddress {
     pub address: String,
     pub node_type: String,
@@ -119,8 +143,12 @@ impl From<K8sNode> for Node {
             .unwrap_or_else(|| "Unknown node name".to_string());
 
         Self {
-            id: node_name.clone(),
+            id: node_name.clone().into(),
             name: node_name,
+            created_at: node
+                .metadata
+                .creation_timestamp
+                .map(|time| time.0.timestamp()),
             labels: node
                 .metadata
                 .labels
@@ -148,4 +176,15 @@ impl From<K8sNode> for Node {
             conditions,
         }
     }
+}
+
+impl Node {
+    pub fn preview() -> Self {
+        Faker.fake()
+    }
+}
+
+#[uniffi::export]
+pub fn node_preview() -> Node {
+    Node::preview()
 }

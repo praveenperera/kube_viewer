@@ -26,6 +26,20 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
         DispatchQueue.main.async { self.setupCallback() }
     }
 
+    // preview
+    #if DEBUG
+    init(windowId: UUID) {
+        self.windowId = windowId
+        self.data = RustNodeViewModel.preview(windowId: windowId.uuidString)
+        self.selectedCluster = nil
+
+        let nodes = self.selectedCluster.map { self.data.nodes(selectedCluster: $0.id) }
+        self.nodes = .loaded(nodes: nodes ?? [])
+
+        DispatchQueue.main.async { self.setupCallback() }
+    }
+    #endif
+
     private func setupCallback() {
         self.data.addCallbackListener(responder: self)
 
