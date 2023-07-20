@@ -15,7 +15,6 @@ class MainViewModel: ObservableObject {
     var data: RustMainViewModel
     var tabs: [Tab]
     var tabsMap: [TabId: Tab]
-    var tabGroups: [TabGroup]
 
     @Published var selectedMainTab: NSWindow?
     @Published var tabContentViews: [TabId: TabContentView]
@@ -31,7 +30,6 @@ class MainViewModel: ObservableObject {
         self.data = RustMainViewModel(windowId: windowId.uuidString)
         self.tabs = self.data.tabs()
         self.tabsMap = self.data.tabsMap()
-        self.tabGroups = self.data.tabGroups()
 
         self.tabContentViews = self.tabsMap.mapValues { tab in TabContentView(text: tab.name) }
         self.tabViewModels = self.tabsMap.mapValues { _ in TabViewModel() }

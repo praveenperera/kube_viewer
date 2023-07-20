@@ -86,6 +86,10 @@ int8_t _uniffi_kube_viewer_impl_RustMainViewModel_handle_key_input_81e8(
       void*_Nonnull ptr,RustBuffer key_input,
     RustCallStatus *_Nonnull out_status
     );
+void _uniffi_kube_viewer_impl_RustMainViewModel_select_first_filtered_tab_5e50(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
 RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_selected_cluster_ebc2(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
@@ -115,10 +119,6 @@ void _uniffi_kube_viewer_impl_RustMainViewModel_set_window_closed_f1bc(
     RustCallStatus *_Nonnull out_status
     );
 RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_tab_group_expansions_8bbf(
-      void*_Nonnull ptr,
-    RustCallStatus *_Nonnull out_status
-    );
-RustBuffer _uniffi_kube_viewer_impl_RustMainViewModel_tab_groups_f31a(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );

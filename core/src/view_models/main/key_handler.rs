@@ -17,9 +17,9 @@ impl MainViewModel {
 
         match (&self.key_handler.current_focus_region, &key_input) {
             (SidebarSearch, TabKey) => {
-                if !self.tab_groups.0.is_empty() {
+                if !self.tab_groups_filtered().0.is_empty() {
                     self.key_handler.current_focus_region = SidebarGroup {
-                        id: self.tab_groups.0[0].id.clone(),
+                        id: self.tab_groups_filtered().0[0].id.clone(),
                     };
                 } else {
                     self.key_handler.current_focus_region = FocusRegion::Content;
@@ -30,27 +30,27 @@ impl MainViewModel {
 
             (SidebarGroup { id }, ShiftTab) => {
                 self.key_handler.current_focus_region =
-                    get_previous_tab_group_focus(&self.tab_groups, id);
+                    get_previous_tab_group_focus(&self.tab_groups_filtered(), id);
 
                 true
             }
 
             (SidebarGroup { id }, TabKey) => {
                 self.key_handler.current_focus_region =
-                    get_next_tab_group_focus(&self.tab_groups, id);
+                    get_next_tab_group_focus(&self.tab_groups_filtered(), id);
                 true
             }
 
             (InTabGroup { tab_group_id, .. }, ShiftTab) => {
                 self.key_handler.current_focus_region =
-                    get_previous_tab_group_focus(&self.tab_groups, tab_group_id);
+                    get_previous_tab_group_focus(&self.tab_groups_filtered(), tab_group_id);
 
                 true
             }
 
             (InTabGroup { tab_group_id, .. }, TabKey) => {
                 self.key_handler.current_focus_region =
-                    get_next_tab_group_focus(&self.tab_groups, tab_group_id);
+                    get_next_tab_group_focus(&self.tab_groups_filtered(), tab_group_id);
 
                 true
             }
@@ -61,10 +61,10 @@ impl MainViewModel {
             }
 
             (ClusterSelection, ShiftTab) => {
-                if !self.tab_groups.0.is_empty() {
-                    let last_index = self.tab_groups.0.len() - 1;
+                if !self.tab_groups_filtered().0.is_empty() {
+                    let last_index = self.tab_groups_filtered().0.len() - 1;
                     self.key_handler.current_focus_region = SidebarGroup {
-                        id: self.tab_groups.0[last_index].id.clone(),
+                        id: self.tab_groups_filtered().0[last_index].id.clone(),
                     };
                 } else {
                     self.key_handler.current_focus_region = FocusRegion::SidebarSearch;
@@ -92,7 +92,7 @@ impl MainViewModel {
             // start into sidebar group
             (SidebarGroup { id }, DownArrow) => {
                 if let Some(tab) = self
-                    .tab_groups
+                    .tab_groups_filtered()
                     .get_by_id(id)
                     .and_then(|tab_group| tab_group.tabs.first())
                 {
@@ -114,7 +114,7 @@ impl MainViewModel {
             // start into bottom of sidebar group
             (SidebarGroup { id }, UpArrow) => {
                 if let Some(tab) = self
-                    .tab_groups
+                    .tab_groups_filtered()
                     .get_by_id(id)
                     .and_then(|tab_group| tab_group.tabs.last())
                 {
@@ -142,7 +142,7 @@ impl MainViewModel {
                 DownArrow,
             ) => {
                 let next_tab_id: Option<TabId> = (|| {
-                    let tab_group = self.tab_groups.get_by_id(tab_group_id)?.clone();
+                    let tab_group = self.tab_groups_filtered().get_by_id(tab_group_id)?.clone();
                     let next_tab_id = BorrowedTabs::from(&tab_group.tabs).next_tab_id(tab_id);
 
                     let next_tab_id = if let Some(next_tab_id) = next_tab_id {
@@ -178,7 +178,7 @@ impl MainViewModel {
                 UpArrow,
             ) => {
                 let previous_tab_id: Option<TabId> = (|| {
-                    let tab_group = self.tab_groups.get_by_id(tab_group_id)?.clone();
+                    let tab_group = self.tab_groups_filtered().get_by_id(tab_group_id)?.clone();
                     let previous_tab_id =
                         BorrowedTabs::from(&tab_group.tabs).previous_tab_id(tab_id);
 

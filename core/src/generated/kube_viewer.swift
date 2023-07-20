@@ -541,6 +541,7 @@ public protocol RustMainViewModelProtocol {
     func `addUpdateListener`(`listener`: MainViewModelUpdater) 
     func `currentFocusRegion`()  -> FocusRegion
     func `handleKeyInput`(`keyInput`: KeyAwareEvent)  -> Bool
+    func `selectFirstFilteredTab`() 
     func `selectedCluster`()  -> Cluster?
     func `selectedTab`()  -> TabId
     func `setCurrentFocusRegion`(`currentFocusRegion`: FocusRegion) 
@@ -549,7 +550,6 @@ public protocol RustMainViewModelProtocol {
     func `setTabGroupExpansions`(`tabGroupExpansions`: [TabGroupId: Bool]) 
     func `setWindowClosed`() 
     func `tabGroupExpansions`()  -> [TabGroupId: Bool]
-    func `tabGroups`()  -> [TabGroup]
     func `tabGroupsFiltered`(`search`: String)  -> [TabGroup]
     func `tabs`()  -> [Tab]
     func `tabsMap`()  -> [TabId: Tab]
@@ -611,6 +611,14 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     )
 }
         )
+    }
+    public func `selectFirstFilteredTab`()  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_select_first_filtered_tab_5e50(self.pointer, $0
+    )
+}
     }
     public func `selectedCluster`()  -> Cluster? {
         return try! FfiConverterOptionTypeCluster.lift(
@@ -682,16 +690,6 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     rustCall() {
     
     _uniffi_kube_viewer_impl_RustMainViewModel_tab_group_expansions_8bbf(self.pointer, $0
-    )
-}
-        )
-    }
-    public func `tabGroups`()  -> [TabGroup] {
-        return try! FfiConverterSequenceTypeTabGroup.lift(
-            try!
-    rustCall() {
-    
-    _uniffi_kube_viewer_impl_RustMainViewModel_tab_groups_f31a(self.pointer, $0
     )
 }
         )

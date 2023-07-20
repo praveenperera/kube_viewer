@@ -84,6 +84,9 @@ struct SearchBar: View {
                         mainViewModel.currentFocusRegion = .sidebarSearch
                     }
                 }
+                .onSubmit {
+                    mainViewModel.data.selectFirstFilteredTab()
+                }
                 .background(KeyAwareView(onEvent: mainViewModel.data.handleKeyInput))
         }
     }
