@@ -23,7 +23,7 @@ struct NodeDetailView: View {
             ZStack(alignment: .leading) {
                 ScrollView {
                     VStack(alignment: .leading) {
-                        // general
+                        // General
                         NodeDetailDropDown(title: "General", content: {
                             VStack {
                                 HStack {
@@ -186,7 +186,7 @@ struct NodeDetailView: View {
                             }
                         }
                     }
-                    // VStack
+                    // end VStack
                     .frame(maxWidth: self.detailsWidth)
                     .cornerRadius(4)
                     .padding(.horizontal, 10)

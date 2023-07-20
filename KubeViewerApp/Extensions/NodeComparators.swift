@@ -24,18 +24,18 @@ struct ConditionsComparator: SortComparator {
     func compare(_ lhs: [NodeCondition], _ rhs: [NodeCondition]) -> ComparisonResult {
         var result: ComparisonResult = .orderedAscending
 
-//        let lhs = lhs.filter { $0.status == "True" }.map { $0.name }
-//        let rhs = rhs.filter { $0.status == "True" }.map { $0.name }
-//
-//        if lhs == rhs {
-//            return order == .forward ? result : result.reversed
-//        }
-//
-//        if lhs.count < rhs.count && lhs.last == "Ready" {
-//            result = .orderedDescending
-//        } else {
-//            result = .orderedAscending
-//        }
+        let lhs = lhs.filter { $0.status == "True" }.map { $0.name }
+        let rhs = rhs.filter { $0.status == "True" }.map { $0.name }
+
+        if lhs == rhs {
+            return order == .forward ? result : result.reversed
+        }
+
+        if lhs.count < rhs.count && lhs.last == "Ready" {
+            result = .orderedDescending
+        } else {
+            result = .orderedAscending
+        }
 
         return order == .forward ? result : result.reversed
     }
