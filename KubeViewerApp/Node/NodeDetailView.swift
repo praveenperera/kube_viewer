@@ -33,16 +33,21 @@ struct NodeDetailView: View {
                                         .textSelection(.enabled)
                                         .truncationMode(.tail)
                                         .lineLimit(1)
-                                        .padding(.trailing, 15)
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                        .padding(.leading, 30)
                                 }
-                                .padding(.bottom, 5)
+                                .padding(.bottom, 2)
 
                                 HStack {
                                     Text("Created At").bold()
                                     Spacer()
-                                    Text(node.createdAtTimestamp() ?? "").textSelection(.enabled)
+                                    Text(node.createdAtTimestamp() ?? "")
+                                        .textSelection(.enabled)
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                        .lineLimit(1)
+                                        .padding(.leading, 30)
                                 }
-                                .padding(.bottom, 5)
+                                .padding(.bottom, 2)
 
                                 if !node.taints.isEmpty {
                                     HStack {
@@ -58,30 +63,128 @@ struct NodeDetailView: View {
                                             }
                                         }
                                     }
-                                    .padding(.bottom, 5)
-                                }
-                            }
-                        })
-
-                        // Labels
-                        NodeDetailDropDown(title: "Labels", isExpanded: false, content: {
-                            VStack(alignment: .leading) {
-                                ForEach(node.labels.sorted(by: >), id: \.key) { key, value in
-                                    HStack {
-                                        Text("\(key)=\(value)").textSelection(.enabled)
-                                            .padding(.horizontal, 10)
-                                            .padding(.vertical, 5)
-                                            .background(Color.primary.opacity(colorScheme == .light ? 0.05 : 0.1))
-                                            .background(.ultraThinMaterial)
-                                            .clipShape(RoundedRectangle(cornerRadius: 4))
-
-                                        Spacer()
-                                    }
-                                    // padding between pills
                                     .padding(.bottom, 2)
                                 }
                             }
                         })
+
+                        // Addresses
+                        NodeDetailDropDown(title: "Addresses") {
+                            VStack(alignment: .leading) {
+                                ForEach(node.addresses, id: \.nodeType) { address in
+                                    HStack {
+                                        Text(address.nodeType).bold()
+                                        Spacer()
+                                        Text(address.address)
+                                            .lineLimit(1)
+                                            .truncationMode(.tail)
+                                            .padding(.leading, 30)
+                                    }
+                                    .padding(.bottom, 2)
+                                }
+                            }
+                        }
+
+                        // Labels
+                        NodeDetailDropDown(title: "Labels", isExpanded: false) {
+                            VStack(alignment: .leading) {
+                                ForEach(node.labels.sorted(by: >), id: \.key) { key, value in
+                                    Pill {
+                                        Text("\(key)=\(value)").textSelection(.enabled)
+                                    }
+                                    .padding(.bottom, 2)
+                                }
+                            }
+                        }
+
+                        // Annotations
+                        NodeDetailDropDown(title: "Annotations", isExpanded: false) {
+                            VStack(alignment: .leading) {
+                                ForEach(node.annotations.sorted(by: >), id: \.key) { key, value in
+                                    Pill {
+                                        Text("\(key)=\(value)").textSelection(.enabled)
+                                    }
+                                    .padding(.bottom, 2)
+                                }
+                            }
+                        }
+
+                        // OS Info
+                        NodeDetailDropDown(title: "OS") {
+                            VStack(alignment: .leading) {
+                                if let os = node.os {
+                                    HStack {
+                                        Text("OS").bold()
+                                        Spacer()
+                                        Text(os)
+                                            .lineLimit(1)
+                                            .truncationMode(.tail)
+                                            .padding(.leading, 30)
+                                    }
+                                    .padding(.bottom, 2)
+                                }
+
+                                if let osImage = node.osImage {
+                                    HStack {
+                                        Text("OS Image").bold()
+                                        Spacer()
+                                        Text(osImage)
+                                            .lineLimit(1)
+                                            .truncationMode(.tail)
+                                            .padding(.leading, 30)
+                                    }
+                                    .padding(.bottom, 2)
+                                }
+
+                                if let arch = node.arch {
+                                    HStack {
+                                        Text("Arch").bold()
+                                        Spacer()
+                                        Text(arch)
+                                            .lineLimit(1)
+                                            .truncationMode(.tail)
+                                            .padding(.leading, 30)
+                                    }
+                                    .padding(.bottom, 2)
+                                }
+
+                                if let containerRuntime = node.containerRuntime {
+                                    HStack {
+                                        Text("Container Runtime").bold()
+                                        Spacer()
+                                        Text(containerRuntime)
+                                            .lineLimit(1)
+                                            .truncationMode(.tail)
+                                            .padding(.leading, 30)
+                                    }
+                                    .padding(.bottom, 2)
+                                }
+
+                                if let kernelVersion = node.kernelVersion {
+                                    HStack {
+                                        Text("Kernel Version").bold()
+                                        Spacer()
+                                        Text(kernelVersion)
+                                            .lineLimit(1)
+                                            .truncationMode(.tail)
+                                            .padding(.leading, 30)
+                                    }
+                                    .padding(.bottom, 2)
+                                }
+
+                                if let kubeletVersion = node.kubeletVersion {
+                                    HStack {
+                                        Text("Kubelet Version").bold()
+                                        Spacer()
+                                        Text(kubeletVersion)
+                                            .lineLimit(1)
+                                            .truncationMode(.tail)
+                                            .padding(.leading, 30)
+                                    }
+                                    .padding(.bottom, 2)
+                                }
+                            }
+                        }
                     }
                     // VStack
                     .frame(maxWidth: self.detailsWidth)

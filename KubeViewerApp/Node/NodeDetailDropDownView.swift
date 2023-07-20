@@ -22,7 +22,7 @@ struct NodeDetailDropDown<Content: View>: View {
                 HStack {
                     Text(title)
                         .font(.title)
-//                        .padding([.horizontal], 15)
+                        .padding([.horizontal], 15)
                         .foregroundColor(Color.primary.opacity(0.8))
                         .matchedGeometryEffect(id: title, in: namespace)
 
@@ -33,12 +33,13 @@ struct NodeDetailDropDown<Content: View>: View {
                         .transition(.opacity)
                         .padding(.trailing, 10)
                 }
+                .padding(.top, 15)
+                .contentShape(Rectangle())
                 .onTapGesture {
                     withAnimation {
                         isExpanded.toggle()
                     }
                 }
-                .padding(.top, 15)
             }
 
             CollapsibleList(
