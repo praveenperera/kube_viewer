@@ -108,13 +108,11 @@ impl RustMainViewModel {
     }
 
     pub fn tab_groups_filtered(&self, search: String) -> Vec<TabGroup> {
-        if search.is_empty() {
-            self.inner.write().search = None;
-            return self.tab_groups();
-        }
-
-        // save search
-        self.inner.write().search = Some(search);
+        self.inner.write().search = if search.is_empty() {
+            None
+        } else {
+            Some(search.clone())
+        };
 
         self.inner.read().tab_groups_filtered().0
     }

@@ -30,27 +30,27 @@ impl MainViewModel {
 
             (SidebarGroup { id }, ShiftTab) => {
                 self.key_handler.current_focus_region =
-                    get_previous_tab_group_focus(&self.tab_groups, id);
+                    get_previous_tab_group_focus(&self.tab_groups_filtered(), id);
 
                 true
             }
 
             (SidebarGroup { id }, TabKey) => {
                 self.key_handler.current_focus_region =
-                    get_next_tab_group_focus(&self.tab_groups, id);
+                    get_next_tab_group_focus(&self.tab_groups_filtered(), id);
                 true
             }
 
             (InTabGroup { tab_group_id, .. }, ShiftTab) => {
                 self.key_handler.current_focus_region =
-                    get_previous_tab_group_focus(&self.tab_groups, tab_group_id);
+                    get_previous_tab_group_focus(&self.tab_groups_filtered(), tab_group_id);
 
                 true
             }
 
             (InTabGroup { tab_group_id, .. }, TabKey) => {
                 self.key_handler.current_focus_region =
-                    get_next_tab_group_focus(&self.tab_groups, tab_group_id);
+                    get_next_tab_group_focus(&self.tab_groups_filtered(), tab_group_id);
 
                 true
             }

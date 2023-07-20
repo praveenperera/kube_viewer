@@ -19,7 +19,7 @@ struct MainView: View {
     @State private var window: NSWindow?
 
     private func sortedClusterIds() -> [ClusterId] {
-        var keys = self.globalViewModel.clusters.keys
+        let keys = self.globalViewModel.clusters.keys
         return keys.sorted(by: { $0.rawValue < $1.rawValue })
     }
 
