@@ -541,6 +541,7 @@ public protocol RustMainViewModelProtocol {
     func `addUpdateListener`(`listener`: MainViewModelUpdater) 
     func `currentFocusRegion`()  -> FocusRegion
     func `handleKeyInput`(`keyInput`: KeyAwareEvent)  -> Bool
+    func `selectFirstFilteredTab`() 
     func `selectedCluster`()  -> Cluster?
     func `selectedTab`()  -> TabId
     func `setCurrentFocusRegion`(`currentFocusRegion`: FocusRegion) 
@@ -611,6 +612,14 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     )
 }
         )
+    }
+    public func `selectFirstFilteredTab`()  {
+        try!
+    rustCall() {
+    
+    _uniffi_kube_viewer_impl_RustMainViewModel_select_first_filtered_tab_5e50(self.pointer, $0
+    )
+}
     }
     public func `selectedCluster`()  -> Cluster? {
         return try! FfiConverterOptionTypeCluster.lift(

@@ -3,6 +3,7 @@ mod key_handler;
 use crate::GlobalViewModel;
 use act_zero::send;
 use crossbeam::channel::Sender;
+use log::debug;
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::collections::HashMap;
@@ -31,6 +32,7 @@ impl Updater {
     }
 
     pub fn init(window_id: &WindowId, sender: Sender<MainViewModelField>) {
+        debug!("init updater for window {window_id:?}");
         let map = INSTANCE.get_or_init(|| Updater(RwLock::new(HashMap::new())));
         map.0.write().insert(window_id.clone(), sender);
     }
@@ -60,6 +62,7 @@ pub struct MainViewModel {
     tab_groups: TabGroups,
     tab_group_expansions: HashMap<TabGroupId, bool>,
     selected_tab: TabId,
+    search: Option<String>,
 }
 
 impl RustMainViewModel {
@@ -110,32 +113,22 @@ impl RustMainViewModel {
 
     pub fn tab_groups_filtered(&self, search: String) -> Vec<TabGroup> {
         if search.is_empty() {
+            self.inner.write().search = None;
             return self.tab_groups();
         }
 
-        self.inner
-            .read()
-            .tab_groups
-            .0
-            .iter()
-            .filter_map(|tab_group| {
-                let tabs = tab_group
-                    .tabs
-                    .iter()
-                    .filter(|tab| tab.name.to_lowercase().contains(&search.to_lowercase()))
-                    .cloned()
-                    .collect::<Vec<Tab>>();
+        // save search
+        self.inner.write().search = Some(search);
 
-                if tabs.is_empty() {
-                    return None;
-                };
+        self.inner.read().tab_groups_filtered()
+    }
 
-                Some(TabGroup {
-                    tabs,
-                    ..tab_group.clone()
-                })
-            })
-            .collect()
+    pub fn select_first_filtered_tab(&self) {
+        if self.inner.write().set_first_filtered_tab().is_none() {
+            return;
+        }
+
+        Updater::send(&self.window_id, MainViewModelField::SelectedTab);
     }
 
     pub fn tab_group_expansions(&self) -> HashMap<TabGroupId, bool> {
@@ -310,6 +303,7 @@ impl MainViewModel {
             tab_groups: TabGroups(tab_groups),
             tab_group_expansions,
             selected_tab: TabId::ClusterTab,
+            search: None,
         }
     }
 
@@ -326,6 +320,55 @@ impl MainViewModel {
     pub fn select_tab(&mut self, selected_tab: TabId) {
         self.selected_tab = selected_tab;
         self.expand_selected_tabs_tab_group();
+    }
+
+    pub fn tab_groups_filtered(&self) -> Vec<TabGroup> {
+        if self.search.is_none() {
+            return self.tab_groups.0.clone().into_iter().collect();
+        }
+
+        let search = self.search.as_ref().expect("just checked search exists");
+
+        self.tab_groups
+            .0
+            .iter()
+            .filter_map(|tab_group| {
+                let tabs = tab_group
+                    .tabs
+                    .iter()
+                    .filter(|tab| tab.name.to_lowercase().contains(&search.to_lowercase()))
+                    .cloned()
+                    .collect::<Vec<Tab>>();
+
+                if tabs.is_empty() {
+                    return None;
+                };
+
+                Some(TabGroup {
+                    tabs,
+                    ..tab_group.clone()
+                })
+            })
+            .collect()
+    }
+
+    pub fn set_first_filtered_tab(&mut self) -> Option<()> {
+        let tab = self.get_first_filtered_tab()?;
+        self.select_tab(tab);
+
+        Some(())
+    }
+
+    pub fn get_first_filtered_tab(&self) -> Option<TabId> {
+        let search = self.search.as_ref()?;
+
+        if search.is_empty() {
+            return None;
+        }
+
+        let tab_groups = self.tab_groups_filtered();
+
+        Some(tab_groups.first()?.tabs.first()?.id.clone())
     }
 
     pub fn expand_selected_tabs_tab_group(&mut self) -> Option<()> {
