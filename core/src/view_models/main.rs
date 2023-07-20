@@ -3,7 +3,7 @@ mod key_handler;
 use crate::GlobalViewModel;
 use act_zero::send;
 use crossbeam::channel::Sender;
-use log::debug;
+use log::{debug, error};
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::collections::HashMap;
@@ -120,7 +120,7 @@ impl RustMainViewModel {
         // save search
         self.inner.write().search = Some(search);
 
-        self.inner.read().tab_groups_filtered()
+        self.inner.read().tab_groups_filtered().0
     }
 
     pub fn select_first_filtered_tab(&self) {
@@ -174,7 +174,7 @@ impl RustMainViewModel {
             .write()
             .set_selected_cluster(self.window_id.clone(), cluster.id)
         {
-            log::error!("failed to set selected cluster: {err}");
+            error!("failed to set selected cluster: {err}");
         }
     }
 
@@ -322,14 +322,15 @@ impl MainViewModel {
         self.expand_selected_tabs_tab_group();
     }
 
-    pub fn tab_groups_filtered(&self) -> Vec<TabGroup> {
+    pub fn tab_groups_filtered(&self) -> TabGroups {
         if self.search.is_none() {
-            return self.tab_groups.0.clone().into_iter().collect();
+            return self.tab_groups.clone();
         }
 
         let search = self.search.as_ref().expect("just checked search exists");
 
-        self.tab_groups
+        let tab_groups = self
+            .tab_groups
             .0
             .iter()
             .filter_map(|tab_group| {
@@ -349,7 +350,9 @@ impl MainViewModel {
                     ..tab_group.clone()
                 })
             })
-            .collect()
+            .collect::<Vec<TabGroup>>();
+
+        TabGroups(tab_groups)
     }
 
     pub fn set_first_filtered_tab(&mut self) -> Option<()> {
@@ -366,7 +369,7 @@ impl MainViewModel {
             return None;
         }
 
-        let tab_groups = self.tab_groups_filtered();
+        let tab_groups = self.tab_groups_filtered().0;
 
         Some(tab_groups.first()?.tabs.first()?.id.clone())
     }
