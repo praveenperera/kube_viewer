@@ -81,7 +81,9 @@ struct NodeView: View {
             }
         }
         .onDisappear {
-            self.model.data.stopWatcher()
+            Task {
+                self.model.data.stopWatcher()
+            }
         }
     }
 
@@ -111,11 +113,6 @@ struct NodeView: View {
                     TableColumn("Conditions", value: \.conditions, comparator: ConditionsComparator())
                         { self.ConditionsColumnContent($0) }
                 }
-                .background(KeyAwareView(onEvent: { key in
-                    // TODO: hook into mainview model
-                    print("key press", key)
-                    return false
-                }))
                 .onChange(of: self.sortOrder) { sortOrder in
                     switch sortOrder {
                     case [KeyPathComparator(\Node.name)]: ()

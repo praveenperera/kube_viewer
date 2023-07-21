@@ -138,6 +138,8 @@ impl RustMainViewModel {
     }
 
     pub fn set_current_focus_region(&self, current_focus_region: FocusRegion) {
+        log::debug!("setting current_focus to: {current_focus_region:?}");
+
         self.inner
             .write()
             .key_handler

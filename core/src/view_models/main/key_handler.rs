@@ -15,11 +15,19 @@ impl MainViewModel {
         use FocusRegion::*;
         use KeyAwareEvent::*;
 
+        log::debug!(
+            "handle_key_input: {:?}, current_focus_region: {:?}",
+            key_input,
+            &self.key_handler.current_focus_region
+        );
+
         match (&self.key_handler.current_focus_region, &key_input) {
             (SidebarSearch, TabKey) => {
-                if !self.tab_groups_filtered().0.is_empty() {
+                let tab_groups_filtered = self.tab_groups_filtered();
+
+                if !tab_groups_filtered.0.is_empty() {
                     self.key_handler.current_focus_region = SidebarGroup {
-                        id: self.tab_groups_filtered().0[0].id.clone(),
+                        id: tab_groups_filtered.0[0].id.clone(),
                     };
                 } else {
                     self.key_handler.current_focus_region = FocusRegion::Content;
@@ -61,10 +69,12 @@ impl MainViewModel {
             }
 
             (ClusterSelection, ShiftTab) => {
-                if !self.tab_groups_filtered().0.is_empty() {
-                    let last_index = self.tab_groups_filtered().0.len() - 1;
+                let tab_groups_filtered = self.tab_groups_filtered();
+
+                if !tab_groups_filtered.0.is_empty() {
+                    let last_index = tab_groups_filtered.0.len() - 1;
                     self.key_handler.current_focus_region = SidebarGroup {
-                        id: self.tab_groups_filtered().0[last_index].id.clone(),
+                        id: tab_groups_filtered.0[last_index].id.clone(),
                     };
                 } else {
                     self.key_handler.current_focus_region = FocusRegion::SidebarSearch;
