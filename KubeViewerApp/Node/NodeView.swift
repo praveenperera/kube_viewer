@@ -85,6 +85,7 @@ struct NodeView: View {
                 self.model.data.stopWatcher()
             }
         }
+        .background(KeyAwareView(onEvent: self.mainViewModel.data.handleKeyInput))
     }
 
     @ViewBuilder
