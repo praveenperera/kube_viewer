@@ -110,7 +110,12 @@ impl MainViewModel {
 
                     self.select_tab(tab.id.clone());
 
-                    Updater::send(&self.window_id, MainViewModelField::SelectedTab);
+                    Updater::send(
+                        &self.window_id,
+                        MainViewModelField::SelectedTab {
+                            tab_id: tab.id.clone(),
+                        },
+                    );
 
                     return true;
                 }
@@ -132,7 +137,12 @@ impl MainViewModel {
 
                     self.select_tab(tab.id.clone());
 
-                    Updater::send(&self.window_id, MainViewModelField::SelectedTab);
+                    Updater::send(
+                        &self.window_id,
+                        MainViewModelField::SelectedTab {
+                            tab_id: tab.id.clone(),
+                        },
+                    );
 
                     return true;
                 }
@@ -167,10 +177,15 @@ impl MainViewModel {
 
                     self.key_handler.current_focus_region = FocusRegion::InTabGroup {
                         tab_group_id,
-                        tab_id: next_tab_id,
+                        tab_id: next_tab_id.clone(),
                     };
 
-                    Updater::send(&self.window_id, MainViewModelField::SelectedTab);
+                    Updater::send(
+                        &self.window_id,
+                        MainViewModelField::SelectedTab {
+                            tab_id: next_tab_id,
+                        },
+                    );
                 }
 
                 true
@@ -204,10 +219,15 @@ impl MainViewModel {
 
                     self.key_handler.current_focus_region = FocusRegion::InTabGroup {
                         tab_group_id,
-                        tab_id: previous_tab_id,
+                        tab_id: previous_tab_id.clone(),
                     };
 
-                    Updater::send(&self.window_id, MainViewModelField::SelectedTab);
+                    Updater::send(
+                        &self.window_id,
+                        MainViewModelField::SelectedTab {
+                            tab_id: previous_tab_id,
+                        },
+                    );
                 }
 
                 true
@@ -223,7 +243,13 @@ impl MainViewModel {
             ) => {
                 if let Some(is_expanded) = self.tab_group_expansions.get_mut(id) {
                     *is_expanded = !*is_expanded;
-                    Updater::send(&self.window_id, MainViewModelField::TabGroupExpansions);
+
+                    Updater::send(
+                        &self.window_id,
+                        MainViewModelField::TabGroupExpansions {
+                            expansions: self.tab_group_expansions.clone(),
+                        },
+                    );
                 }
 
                 true

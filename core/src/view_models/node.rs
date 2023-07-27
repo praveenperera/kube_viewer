@@ -37,7 +37,7 @@ pub trait NodeViewModelCallback: Send + Sync + 'static {
 #[derive(uniffi::Enum)]
 pub enum NodeViewModelMessage {
     LoadingNodes,
-    NodesLoaded,
+    NodesLoaded { nodes: Vec<Node> },
     NodeLoadingFailed { error: String },
 }
 
@@ -84,7 +84,6 @@ impl RustNodeViewModel {
         let window_id = WindowId(window_id);
 
         let state = Arc::new(RwLock::new(State::new(window_id.clone())));
-        state.write().extra_worker = Worker::start_actor(state.clone());
 
         Self { state, window_id }
     }
@@ -97,38 +96,40 @@ impl RustNodeViewModel {
     }
 }
 
-#[uniffi::export]
+#[uniffi::export(async_runtime = "tokio")]
 impl RustNodeViewModel {
-    pub fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
-        self.state.write().responder = Some(responder);
+    pub async fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
+        let mut state = self.state.write();
+        state.responder = Some(responder);
+        state.extra_worker = Worker::start_actor(self.state.clone());
     }
 
     /// Sets the the loading status to loading and fetches the nodes for the selected cluster.
-    pub fn fetch_nodes(&self, selected_cluster: ClusterId) {
+    pub async fn fetch_nodes(&self, selected_cluster: ClusterId) {
+        debug!("fethc nodes");
+
         let worker = Worker::start_actor(self.state.clone());
 
         {
             self.state.write().current_worker = worker.clone();
         }
 
-        task::spawn(async move {
-            let _ = call!(worker.notify_and_load_nodes(selected_cluster.clone())).await;
-            send!(worker.start_watcher(selected_cluster.clone()));
-            send!(worker.refresh_on_interval(selected_cluster));
-        });
+        let _ = call!(worker.notify_and_load_nodes(selected_cluster.clone())).await;
+        send!(worker.start_watcher(selected_cluster.clone()));
+        send!(worker.refresh_on_interval(selected_cluster));
     }
 
     /// Gets the new nodes without changing the loading status, used for background refreshes of
     /// the nodes of the same cluster
-    pub fn refresh_nodes(&self, selected_cluster: ClusterId) {
+    pub async fn refresh_nodes(&self, selected_cluster: ClusterId) {
+        debug!("refreshing nodes");
+
         let worker = Worker::start_actor(self.state.clone());
         self.state.write().current_worker = worker.clone();
 
-        task::spawn(async move {
-            let _ = call!(worker.load_nodes(selected_cluster.clone())).await;
-            send!(worker.start_watcher(selected_cluster.clone()));
-            send!(worker.refresh_on_interval(selected_cluster));
-        });
+        let _ = call!(worker.load_nodes(selected_cluster.clone())).await;
+        send!(worker.start_watcher(selected_cluster.clone()));
+        send!(worker.refresh_on_interval(selected_cluster));
     }
 
     pub fn stop_watcher(&self) {
@@ -218,7 +219,9 @@ impl Worker {
         if let Some(ref mut nodes) = self.state.write().nodes {
             debug!("node updated, notifying listeners");
             nodes.insert(node.id.clone(), node);
-            self.callback(NodeViewModelMessage::NodesLoaded);
+            self.callback(NodeViewModelMessage::NodesLoaded {
+                nodes: nodes.values().cloned().collect(),
+            });
         };
 
         Produces::ok(())
@@ -228,7 +231,10 @@ impl Worker {
         if let Some(nodes) = self.state.write().nodes.as_mut() {
             debug!("node deleted, notifying listeners");
             nodes.remove(&node.id);
-            self.callback(NodeViewModelMessage::NodesLoaded);
+
+            self.callback(NodeViewModelMessage::NodesLoaded {
+                nodes: nodes.values().cloned().collect(),
+            });
         };
 
         Produces::ok(())
@@ -256,10 +262,12 @@ impl Worker {
             .await
             .map_err(NodeError::NodeLoadError)?;
 
-        self.state.write().nodes = Some(nodes);
+        self.state.write().nodes = Some(nodes.clone());
 
         // notify frontend, nodes loaded
-        self.callback(NodeViewModelMessage::NodesLoaded);
+        self.callback(NodeViewModelMessage::NodesLoaded {
+            nodes: nodes.into_values().collect(),
+        });
 
         Produces::ok(())
     }
@@ -289,7 +297,11 @@ impl Worker {
             .await
             .map_err(|e| NodeError::NodeLoadError(eyre!("{e:?}")))?;
 
-        self.callback(NodeViewModelMessage::NodesLoaded);
+        if let Some(ref nodes) = self.state.read().nodes {
+            self.callback(NodeViewModelMessage::NodesLoaded {
+                nodes: nodes.values().cloned().collect(),
+            });
+        }
 
         Produces::ok(())
     }

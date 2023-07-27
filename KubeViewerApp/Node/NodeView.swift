@@ -62,7 +62,9 @@ struct NodeView: View {
                 .onChange(of: self.model.nodes, perform: self.setLoading)
                 .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
                     if let selectedCluster = newSelectedCluster {
-                        self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
+                        Task {
+                            await self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
+                        }
                     }
                 }
         }
@@ -70,13 +72,14 @@ struct NodeView: View {
         .toast(isPresenting: self.$isLoading) {
             AlertToast(displayMode: .alert, type: .loading, title: "Loading")
         }
-        .onAppear {
+        .task {
             if let selectedCluster = self.mainViewModel.selectedCluster {
                 if selectedCluster != self.model.selectedCluster {
-                    self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
+                    await self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
+
                     self.model.selectedCluster = selectedCluster
                 } else {
-                    self.model.data.refreshNodes(selectedCluster: selectedCluster.id)
+                    await self.model.data.refreshNodes(selectedCluster: selectedCluster.id)
                 }
             }
         }

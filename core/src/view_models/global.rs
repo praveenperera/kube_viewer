@@ -31,10 +31,15 @@ pub trait GlobalViewModelCallback: Send + Sync + 'static {
 
 #[derive(uniffi::Enum)]
 pub enum GlobalViewModelMessage {
-    ClustersLoaded,
+    RefreshClusters,
+    ClustersLoaded {
+        clusters: HashMap<ClusterId, Cluster>,
+    },
     LoadingClient,
     ClientLoaded,
-    ClientLoadError { error: String },
+    ClientLoadError {
+        error: String,
+    },
 }
 
 #[derive(uniffi::Object)]
@@ -58,16 +63,18 @@ impl RustGlobalViewModel {
     }
 }
 
-#[uniffi::export]
+#[uniffi::export(async_runtime = "tokio")]
 impl RustGlobalViewModel {
     #[uniffi::constructor]
     pub fn new() -> Arc<Self> {
         Arc::new(Self)
     }
 
-    pub fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
-        let addr = GlobalViewModel::global().read().worker.clone();
-        task::spawn(async move { send!(addr.add_callback_listener(responder)) });
+    pub async fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
+        let worker = task::spawn_actor(Worker::new(self.inner().read().client_store.clone()));
+        GlobalViewModel::global().write().worker = worker.clone();
+
+        let _ = call!(worker.add_callback_listener(responder)).await;
     }
 
     pub fn clusters(&self) -> HashMap<ClusterId, Cluster> {
@@ -84,6 +91,7 @@ impl GlobalViewModel {
     pub fn new() -> Self {
         //TODO: set manually in code for now
         std::env::set_var("RUST_LOG", "kube_viewer=debug");
+        std::env::set_var("RUST_BACKTRACE", "1");
 
         // one time init
         env_logger::init();
@@ -91,13 +99,30 @@ impl GlobalViewModel {
         // init env
         let _ = Env::global();
         let clusters = Clusters::try_new().ok();
-        let worker = task::spawn_actor(Worker::new());
-        let client_store = ClientStore::new();
+
+        // Create a background thread which checks for deadlocks every 10s
+        use std::thread;
+        thread::spawn(move || loop {
+            thread::sleep(std::time::Duration::from_secs(2));
+            let deadlocks = parking_lot::deadlock::check_deadlock();
+            if deadlocks.is_empty() {
+                continue;
+            }
+
+            println!("{} deadlocks detected", deadlocks.len());
+            for (i, threads) in deadlocks.iter().enumerate() {
+                println!("Deadlock #{}", i);
+                for t in threads {
+                    println!("Thread Id {:#?}", t.thread_id());
+                    println!("{:#?}", t.backtrace());
+                }
+            }
+        });
 
         Self {
             clusters,
-            client_store,
-            worker,
+            client_store: ClientStore::new(),
+            worker: Default::default(),
         }
     }
 
@@ -120,21 +145,17 @@ impl GlobalViewModel {
 
 pub struct Worker {
     addr: WeakAddr<Self>,
+    client_store: ClientStore,
     kube_config_watcher: Addr<KubeConfigWatcher>,
     responder: Option<Box<dyn GlobalViewModelCallback>>,
     responder_queue: VecDeque<GlobalViewModelMessage>,
 }
 
-impl Default for Worker {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Worker {
-    pub fn new() -> Self {
+    pub fn new(client_store: ClientStore) -> Self {
         Self {
             addr: Default::default(),
+            client_store,
             kube_config_watcher: Default::default(),
             responder: None,
             responder_queue: VecDeque::new(),
@@ -155,6 +176,7 @@ impl Worker {
         responder: Box<dyn GlobalViewModelCallback>,
     ) -> ActorResult<()> {
         self.responder = Some(responder);
+        self.client_store.start_worker().await;
 
         while let Some(msg) = self.responder_queue.pop_front() {
             self.callback(msg);
@@ -169,8 +191,6 @@ impl Worker {
         let kube_config_watcher = KubeConfigWatcher::new(self.addr.clone());
         self.kube_config_watcher = task::spawn_actor(kube_config_watcher);
 
-        self.callback(GlobalViewModelMessage::ClustersLoaded);
-
         Produces::ok(())
     }
 
@@ -178,9 +198,11 @@ impl Worker {
         debug!("reloading clusters");
 
         let clusters = Clusters::try_new()?;
-        GlobalViewModel::global().write().clusters = Some(clusters);
+        GlobalViewModel::global().write().clusters = Some(clusters.clone());
 
-        self.callback(GlobalViewModelMessage::ClustersLoaded);
+        self.callback(GlobalViewModelMessage::ClustersLoaded {
+            clusters: clusters.clusters_map,
+        });
 
         Produces::ok(())
     }
@@ -189,9 +211,7 @@ impl Worker {
         debug!("loading client for cluster: {}", &cluster_id.raw_value);
         self.callback(GlobalViewModelMessage::LoadingClient);
 
-        let client_store_worker = GlobalViewModel::global().read().client_store.worker.clone();
-
-        match call!(client_store_worker.load_client(cluster_id.clone())).await {
+        match self.client_store.load_client(cluster_id.clone()).await {
             Ok(_) => {
                 self.callback(GlobalViewModelMessage::ClientLoaded);
 
@@ -208,7 +228,8 @@ impl Worker {
 
                     if !matches!(cluster.load_status, LoadStatus::Loaded) {
                         cluster.load_status = LoadStatus::Loaded;
-                        self.callback(GlobalViewModelMessage::ClustersLoaded);
+
+                        self.callback(GlobalViewModelMessage::RefreshClusters);
                     }
                 }
             }
@@ -234,7 +255,7 @@ impl Worker {
                         error: error.to_string(),
                     };
 
-                    self.callback(GlobalViewModelMessage::ClustersLoaded);
+                    self.callback(GlobalViewModelMessage::RefreshClusters);
                 };
             }
         }

@@ -39,9 +39,15 @@ impl Updater {
 
 #[derive(Debug, Clone, uniffi::Enum)]
 pub enum MainViewModelField {
-    CurrentFocusRegion,
-    SelectedTab,
-    TabGroupExpansions,
+    CurrentFocusRegion {
+        focus_region: FocusRegion,
+    },
+    SelectedTab {
+        tab_id: TabId,
+    },
+    TabGroupExpansions {
+        expansions: HashMap<TabGroupId, bool>,
+    },
 }
 
 #[uniffi::export(callback_interface)]
@@ -66,7 +72,7 @@ pub struct MainViewModel {
     search: Option<String>,
 }
 
-#[uniffi::export]
+#[uniffi::export(async_runtime = "tokio")]
 impl RustMainViewModel {
     #[uniffi::constructor]
     pub fn new(window_id: String) -> Arc<Self> {
@@ -74,6 +80,10 @@ impl RustMainViewModel {
             inner: RwLock::new(MainViewModel::new(window_id.clone().into())),
             window_id: window_id.into(),
         })
+    }
+
+    pub async fn async_do(&self) {
+        debug!("async_do");
     }
 
     pub fn add_update_listener(&self, updater: Box<dyn MainViewModelUpdater>) {
@@ -122,7 +132,12 @@ impl RustMainViewModel {
             return;
         }
 
-        Updater::send(&self.window_id, MainViewModelField::SelectedTab);
+        Updater::send(
+            &self.window_id,
+            MainViewModelField::SelectedTab {
+                tab_id: self.selected_tab(),
+            },
+        );
     }
 
     pub fn tab_group_expansions(&self) -> HashMap<TabGroupId, bool> {
@@ -176,7 +191,12 @@ impl RustMainViewModel {
 
     pub fn handle_key_input(&self, key_input: KeyAwareEvent) -> bool {
         let prevent_default = self.inner.write().handle_key_input(key_input);
-        Updater::send(&self.window_id, MainViewModelField::CurrentFocusRegion);
+        Updater::send(
+            &self.window_id,
+            MainViewModelField::CurrentFocusRegion {
+                focus_region: self.current_focus_region(),
+            },
+        );
 
         prevent_default
     }
@@ -378,8 +398,14 @@ impl MainViewModel {
             .clone();
 
         if let Some(expanded @ false) = self.tab_group_expansions.get_mut(&tab_group_id) {
-            Updater::send(&self.window_id, MainViewModelField::TabGroupExpansions);
-            *expanded = true
+            *expanded = true;
+
+            Updater::send(
+                &self.window_id,
+                MainViewModelField::TabGroupExpansions {
+                    expansions: self.tab_group_expansions.clone(),
+                },
+            );
         }
 
         Some(())

@@ -41,10 +41,12 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
     #endif
 
     private func setupCallback() {
-        self.data.addCallbackListener(responder: self)
+        Task {
+            await self.data.addCallbackListener(responder: self)
 
-        if let selectedCluster = self.selectedCluster {
-            self.data.fetchNodes(selectedCluster: selectedCluster.id)
+            if let selectedCluster = self.selectedCluster {
+                await self.data.fetchNodes(selectedCluster: selectedCluster.id)
+            }
         }
     }
 
@@ -58,10 +60,9 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
                     case let .nodeLoadingFailed(error):
                         self.nodes = .error(error: error)
 
-                    case .nodesLoaded:
+                    case let .nodesLoaded(nodes: nodes):
                         print("[swift] nodes loaded")
-                        let nodes = self.selectedCluster.map { self.data.nodes(selectedCluster: $0.id) }
-                        self.nodes = .loaded(nodes: nodes ?? [])
+                        self.nodes = .loaded(nodes: nodes)
                 }
             }
         }
