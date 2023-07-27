@@ -462,7 +462,7 @@ public func FfiConverterTypeFocusRegionHasher_lower(_ value: FocusRegionHasher) 
 
 
 public protocol RustGlobalViewModelProtocol {
-    func `addCallbackListener`(`responder`: GlobalViewModelCallback)  
+    func `addCallbackListener`(`responder`: GlobalViewModelCallback) async 
     func `clusters`()   -> [ClusterId: Cluster]
     func `loadClient`(`clusterId`: ClusterId)  
     
@@ -492,15 +492,30 @@ public class RustGlobalViewModel: RustGlobalViewModelProtocol {
     
     
 
-    public func `addCallbackListener`(`responder`: GlobalViewModelCallback)  {
-        try! 
-    rustCall() {
-    
-    uniffi_kube_viewer_fn_method_rustglobalviewmodel_add_callback_listener(self.pointer, 
-        FfiConverterCallbackInterfaceGlobalViewModelCallback.lower(`responder`),$0
-    )
-}
+    public func `addCallbackListener`(`responder`: GlobalViewModelCallback) async  {
+        // Suspend the function and call the scaffolding function, passing it a callback handler from
+        // `AsyncTypes.swift`
+        //
+        // Make sure to hold on to a reference to the continuation in the top-level scope so that
+        // it's not freed before the callback is invoked.
+        var continuation: CheckedContinuation<(), Error>? = nil
+        return try!  await withCheckedThrowingContinuation {
+            continuation = $0
+            try! rustCall() {
+                uniffi_kube_viewer_fn_method_rustglobalviewmodel_add_callback_listener(
+                    self.pointer,
+                    
+        FfiConverterCallbackInterfaceGlobalViewModelCallback.lower(`responder`),
+                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
+                    uniffiFutureCallbackHandlerVoid,
+                    &continuation,
+                    $0
+                )
+            }
+        }
     }
+
+    
 
     public func `clusters`()  -> [ClusterId: Cluster] {
         return try!  FfiConverterDictionaryTypeClusterIdTypeCluster.lift(
@@ -566,6 +581,7 @@ public func FfiConverterTypeRustGlobalViewModel_lower(_ value: RustGlobalViewMod
 
 public protocol RustMainViewModelProtocol {
     func `addUpdateListener`(`updater`: MainViewModelUpdater)  
+    func `asyncDo`() async 
     func `currentFocusRegion`()   -> FocusRegion
     func `handleKeyInput`(`keyInput`: KeyAwareEvent)   -> Bool
     func `selectFirstFilteredTab`()  
@@ -617,6 +633,30 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     )
 }
     }
+
+    public func `asyncDo`() async  {
+        // Suspend the function and call the scaffolding function, passing it a callback handler from
+        // `AsyncTypes.swift`
+        //
+        // Make sure to hold on to a reference to the continuation in the top-level scope so that
+        // it's not freed before the callback is invoked.
+        var continuation: CheckedContinuation<(), Error>? = nil
+        return try!  await withCheckedThrowingContinuation {
+            continuation = $0
+            try! rustCall() {
+                uniffi_kube_viewer_fn_method_rustmainviewmodel_async_do(
+                    self.pointer,
+                    
+                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
+                    uniffiFutureCallbackHandlerVoid,
+                    &continuation,
+                    $0
+                )
+            }
+        }
+    }
+
+    
 
     public func `currentFocusRegion`()  -> FocusRegion {
         return try!  FfiConverterTypeFocusRegion.lift(
@@ -808,10 +848,10 @@ public func FfiConverterTypeRustMainViewModel_lower(_ value: RustMainViewModel) 
 
 
 public protocol RustNodeViewModelProtocol {
-    func `addCallbackListener`(`responder`: NodeViewModelCallback)  
-    func `fetchNodes`(`selectedCluster`: ClusterId)  
+    func `addCallbackListener`(`responder`: NodeViewModelCallback) async 
+    func `fetchNodes`(`selectedCluster`: ClusterId) async 
     func `nodes`(`selectedCluster`: ClusterId)   -> [Node]
-    func `refreshNodes`(`selectedCluster`: ClusterId)  
+    func `refreshNodes`(`selectedCluster`: ClusterId) async 
     func `stopWatcher`()  
     
 }
@@ -850,25 +890,55 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
     
     
 
-    public func `addCallbackListener`(`responder`: NodeViewModelCallback)  {
-        try! 
-    rustCall() {
-    
-    uniffi_kube_viewer_fn_method_rustnodeviewmodel_add_callback_listener(self.pointer, 
-        FfiConverterCallbackInterfaceNodeViewModelCallback.lower(`responder`),$0
-    )
-}
+    public func `addCallbackListener`(`responder`: NodeViewModelCallback) async  {
+        // Suspend the function and call the scaffolding function, passing it a callback handler from
+        // `AsyncTypes.swift`
+        //
+        // Make sure to hold on to a reference to the continuation in the top-level scope so that
+        // it's not freed before the callback is invoked.
+        var continuation: CheckedContinuation<(), Error>? = nil
+        return try!  await withCheckedThrowingContinuation {
+            continuation = $0
+            try! rustCall() {
+                uniffi_kube_viewer_fn_method_rustnodeviewmodel_add_callback_listener(
+                    self.pointer,
+                    
+        FfiConverterCallbackInterfaceNodeViewModelCallback.lower(`responder`),
+                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
+                    uniffiFutureCallbackHandlerVoid,
+                    &continuation,
+                    $0
+                )
+            }
+        }
     }
 
-    public func `fetchNodes`(`selectedCluster`: ClusterId)  {
-        try! 
-    rustCall() {
     
-    uniffi_kube_viewer_fn_method_rustnodeviewmodel_fetch_nodes(self.pointer, 
-        FfiConverterTypeClusterId.lower(`selectedCluster`),$0
-    )
-}
+
+    public func `fetchNodes`(`selectedCluster`: ClusterId) async  {
+        // Suspend the function and call the scaffolding function, passing it a callback handler from
+        // `AsyncTypes.swift`
+        //
+        // Make sure to hold on to a reference to the continuation in the top-level scope so that
+        // it's not freed before the callback is invoked.
+        var continuation: CheckedContinuation<(), Error>? = nil
+        return try!  await withCheckedThrowingContinuation {
+            continuation = $0
+            try! rustCall() {
+                uniffi_kube_viewer_fn_method_rustnodeviewmodel_fetch_nodes(
+                    self.pointer,
+                    
+        FfiConverterTypeClusterId.lower(`selectedCluster`),
+                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
+                    uniffiFutureCallbackHandlerVoid,
+                    &continuation,
+                    $0
+                )
+            }
+        }
     }
+
+    
 
     public func `nodes`(`selectedCluster`: ClusterId)  -> [Node] {
         return try!  FfiConverterSequenceTypeNode.lift(
@@ -882,15 +952,30 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
         )
     }
 
-    public func `refreshNodes`(`selectedCluster`: ClusterId)  {
-        try! 
-    rustCall() {
-    
-    uniffi_kube_viewer_fn_method_rustnodeviewmodel_refresh_nodes(self.pointer, 
-        FfiConverterTypeClusterId.lower(`selectedCluster`),$0
-    )
-}
+    public func `refreshNodes`(`selectedCluster`: ClusterId) async  {
+        // Suspend the function and call the scaffolding function, passing it a callback handler from
+        // `AsyncTypes.swift`
+        //
+        // Make sure to hold on to a reference to the continuation in the top-level scope so that
+        // it's not freed before the callback is invoked.
+        var continuation: CheckedContinuation<(), Error>? = nil
+        return try!  await withCheckedThrowingContinuation {
+            continuation = $0
+            try! rustCall() {
+                uniffi_kube_viewer_fn_method_rustnodeviewmodel_refresh_nodes(
+                    self.pointer,
+                    
+        FfiConverterTypeClusterId.lower(`selectedCluster`),
+                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
+                    uniffiFutureCallbackHandlerVoid,
+                    &continuation,
+                    $0
+                )
+            }
+        }
     }
+
+    
 
     public func `stopWatcher`()  {
         try! 
@@ -939,6 +1024,63 @@ public func FfiConverterTypeRustNodeViewModel_lift(_ pointer: UnsafeMutableRawPo
 
 public func FfiConverterTypeRustNodeViewModel_lower(_ value: RustNodeViewModel) -> UnsafeMutableRawPointer {
     return FfiConverterTypeRustNodeViewModel.lower(value)
+}
+
+// Encapsulates an executor that can run Rust tasks
+//
+// On Swift, `Task.detached` can handle this we just need to know what priority to send it.
+public struct UniFfiForeignExecutor {
+    var priority: TaskPriority
+
+    public init(priority: TaskPriority) {
+        self.priority = priority
+    }
+
+    public init() {
+        self.priority = Task.currentPriority
+    }
+}
+
+fileprivate struct FfiConverterForeignExecutor: FfiConverter {
+    typealias SwiftType = UniFfiForeignExecutor
+    // Rust uses a pointer to represent the FfiConverterForeignExecutor, but we only need a u8. 
+    // let's use `Int`, which is equivalent to `size_t`
+    typealias FfiType = Int
+
+    public static func lift(_ value: FfiType) throws -> SwiftType {
+        UniFfiForeignExecutor(priority: TaskPriority(rawValue: numericCast(value)))
+    }
+    public static func lower(_ value: SwiftType) -> FfiType {
+        numericCast(value.priority.rawValue)
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        fatalError("FfiConverterForeignExecutor.read not implemented yet")
+    }
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        fatalError("FfiConverterForeignExecutor.read not implemented yet")
+    }
+}
+
+
+fileprivate func uniffiForeignExecutorCallback(executorHandle: Int, delayMs: UInt32, rustTask: UniFfiRustTaskCallback?, taskData: UnsafeRawPointer?) {
+    if let rustTask = rustTask {
+        let executor = try! FfiConverterForeignExecutor.lift(executorHandle)
+        Task.detached(priority: executor.priority) {
+            if delayMs != 0 {
+                let nanoseconds: UInt64 = numericCast(delayMs * 1000000)
+                try! await Task.sleep(nanoseconds: nanoseconds)
+            }
+            rustTask(taskData)
+        }
+
+    }
+    // No else branch: when rustTask is null, we should drop the foreign executor. However, since
+    // its just a value type, we don't need to do anything here.
+}
+
+fileprivate func uniffiInitForeignExecutor() {
+    uniffi_foreign_executor_callback_set(uniffiForeignExecutorCallback)
 }
 
 
@@ -3190,6 +3332,298 @@ fileprivate struct FfiConverterDictionaryTypeTabIdTypeTab: FfiConverterRustBuffe
         }
         return dict
     }
+}// Callbacks for async functions
+
+// Callback handlers for an async calls.  These are invoked by Rust when the future is ready.  They
+// lift the return value or error and resume the suspended function.
+fileprivate func uniffiFutureCallbackHandlerVoid(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: UInt8,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<(), Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: ())
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerUInt64(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: UInt64,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<UInt64, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterUInt64.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerBool(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: Int8,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<Bool, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterBool.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerTypeFocusRegionHasher(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: UnsafeMutableRawPointer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<FocusRegionHasher, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterTypeFocusRegionHasher.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerTypeRustGlobalViewModel(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: UnsafeMutableRawPointer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<RustGlobalViewModel, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterTypeRustGlobalViewModel.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerTypeRustMainViewModel(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: UnsafeMutableRawPointer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<RustMainViewModel, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterTypeRustMainViewModel.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerTypeRustNodeViewModel(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: UnsafeMutableRawPointer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<RustNodeViewModel, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterTypeRustNodeViewModel.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerTypeNode(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<Node, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterTypeNode.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerTypeFocusRegion(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<FocusRegion, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterTypeFocusRegion.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerTypeTabId(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<TabId, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterTypeTabId.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerOptionTypeCluster(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<Cluster?, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterOptionTypeCluster.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerSequenceTypeNode(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<[Node], Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterSequenceTypeNode.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerSequenceTypeTab(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<[Tab], Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterSequenceTypeTab.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerSequenceTypeTabGroup(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<[TabGroup], Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterSequenceTypeTabGroup.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerDictionaryTypeClusterIdTypeCluster(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<[ClusterId: Cluster], Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterDictionaryTypeClusterIdTypeCluster.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerDictionaryTypeTabGroupIdBool(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<[TabGroupId: Bool], Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterDictionaryTypeTabGroupIdBool.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerDictionaryTypeTabIdTypeTab(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<[TabId: Tab], Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterDictionaryTypeTabIdTypeTab.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
 }
 
 public func `nodePreview`()  -> Node {
@@ -3221,22 +3655,22 @@ private var initializationResult: InitializationResult {
     if (uniffi_kube_viewer_checksum_method_focusregionhasher_hash() != 26261) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_add_callback_listener() != 23074) {
+    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_add_callback_listener() != 18310) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_fetch_nodes() != 60112) {
+    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_fetch_nodes() != 58925) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_nodes() != 38863) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_refresh_nodes() != 36557) {
+    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_refresh_nodes() != 64754) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_stop_watcher() != 63314) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_add_callback_listener() != 28573) {
+    if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_add_callback_listener() != 33763) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_clusters() != 2845) {
@@ -3246,6 +3680,9 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_add_update_listener() != 49177) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_async_do() != 59783) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_current_focus_region() != 22196) {
@@ -3315,6 +3752,7 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
 
+    uniffiInitForeignExecutor()
     return InitializationResult.ok
 }
 

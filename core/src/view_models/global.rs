@@ -71,9 +71,10 @@ impl RustGlobalViewModel {
     }
 
     pub async fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
-        let addr = GlobalViewModel::global().read().worker.clone();
+        let worker = task::spawn_actor(Worker::new(self.inner().read().client_store.clone()));
+        GlobalViewModel::global().write().worker = worker.clone();
 
-        let _ = call!(addr.add_callback_listener(responder)).await;
+        let _ = call!(worker.add_callback_listener(responder)).await;
     }
 
     pub fn clusters(&self) -> HashMap<ClusterId, Cluster> {
@@ -90,6 +91,7 @@ impl GlobalViewModel {
     pub fn new() -> Self {
         //TODO: set manually in code for now
         std::env::set_var("RUST_LOG", "kube_viewer=debug");
+        std::env::set_var("RUST_BACKTRACE", "1");
 
         // one time init
         env_logger::init();
@@ -97,11 +99,8 @@ impl GlobalViewModel {
         // init env
         let _ = Env::global();
         let clusters = Clusters::try_new().ok();
-        let worker = task::spawn_actor(Worker::new());
-        let client_store = ClientStore::new();
 
         // Create a background thread which checks for deadlocks every 10s
-        //
         use std::thread;
         thread::spawn(move || loop {
             thread::sleep(std::time::Duration::from_secs(2));
@@ -122,8 +121,8 @@ impl GlobalViewModel {
 
         Self {
             clusters,
-            client_store,
-            worker,
+            client_store: ClientStore::new(),
+            worker: Default::default(),
         }
     }
 
@@ -146,21 +145,17 @@ impl GlobalViewModel {
 
 pub struct Worker {
     addr: WeakAddr<Self>,
+    client_store: ClientStore,
     kube_config_watcher: Addr<KubeConfigWatcher>,
     responder: Option<Box<dyn GlobalViewModelCallback>>,
     responder_queue: VecDeque<GlobalViewModelMessage>,
 }
 
-impl Default for Worker {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Worker {
-    pub fn new() -> Self {
+    pub fn new(client_store: ClientStore) -> Self {
         Self {
             addr: Default::default(),
+            client_store,
             kube_config_watcher: Default::default(),
             responder: None,
             responder_queue: VecDeque::new(),
@@ -181,6 +176,7 @@ impl Worker {
         responder: Box<dyn GlobalViewModelCallback>,
     ) -> ActorResult<()> {
         self.responder = Some(responder);
+        self.client_store.start_worker().await;
 
         while let Some(msg) = self.responder_queue.pop_front() {
             self.callback(msg);
@@ -215,9 +211,7 @@ impl Worker {
         debug!("loading client for cluster: {}", &cluster_id.raw_value);
         self.callback(GlobalViewModelMessage::LoadingClient);
 
-        let client_store_worker = GlobalViewModel::global().read().client_store.worker.clone();
-
-        match call!(client_store_worker.load_client(cluster_id.clone())).await {
+        match self.client_store.load_client(cluster_id.clone()).await {
             Ok(_) => {
                 self.callback(GlobalViewModelMessage::ClientLoaded);
 

@@ -21,10 +21,21 @@ impl Default for ClientStore {
 
 impl ClientStore {
     pub fn new() -> Self {
-        let state = Arc::new(RwLock::new(HashMap::new()));
-        let worker = task::spawn_actor(Worker::new(state.clone()));
+        Self {
+            worker: Default::default(),
+            state: Arc::new(RwLock::new(HashMap::new())),
+        }
+    }
 
-        Self { worker, state }
+    pub async fn start_worker(&mut self) {
+        let worker = task::spawn_actor(Worker::new(self.state.clone()));
+        self.worker = worker;
+    }
+
+    pub async fn load_client(&mut self, cluster_id: ClusterId) -> ActorResult<()> {
+        call!(self.worker.load_client(cluster_id)).await?;
+
+        Produces::ok(())
     }
 
     pub fn contains_client(&self, cluster_id: &ClusterId) -> bool {

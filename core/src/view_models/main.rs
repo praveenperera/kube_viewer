@@ -72,7 +72,7 @@ pub struct MainViewModel {
     search: Option<String>,
 }
 
-#[uniffi::export]
+#[uniffi::export(async_runtime = "tokio")]
 impl RustMainViewModel {
     #[uniffi::constructor]
     pub fn new(window_id: String) -> Arc<Self> {
@@ -80,6 +80,10 @@ impl RustMainViewModel {
             inner: RwLock::new(MainViewModel::new(window_id.clone().into())),
             window_id: window_id.into(),
         })
+    }
+
+    pub async fn async_do(&self) {
+        debug!("async_do");
     }
 
     pub fn add_update_listener(&self, updater: Box<dyn MainViewModelUpdater>) {

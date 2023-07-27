@@ -49,6 +49,7 @@ pub async fn watch_nodes(
                 send!(addr.deleted(node.into()))
             }
             watcher::Event::Restarted(_) => {
+                debug!("restarted, loading nodes");
                 send!(addr.load_nodes(selected_cluster.clone()))
             }
         }

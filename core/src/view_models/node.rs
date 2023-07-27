@@ -84,7 +84,6 @@ impl RustNodeViewModel {
         let window_id = WindowId(window_id);
 
         let state = Arc::new(RwLock::new(State::new(window_id.clone())));
-        state.write().extra_worker = Worker::start_actor(state.clone());
 
         Self { state, window_id }
     }
@@ -99,12 +98,16 @@ impl RustNodeViewModel {
 
 #[uniffi::export(async_runtime = "tokio")]
 impl RustNodeViewModel {
-    pub fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
-        self.state.write().responder = Some(responder);
+    pub async fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
+        let mut state = self.state.write();
+        state.responder = Some(responder);
+        state.extra_worker = Worker::start_actor(self.state.clone());
     }
 
     /// Sets the the loading status to loading and fetches the nodes for the selected cluster.
     pub async fn fetch_nodes(&self, selected_cluster: ClusterId) {
+        debug!("fethc nodes");
+
         let worker = Worker::start_actor(self.state.clone());
 
         {
@@ -119,6 +122,8 @@ impl RustNodeViewModel {
     /// Gets the new nodes without changing the loading status, used for background refreshes of
     /// the nodes of the same cluster
     pub async fn refresh_nodes(&self, selected_cluster: ClusterId) {
+        debug!("refreshing nodes");
+
         let worker = Worker::start_actor(self.state.clone());
         self.state.write().current_worker = worker.clone();
 
