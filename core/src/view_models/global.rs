@@ -31,10 +31,15 @@ pub trait GlobalViewModelCallback: Send + Sync + 'static {
 
 #[derive(uniffi::Enum)]
 pub enum GlobalViewModelMessage {
-    ClustersLoaded,
+    RefreshClusters,
+    ClustersLoaded {
+        clusters: HashMap<ClusterId, Cluster>,
+    },
     LoadingClient,
     ClientLoaded,
-    ClientLoadError { error: String },
+    ClientLoadError {
+        error: String,
+    },
 }
 
 #[derive(uniffi::Object)]
@@ -189,8 +194,6 @@ impl Worker {
         let kube_config_watcher = KubeConfigWatcher::new(self.addr.clone());
         self.kube_config_watcher = task::spawn_actor(kube_config_watcher);
 
-        self.callback(GlobalViewModelMessage::ClustersLoaded);
-
         Produces::ok(())
     }
 
@@ -198,9 +201,11 @@ impl Worker {
         debug!("reloading clusters");
 
         let clusters = Clusters::try_new()?;
-        GlobalViewModel::global().write().clusters = Some(clusters);
+        GlobalViewModel::global().write().clusters = Some(clusters.clone());
 
-        self.callback(GlobalViewModelMessage::ClustersLoaded);
+        self.callback(GlobalViewModelMessage::ClustersLoaded {
+            clusters: clusters.clusters_map,
+        });
 
         Produces::ok(())
     }
@@ -228,7 +233,8 @@ impl Worker {
 
                     if !matches!(cluster.load_status, LoadStatus::Loaded) {
                         cluster.load_status = LoadStatus::Loaded;
-                        self.callback(GlobalViewModelMessage::ClustersLoaded);
+
+                        self.callback(GlobalViewModelMessage::RefreshClusters);
                     }
                 }
             }
@@ -254,7 +260,7 @@ impl Worker {
                         error: error.to_string(),
                     };
 
-                    self.callback(GlobalViewModelMessage::ClustersLoaded);
+                    self.callback(GlobalViewModelMessage::RefreshClusters);
                 };
             }
         }

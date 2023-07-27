@@ -1673,7 +1673,8 @@ extension FocusRegion: Equatable, Hashable {}
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum GlobalViewModelMessage {
     
-    case `clustersLoaded`
+    case `refreshClusters`
+    case `clustersLoaded`(`clusters`: [ClusterId: Cluster])
     case `loadingClient`
     case `clientLoaded`
     case `clientLoadError`(`error`: String)
@@ -1686,13 +1687,17 @@ public struct FfiConverterTypeGlobalViewModelMessage: FfiConverterRustBuffer {
         let variant: Int32 = try readInt(&buf)
         switch variant {
         
-        case 1: return .`clustersLoaded`
+        case 1: return .`refreshClusters`
         
-        case 2: return .`loadingClient`
+        case 2: return .`clustersLoaded`(
+            `clusters`: try FfiConverterDictionaryTypeClusterIdTypeCluster.read(from: &buf)
+        )
         
-        case 3: return .`clientLoaded`
+        case 3: return .`loadingClient`
         
-        case 4: return .`clientLoadError`(
+        case 4: return .`clientLoaded`
+        
+        case 5: return .`clientLoadError`(
             `error`: try FfiConverterString.read(from: &buf)
         )
         
@@ -1704,20 +1709,25 @@ public struct FfiConverterTypeGlobalViewModelMessage: FfiConverterRustBuffer {
         switch value {
         
         
-        case .`clustersLoaded`:
+        case .`refreshClusters`:
             writeInt(&buf, Int32(1))
         
         
-        case .`loadingClient`:
+        case let .`clustersLoaded`(`clusters`):
             writeInt(&buf, Int32(2))
+            FfiConverterDictionaryTypeClusterIdTypeCluster.write(`clusters`, into: &buf)
+            
         
-        
-        case .`clientLoaded`:
+        case .`loadingClient`:
             writeInt(&buf, Int32(3))
         
         
-        case let .`clientLoadError`(`error`):
+        case .`clientLoaded`:
             writeInt(&buf, Int32(4))
+        
+        
+        case let .`clientLoadError`(`error`):
+            writeInt(&buf, Int32(5))
             FfiConverterString.write(`error`, into: &buf)
             
         }
