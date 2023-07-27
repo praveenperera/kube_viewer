@@ -68,12 +68,12 @@ class MainViewModel: ObservableObject {
         Task {
             await MainActor.run {
                 switch field {
-                case .currentFocusRegion:
-                    self.currentFocusRegion = self.data.currentFocusRegion()
-                case .selectedTab:
-                    self.selectedTab = self.data.selectedTab()
-                case .tabGroupExpansions:
-                    self.tabGroupExpansions = self.data.tabGroupExpansions()
+                    case let .currentFocusRegion(focusRegion: focusRegion):
+                        self.currentFocusRegion = focusRegion
+                    case let .selectedTab(tabId: tabId):
+                        self.selectedTab = tabId
+                    case let .tabGroupExpansions(expansions: expansions):
+                        self.tabGroupExpansions = expansions
                 }
             }
         }

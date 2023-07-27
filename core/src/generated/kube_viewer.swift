@@ -1936,9 +1936,9 @@ extension LoadStatus: Equatable, Hashable {}
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum MainViewModelField {
     
-    case `currentFocusRegion`
-    case `selectedTab`
-    case `tabGroupExpansions`
+    case `currentFocusRegion`(`focusRegion`: FocusRegion)
+    case `selectedTab`(`tabId`: TabId)
+    case `tabGroupExpansions`(`expansions`: [TabGroupId: Bool])
 }
 
 public struct FfiConverterTypeMainViewModelField: FfiConverterRustBuffer {
@@ -1948,11 +1948,17 @@ public struct FfiConverterTypeMainViewModelField: FfiConverterRustBuffer {
         let variant: Int32 = try readInt(&buf)
         switch variant {
         
-        case 1: return .`currentFocusRegion`
+        case 1: return .`currentFocusRegion`(
+            `focusRegion`: try FfiConverterTypeFocusRegion.read(from: &buf)
+        )
         
-        case 2: return .`selectedTab`
+        case 2: return .`selectedTab`(
+            `tabId`: try FfiConverterTypeTabId.read(from: &buf)
+        )
         
-        case 3: return .`tabGroupExpansions`
+        case 3: return .`tabGroupExpansions`(
+            `expansions`: try FfiConverterDictionaryTypeTabGroupIdBool.read(from: &buf)
+        )
         
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -1962,17 +1968,20 @@ public struct FfiConverterTypeMainViewModelField: FfiConverterRustBuffer {
         switch value {
         
         
-        case .`currentFocusRegion`:
+        case let .`currentFocusRegion`(`focusRegion`):
             writeInt(&buf, Int32(1))
+            FfiConverterTypeFocusRegion.write(`focusRegion`, into: &buf)
+            
         
-        
-        case .`selectedTab`:
+        case let .`selectedTab`(`tabId`):
             writeInt(&buf, Int32(2))
+            FfiConverterTypeTabId.write(`tabId`, into: &buf)
+            
         
-        
-        case .`tabGroupExpansions`:
+        case let .`tabGroupExpansions`(`expansions`):
             writeInt(&buf, Int32(3))
-        
+            FfiConverterDictionaryTypeTabGroupIdBool.write(`expansions`, into: &buf)
+            
         }
     }
 }
