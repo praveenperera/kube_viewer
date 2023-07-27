@@ -7,22 +7,22 @@ version = "0.1.0"
 cli = ["uniffi/cli"]
 
 [dependencies]
-# uniffi
-uniffi = {version = "0.23"}
+# uniffi = "0.24.2"
+uniffi  = {git = "https://github.com/mozilla/uniffi-rs.git"}
 
 # data structure
-indexmap = "1.9.2"
+indexmap = "2.0"
 maplit = "1.0.2"
-once_cell = "1.0"
-uuid = "1.3.0"
+once_cell = "1.18"
+uuid = "1.4"
 
 # logging
 tracing = "0.1"
 tracing-log = "0.1"
 
 # async
-tokio = {version = "1.26", features = ["macros", "rt", "rt-multi-thread"]}
-async-trait = "0.1.68"
+tokio = {version = "1.29", features = ["macros", "rt", "rt-multi-thread"]}
+async-trait = "0.1"
 futures = "0.3.28"
 
 # async actors
@@ -37,12 +37,12 @@ derive_more = {version = "0.99.17", default-features = false, features = ["as_re
 chrono = "0.4.24"
 
 # kubernetes
-kube = { version = "0.83", features = ["client", "runtime", "derive", "rustls-tls"], default-features = false }
+kube = { version = "0.84", features = ["client", "runtime", "derive", "rustls-tls"], default-features = false }
 k8s-openapi = { version = "0.18.0", features = ["v1_26"] }
 
 # concurrency
 crossbeam = "0.8.2"
-parking_lot = "0.12.1"
+parking_lot = {version = "0.12.1", features = ["deadlock_detection"]}
 
 # config files
 etcetera = "0.8"
@@ -63,7 +63,8 @@ fake = { version = "2.6", features=['derive']}
 rand = "0.8"
 
 [build-dependencies]
-uniffi = {version = "0.23", features = ["build"]}
+# uniffi = {version = "0.24.2", features = ["build"]}
+uniffi  = {git = "https://github.com/mozilla/uniffi-rs.git", features = ["build"]}
 
 [lib]
 crate-type = ["staticlib", "cdylib", "lib"]

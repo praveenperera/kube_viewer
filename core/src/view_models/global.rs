@@ -1,4 +1,8 @@
-use std::collections::{HashMap, VecDeque};
+use std::{
+    collections::{HashMap, VecDeque},
+    sync::Arc,
+    thread,
+};
 
 use act_zero::*;
 use kube::Client;
@@ -21,10 +25,12 @@ impl GlobalViewModel {
     }
 }
 
+#[uniffi::export(callback_interface)]
 pub trait GlobalViewModelCallback: Send + Sync + 'static {
     fn callback(&self, message: GlobalViewModelMessage);
 }
 
+#[derive(uniffi::Enum)]
 pub enum GlobalViewModelMessage {
     ClustersLoaded,
     LoadingClient,
@@ -53,22 +59,23 @@ impl Default for GlobalViewModel {
 }
 
 impl RustGlobalViewModel {
-    pub fn new() -> Self {
-        Self
-    }
-
     pub fn inner(&self) -> &RwLock<GlobalViewModel> {
         GlobalViewModel::global()
-    }
-
-    pub fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
-        let addr = GlobalViewModel::global().read().worker.clone();
-        task::spawn(async move { send!(addr.add_callback_listener(responder)) });
     }
 }
 
 #[uniffi::export]
 impl RustGlobalViewModel {
+    #[uniffi::constructor]
+    pub fn new() -> Arc<Self> {
+        Arc::new(Self)
+    }
+
+    // pub fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
+    //     let addr = GlobalViewModel::global().read().worker.clone();
+    //     task::spawn(async move { send!(addr.add_callback_listener(responder)) });
+    // }
+
     pub fn clusters(&self) -> HashMap<ClusterId, Cluster> {
         self.inner().read().clusters()
     }
@@ -92,6 +99,24 @@ impl GlobalViewModel {
         let clusters = Clusters::try_new().ok();
         let worker = task::spawn_actor(Worker::new());
         let client_store = ClientStore::new();
+
+        // Create a background thread which checks for deadlocks every 10s
+        thread::spawn(move || loop {
+            thread::sleep(std::time::Duration::from_secs(2));
+            let deadlocks = parking_lot::deadlock::check_deadlock();
+            if deadlocks.is_empty() {
+                continue;
+            }
+
+            println!("{} deadlocks detected", deadlocks.len());
+            for (i, threads) in deadlocks.iter().enumerate() {
+                println!("Deadlock #{}", i);
+                for t in threads {
+                    println!("Thread Id {:#?}", t.thread_id());
+                    println!("{:#?}", t.backtrace());
+                }
+            }
+        });
 
         Self {
             clusters,

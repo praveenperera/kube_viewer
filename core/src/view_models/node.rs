@@ -29,10 +29,12 @@ pub enum NodeError {
     NodeLoadError(eyre::Report),
 }
 
+#[uniffi::export(callback_interface)]
 pub trait NodeViewModelCallback: Send + Sync + 'static {
     fn callback(&self, message: NodeViewModelMessage);
 }
 
+#[derive(uniffi::Enum)]
 pub enum NodeViewModelMessage {
     LoadingNodes,
     NodesLoaded,
@@ -78,33 +80,38 @@ pub struct Worker {
 }
 
 impl RustNodeViewModel {
-    pub fn new(window_id: String) -> Self {
+    // pub fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
+    //     self.state.write().responder = Some(responder);
+    // }
+}
+
+#[uniffi::export]
+impl RustNodeViewModel {
+    #[uniffi::constructor]
+    pub fn new(window_id: String) -> Arc<Self> {
         let window_id = WindowId(window_id);
 
         let state = Arc::new(RwLock::new(State::new(window_id.clone())));
         state.write().extra_worker = Worker::start_actor(state.clone());
 
-        Self { state, window_id }
+        Arc::new(Self { state, window_id })
     }
 
-    pub fn preview(window_id: String) -> Self {
+    #[uniffi::constructor]
+    pub fn preview(window_id: String) -> Arc<Self> {
         let window_id = WindowId(window_id);
 
         let state = Arc::new(RwLock::new(State::preview()));
-        Self { state, window_id }
+        Arc::new(Self { state, window_id })
     }
 
-    pub fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
-        self.state.write().responder = Some(responder);
-    }
-}
-
-#[uniffi::export]
-impl RustNodeViewModel {
     /// Sets the the loading status to loading and fetches the nodes for the selected cluster.
     pub fn fetch_nodes(&self, selected_cluster: ClusterId) {
         let worker = Worker::start_actor(self.state.clone());
-        self.state.write().current_worker = worker.clone();
+
+        {
+            self.state.write().current_worker = worker.clone();
+        }
 
         task::spawn(async move {
             let _ = call!(worker.notify_and_load_nodes(selected_cluster.clone())).await;
@@ -127,7 +134,7 @@ impl RustNodeViewModel {
     }
 
     pub fn stop_watcher(&self) {
-        self.state.write().current_worker = Default::default();
+        self.state.write().current_worker = Addr::default();
     }
 
     pub fn nodes(&self, selected_cluster: ClusterId) -> Vec<Node> {
