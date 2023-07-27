@@ -2058,7 +2058,7 @@ extension NodeLoadStatus: Equatable, Hashable {}
 public enum NodeViewModelMessage {
     
     case `loadingNodes`
-    case `nodesLoaded`
+    case `nodesLoaded`(`nodes`: [Node])
     case `nodeLoadingFailed`(`error`: String)
 }
 
@@ -2071,7 +2071,9 @@ public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
         
         case 1: return .`loadingNodes`
         
-        case 2: return .`nodesLoaded`
+        case 2: return .`nodesLoaded`(
+            `nodes`: try FfiConverterSequenceTypeNode.read(from: &buf)
+        )
         
         case 3: return .`nodeLoadingFailed`(
             `error`: try FfiConverterString.read(from: &buf)
@@ -2089,9 +2091,10 @@ public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
             writeInt(&buf, Int32(1))
         
         
-        case .`nodesLoaded`:
+        case let .`nodesLoaded`(`nodes`):
             writeInt(&buf, Int32(2))
-        
+            FfiConverterSequenceTypeNode.write(`nodes`, into: &buf)
+            
         
         case let .`nodeLoadingFailed`(`error`):
             writeInt(&buf, Int32(3))

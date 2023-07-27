@@ -94,6 +94,26 @@ impl GlobalViewModel {
         let worker = task::spawn_actor(Worker::new());
         let client_store = ClientStore::new();
 
+        // Create a background thread which checks for deadlocks every 10s
+        //
+        use std::thread;
+        thread::spawn(move || loop {
+            thread::sleep(std::time::Duration::from_secs(2));
+            let deadlocks = parking_lot::deadlock::check_deadlock();
+            if deadlocks.is_empty() {
+                continue;
+            }
+
+            println!("{} deadlocks detected", deadlocks.len());
+            for (i, threads) in deadlocks.iter().enumerate() {
+                println!("Deadlock #{}", i);
+                for t in threads {
+                    println!("Thread Id {:#?}", t.thread_id());
+                    println!("{:#?}", t.backtrace());
+                }
+            }
+        });
+
         Self {
             clusters,
             client_store,

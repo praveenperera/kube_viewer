@@ -37,7 +37,7 @@ pub trait NodeViewModelCallback: Send + Sync + 'static {
 #[derive(uniffi::Enum)]
 pub enum NodeViewModelMessage {
     LoadingNodes,
-    NodesLoaded,
+    NodesLoaded { nodes: Vec<Node> },
     NodeLoadingFailed { error: String },
 }
 
@@ -218,7 +218,9 @@ impl Worker {
         if let Some(ref mut nodes) = self.state.write().nodes {
             debug!("node updated, notifying listeners");
             nodes.insert(node.id.clone(), node);
-            self.callback(NodeViewModelMessage::NodesLoaded);
+            self.callback(NodeViewModelMessage::NodesLoaded {
+                nodes: nodes.values().cloned().collect(),
+            });
         };
 
         Produces::ok(())
@@ -228,7 +230,10 @@ impl Worker {
         if let Some(nodes) = self.state.write().nodes.as_mut() {
             debug!("node deleted, notifying listeners");
             nodes.remove(&node.id);
-            self.callback(NodeViewModelMessage::NodesLoaded);
+
+            self.callback(NodeViewModelMessage::NodesLoaded {
+                nodes: nodes.values().cloned().collect(),
+            });
         };
 
         Produces::ok(())
@@ -256,10 +261,12 @@ impl Worker {
             .await
             .map_err(NodeError::NodeLoadError)?;
 
-        self.state.write().nodes = Some(nodes);
+        self.state.write().nodes = Some(nodes.clone());
 
         // notify frontend, nodes loaded
-        self.callback(NodeViewModelMessage::NodesLoaded);
+        self.callback(NodeViewModelMessage::NodesLoaded {
+            nodes: nodes.into_values().collect(),
+        });
 
         Produces::ok(())
     }
@@ -289,7 +296,11 @@ impl Worker {
             .await
             .map_err(|e| NodeError::NodeLoadError(eyre!("{e:?}")))?;
 
-        self.callback(NodeViewModelMessage::NodesLoaded);
+        if let Some(ref nodes) = self.state.read().nodes {
+            self.callback(NodeViewModelMessage::NodesLoaded {
+                nodes: nodes.values().cloned().collect(),
+            });
+        }
 
         Produces::ok(())
     }

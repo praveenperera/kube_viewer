@@ -58,10 +58,9 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
                     case let .nodeLoadingFailed(error):
                         self.nodes = .error(error: error)
 
-                    case .nodesLoaded:
+                    case let .nodesLoaded(nodes: nodes):
                         print("[swift] nodes loaded")
-                        let nodes = self.selectedCluster.map { self.data.nodes(selectedCluster: $0.id) }
-                        self.nodes = .loaded(nodes: nodes ?? [])
+                        self.nodes = .loaded(nodes: nodes)
                 }
             }
         }
