@@ -1,5 +1,6 @@
 use std::{
     collections::{HashMap, VecDeque},
+    sync::Arc,
     thread,
 };
 
@@ -37,6 +38,7 @@ pub enum GlobalViewModelMessage {
     ClientLoadError { error: String },
 }
 
+#[derive(uniffi::Object)]
 pub struct RustGlobalViewModel;
 
 pub struct GlobalViewModel {
@@ -52,10 +54,6 @@ impl Default for GlobalViewModel {
 }
 
 impl RustGlobalViewModel {
-    pub fn new() -> Self {
-        Self
-    }
-
     pub fn inner(&self) -> &RwLock<GlobalViewModel> {
         GlobalViewModel::global()
     }
@@ -63,6 +61,11 @@ impl RustGlobalViewModel {
 
 #[uniffi::export]
 impl RustGlobalViewModel {
+    #[uniffi::constructor]
+    pub fn new() -> Arc<Self> {
+        Arc::new(Self)
+    }
+
     pub fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
         let addr = GlobalViewModel::global().read().worker.clone();
         task::spawn(async move { send!(addr.add_callback_listener(responder)) });

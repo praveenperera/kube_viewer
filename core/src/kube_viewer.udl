@@ -1,13 +1,5 @@
 namespace kube_viewer {};
 
-interface RustGlobalViewModel {
-  constructor();
-};
-
-interface RustMainViewModel {
-  constructor(string window_id);
-};
-
 interface RustNodeViewModel {
   constructor(string window_id);
 

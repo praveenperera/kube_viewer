@@ -6,10 +6,10 @@ import Foundation
 // might be in a separate module, or it might be compiled inline into
 // this module. This is a bit of light hackery to work with both.
 #if canImport(kube_viewerFFI)
-    import kube_viewerFFI
+import kube_viewerFFI
 #endif
 
-private extension RustBuffer {
+fileprivate extension RustBuffer {
     // Allocate a new buffer, copying the contents of a `UInt8` array.
     init(bytes: [UInt8]) {
         let rbuf = bytes.withUnsafeBufferPointer { ptr in
@@ -29,7 +29,7 @@ private extension RustBuffer {
     }
 }
 
-private extension ForeignBytes {
+fileprivate extension ForeignBytes {
     init(bufferPointer: UnsafeBufferPointer<UInt8>) {
         self.init(len: Int32(bufferPointer.count), data: bufferPointer.baseAddress)
     }
@@ -42,7 +42,7 @@ private extension ForeignBytes {
 // Helper classes/extensions that don't change.
 // Someday, this will be in a library of its own.
 
-private extension Data {
+fileprivate extension Data {
     init(rustBuffer: RustBuffer) {
         // TODO: This copies the buffer. Can we read directly from a
         // Rust buffer?
@@ -64,15 +64,15 @@ private extension Data {
 //
 // Instead, the read() method and these helper functions input a tuple of data
 
-private func createReader(data: Data) -> (data: Data, offset: Data.Index) {
+fileprivate func createReader(data: Data) -> (data: Data, offset: Data.Index) {
     (data: data, offset: 0)
 }
 
 // Reads an integer at the current offset, in big-endian order, and advances
 // the offset on success. Throws if reading the integer would move the
 // offset past the end of the buffer.
-private func readInt<T: FixedWidthInteger>(_ reader: inout (data: Data, offset: Data.Index)) throws -> T {
-    let range = reader.offset ..< reader.offset + MemoryLayout<T>.size
+fileprivate func readInt<T: FixedWidthInteger>(_ reader: inout (data: Data, offset: Data.Index)) throws -> T {
+    let range = reader.offset..<reader.offset + MemoryLayout<T>.size
     guard reader.data.count >= range.upperBound else {
         throw UniffiInternalError.bufferOverflow
     }
@@ -82,38 +82,38 @@ private func readInt<T: FixedWidthInteger>(_ reader: inout (data: Data, offset: 
         return value as! T
     }
     var value: T = 0
-    let _ = withUnsafeMutableBytes(of: &value) { reader.data.copyBytes(to: $0, from: range) }
+    let _ = withUnsafeMutableBytes(of: &value, { reader.data.copyBytes(to: $0, from: range)})
     reader.offset = range.upperBound
     return value.bigEndian
 }
 
 // Reads an arbitrary number of bytes, to be used to read
 // raw bytes, this is useful when lifting strings
-private func readBytes(_ reader: inout (data: Data, offset: Data.Index), count: Int) throws -> [UInt8] {
-    let range = reader.offset ..< (reader.offset + count)
+fileprivate func readBytes(_ reader: inout (data: Data, offset: Data.Index), count: Int) throws -> Array<UInt8> {
+    let range = reader.offset..<(reader.offset+count)
     guard reader.data.count >= range.upperBound else {
         throw UniffiInternalError.bufferOverflow
     }
     var value = [UInt8](repeating: 0, count: count)
-    value.withUnsafeMutableBufferPointer { buffer in
+    value.withUnsafeMutableBufferPointer({ buffer in
         reader.data.copyBytes(to: buffer, from: range)
-    }
+    })
     reader.offset = range.upperBound
     return value
 }
 
 // Reads a float at the current offset.
-private func readFloat(_ reader: inout (data: Data, offset: Data.Index)) throws -> Float {
-    return try Float(bitPattern: readInt(&reader))
+fileprivate func readFloat(_ reader: inout (data: Data, offset: Data.Index)) throws -> Float {
+    return Float(bitPattern: try readInt(&reader))
 }
 
 // Reads a float at the current offset.
-private func readDouble(_ reader: inout (data: Data, offset: Data.Index)) throws -> Double {
-    return try Double(bitPattern: readInt(&reader))
+fileprivate func readDouble(_ reader: inout (data: Data, offset: Data.Index)) throws -> Double {
+    return Double(bitPattern: try readInt(&reader))
 }
 
 // Indicates if the offset has reached the end of the buffer.
-private func hasRemaining(_ reader: (data: Data, offset: Data.Index)) -> Bool {
+fileprivate func hasRemaining(_ reader: (data: Data, offset: Data.Index)) -> Bool {
     return reader.offset < reader.data.count
 }
 
@@ -121,11 +121,11 @@ private func hasRemaining(_ reader: (data: Data, offset: Data.Index)) -> Bool {
 // struct, but we use standalone functions instead in order to make external
 // types work.  See the above discussion on Readers for details.
 
-private func createWriter() -> [UInt8] {
+fileprivate func createWriter() -> [UInt8] {
     return []
 }
 
-private func writeBytes<S>(_ writer: inout [UInt8], _ byteArr: S) where S: Sequence, S.Element == UInt8 {
+fileprivate func writeBytes<S>(_ writer: inout [UInt8], _ byteArr: S) where S: Sequence, S.Element == UInt8 {
     writer.append(contentsOf: byteArr)
 }
 
@@ -133,22 +133,22 @@ private func writeBytes<S>(_ writer: inout [UInt8], _ byteArr: S) where S: Seque
 //
 // Warning: make sure what you are trying to write
 // is in the correct type!
-private func writeInt<T: FixedWidthInteger>(_ writer: inout [UInt8], _ value: T) {
+fileprivate func writeInt<T: FixedWidthInteger>(_ writer: inout [UInt8], _ value: T) {
     var value = value.bigEndian
     withUnsafeBytes(of: &value) { writer.append(contentsOf: $0) }
 }
 
-private func writeFloat(_ writer: inout [UInt8], _ value: Float) {
+fileprivate func writeFloat(_ writer: inout [UInt8], _ value: Float) {
     writeInt(&writer, value.bitPattern)
 }
 
-private func writeDouble(_ writer: inout [UInt8], _ value: Double) {
+fileprivate func writeDouble(_ writer: inout [UInt8], _ value: Double) {
     writeInt(&writer, value.bitPattern)
 }
 
 // Protocol for types that transfer other types across the FFI. This is
 // analogous go the Rust trait of the same name.
-private protocol FfiConverter {
+fileprivate protocol FfiConverter {
     associatedtype FfiType
     associatedtype SwiftType
 
@@ -159,7 +159,7 @@ private protocol FfiConverter {
 }
 
 // Types conforming to `Primitive` pass themselves directly over the FFI.
-private protocol FfiConverterPrimitive: FfiConverter where FfiType == SwiftType {}
+fileprivate protocol FfiConverterPrimitive: FfiConverter where FfiType == SwiftType { }
 
 extension FfiConverterPrimitive {
     public static func lift(_ value: FfiType) throws -> SwiftType {
@@ -173,7 +173,7 @@ extension FfiConverterPrimitive {
 
 // Types conforming to `FfiConverterRustBuffer` lift and lower into a `RustBuffer`.
 // Used for complex types where it's hard to write a custom lift/lower.
-private protocol FfiConverterRustBuffer: FfiConverter where FfiType == RustBuffer {}
+fileprivate protocol FfiConverterRustBuffer: FfiConverter where FfiType == RustBuffer {}
 
 extension FfiConverterRustBuffer {
     public static func lift(_ buf: RustBuffer) throws -> SwiftType {
@@ -187,15 +187,14 @@ extension FfiConverterRustBuffer {
     }
 
     public static func lower(_ value: SwiftType) -> RustBuffer {
-        var writer = createWriter()
-        write(value, into: &writer)
-        return RustBuffer(bytes: writer)
+          var writer = createWriter()
+          write(value, into: &writer)
+          return RustBuffer(bytes: writer)
     }
 }
-
 // An error type for FFI errors. These errors occur at the UniFFI level, not
 // the library level.
-private enum UniffiInternalError: LocalizedError {
+fileprivate enum UniffiInternalError: LocalizedError {
     case bufferOverflow
     case incompleteData
     case unexpectedOptionalTag
@@ -221,15 +220,15 @@ private enum UniffiInternalError: LocalizedError {
     }
 }
 
-private let CALL_SUCCESS: Int8 = 0
-private let CALL_ERROR: Int8 = 1
-private let CALL_PANIC: Int8 = 2
+fileprivate let CALL_SUCCESS: Int8 = 0
+fileprivate let CALL_ERROR: Int8 = 1
+fileprivate let CALL_PANIC: Int8 = 2
 
-private extension RustCallStatus {
+fileprivate extension RustCallStatus {
     init() {
         self.init(
             code: CALL_SUCCESS,
-            errorBuf: RustBuffer(
+            errorBuf: RustBuffer.init(
                 capacity: 0,
                 len: 0,
                 data: nil
@@ -244,8 +243,7 @@ private func rustCall<T>(_ callback: (UnsafeMutablePointer<RustCallStatus>) -> T
 
 private func rustCallWithError<T>(
     _ errorHandler: @escaping (RustBuffer) throws -> Error,
-    _ callback: (UnsafeMutablePointer<RustCallStatus>) -> T
-) throws -> T {
+    _ callback: (UnsafeMutablePointer<RustCallStatus>) -> T) throws -> T {
     try makeRustCall(callback, errorHandler: errorHandler)
 }
 
@@ -254,7 +252,7 @@ private func makeRustCall<T>(
     errorHandler: ((RustBuffer) throws -> Error)?
 ) throws -> T {
     uniffiEnsureInitialized()
-    var callStatus = RustCallStatus()
+    var callStatus = RustCallStatus.init()
     let returnedVal = callback(&callStatus)
     try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: errorHandler)
     return returnedVal
@@ -265,36 +263,37 @@ private func uniffiCheckCallStatus(
     errorHandler: ((RustBuffer) throws -> Error)?
 ) throws {
     switch callStatus.code {
-    case CALL_SUCCESS:
-        return
+        case CALL_SUCCESS:
+            return
 
-    case CALL_ERROR:
-        if let errorHandler = errorHandler {
-            throw try errorHandler(callStatus.errorBuf)
-        } else {
-            callStatus.errorBuf.deallocate()
-            throw UniffiInternalError.unexpectedRustCallError
-        }
+        case CALL_ERROR:
+            if let errorHandler = errorHandler {
+                throw try errorHandler(callStatus.errorBuf)
+            } else {
+                callStatus.errorBuf.deallocate()
+                throw UniffiInternalError.unexpectedRustCallError
+            }
 
-    case CALL_PANIC:
-        // When the rust code sees a panic, it tries to construct a RustBuffer
-        // with the message.  But if that code panics, then it just sends back
-        // an empty buffer.
-        if callStatus.errorBuf.len > 0 {
-            throw try UniffiInternalError.rustPanic(FfiConverterString.lift(callStatus.errorBuf))
-        } else {
-            callStatus.errorBuf.deallocate()
-            throw UniffiInternalError.rustPanic("Rust panic")
-        }
+        case CALL_PANIC:
+            // When the rust code sees a panic, it tries to construct a RustBuffer
+            // with the message.  But if that code panics, then it just sends back
+            // an empty buffer.
+            if callStatus.errorBuf.len > 0 {
+                throw UniffiInternalError.rustPanic(try FfiConverterString.lift(callStatus.errorBuf))
+            } else {
+                callStatus.errorBuf.deallocate()
+                throw UniffiInternalError.rustPanic("Rust panic")
+            }
 
-    default:
-        throw UniffiInternalError.unexpectedRustCallStatusCode
+        default:
+            throw UniffiInternalError.unexpectedRustCallStatusCode
     }
 }
 
 // Public interface members begin here.
 
-private struct FfiConverterUInt64: FfiConverterPrimitive {
+
+fileprivate struct FfiConverterUInt64: FfiConverterPrimitive {
     typealias FfiType = UInt64
     typealias SwiftType = UInt64
 
@@ -307,7 +306,7 @@ private struct FfiConverterUInt64: FfiConverterPrimitive {
     }
 }
 
-private struct FfiConverterInt64: FfiConverterPrimitive {
+fileprivate struct FfiConverterInt64: FfiConverterPrimitive {
     typealias FfiType = Int64
     typealias SwiftType = Int64
 
@@ -320,7 +319,7 @@ private struct FfiConverterInt64: FfiConverterPrimitive {
     }
 }
 
-private struct FfiConverterBool: FfiConverter {
+fileprivate struct FfiConverterBool : FfiConverter {
     typealias FfiType = Int8
     typealias SwiftType = Bool
 
@@ -341,7 +340,7 @@ private struct FfiConverterBool: FfiConverter {
     }
 }
 
-private struct FfiConverterString: FfiConverter {
+fileprivate struct FfiConverterString: FfiConverter {
     typealias SwiftType = String
     typealias FfiType = RustBuffer
 
@@ -369,7 +368,7 @@ private struct FfiConverterString: FfiConverter {
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> String {
         let len: Int32 = try readInt(&buf)
-        return try String(bytes: readBytes(&buf, count: Int(len)), encoding: String.Encoding.utf8)!
+        return String(bytes: try readBytes(&buf, count: Int(len)), encoding: String.Encoding.utf8)!
     }
 
     public static func write(_ value: String, into buf: inout [UInt8]) {
@@ -379,8 +378,10 @@ private struct FfiConverterString: FfiConverter {
     }
 }
 
+
 public protocol FocusRegionHasherProtocol {
-    func hash(value: FocusRegion) -> UInt64
+    func `hash`(`value`: FocusRegion)   -> UInt64
+    
 }
 
 public class FocusRegionHasher: FocusRegionHasherProtocol {
@@ -392,24 +393,30 @@ public class FocusRegionHasher: FocusRegionHasherProtocol {
     required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
         self.pointer = pointer
     }
-
-    public convenience init() {
-        self.init(unsafeFromRawPointer: try! rustCall {
-            uniffi_kube_viewer_fn_constructor_focusregionhasher_new($0)
-        })
+    public convenience init()  {
+        self.init(unsafeFromRawPointer: try! rustCall() {
+    uniffi_kube_viewer_fn_constructor_focusregionhasher_new($0)
+})
     }
 
     deinit {
         try! rustCall { uniffi_kube_viewer_fn_free_focusregionhasher(pointer, $0) }
     }
 
-    public func hash(value: FocusRegion) -> UInt64 {
-        return try! FfiConverterUInt64.lift(
-            try!
-                rustCall {
-                    uniffi_kube_viewer_fn_method_focusregionhasher_hash(self.pointer,
-                                                                        FfiConverterTypeFocusRegion.lower(value), $0)
-                }
+    
+
+    
+    
+
+    public func `hash`(`value`: FocusRegion)  -> UInt64 {
+        return try!  FfiConverterUInt64.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_focusregionhasher_hash(self.pointer, 
+        FfiConverterTypeFocusRegion.lower(`value`),$0
+    )
+}
         )
     }
 }
@@ -423,7 +430,7 @@ public struct FfiConverterTypeFocusRegionHasher: FfiConverter {
         // The Rust code won't compile if a pointer won't fit in a UInt64.
         // We have to go via `UInt` because that's the thing that's the size of a pointer.
         let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
-        if ptr == nil {
+        if (ptr == nil) {
             throw UniffiInternalError.unexpectedNullPointer
         }
         return try lift(ptr!)
@@ -444,6 +451,7 @@ public struct FfiConverterTypeFocusRegionHasher: FfiConverter {
     }
 }
 
+
 public func FfiConverterTypeFocusRegionHasher_lift(_ pointer: UnsafeMutableRawPointer) throws -> FocusRegionHasher {
     return try FfiConverterTypeFocusRegionHasher.lift(pointer)
 }
@@ -452,10 +460,12 @@ public func FfiConverterTypeFocusRegionHasher_lower(_ value: FocusRegionHasher) 
     return FfiConverterTypeFocusRegionHasher.lower(value)
 }
 
+
 public protocol RustGlobalViewModelProtocol {
-    func addCallbackListener(responder: GlobalViewModelCallback)
-    func clusters() -> [ClusterId: Cluster]
-    func loadClient(clusterId: ClusterId)
+    func `addCallbackListener`(`responder`: GlobalViewModelCallback)  
+    func `clusters`()   -> [ClusterId: Cluster]
+    func `loadClient`(`clusterId`: ClusterId)  
+    
 }
 
 public class RustGlobalViewModel: RustGlobalViewModelProtocol {
@@ -467,40 +477,50 @@ public class RustGlobalViewModel: RustGlobalViewModelProtocol {
     required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
         self.pointer = pointer
     }
-
-    public convenience init() {
-        self.init(unsafeFromRawPointer: try! rustCall {
-            uniffi_kube_viewer_fn_constructor_rustglobalviewmodel_new($0)
-        })
+    public convenience init()  {
+        self.init(unsafeFromRawPointer: try! rustCall() {
+    uniffi_kube_viewer_fn_constructor_rustglobalviewmodel_new($0)
+})
     }
 
     deinit {
         try! rustCall { uniffi_kube_viewer_fn_free_rustglobalviewmodel(pointer, $0) }
     }
 
-    public func addCallbackListener(responder: GlobalViewModelCallback) {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustglobalviewmodel_add_callback_listener(self.pointer,
-                                                                                       FfiConverterCallbackInterfaceGlobalViewModelCallback.lower(responder), $0)
-            }
+    
+
+    
+    
+
+    public func `addCallbackListener`(`responder`: GlobalViewModelCallback)  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustglobalviewmodel_add_callback_listener(self.pointer, 
+        FfiConverterCallbackInterfaceGlobalViewModelCallback.lower(`responder`),$0
+    )
+}
     }
 
-    public func clusters() -> [ClusterId: Cluster] {
-        return try! FfiConverterDictionaryTypeClusterIdTypeCluster.lift(
-            try!
-                rustCall {
-                    uniffi_kube_viewer_fn_method_rustglobalviewmodel_clusters(self.pointer, $0)
-                }
+    public func `clusters`()  -> [ClusterId: Cluster] {
+        return try!  FfiConverterDictionaryTypeClusterIdTypeCluster.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustglobalviewmodel_clusters(self.pointer, $0
+    )
+}
         )
     }
 
-    public func loadClient(clusterId: ClusterId) {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustglobalviewmodel_load_client(self.pointer,
-                                                                             FfiConverterTypeClusterId.lower(clusterId), $0)
-            }
+    public func `loadClient`(`clusterId`: ClusterId)  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustglobalviewmodel_load_client(self.pointer, 
+        FfiConverterTypeClusterId.lower(`clusterId`),$0
+    )
+}
     }
 }
 
@@ -513,7 +533,7 @@ public struct FfiConverterTypeRustGlobalViewModel: FfiConverter {
         // The Rust code won't compile if a pointer won't fit in a UInt64.
         // We have to go via `UInt` because that's the thing that's the size of a pointer.
         let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
-        if ptr == nil {
+        if (ptr == nil) {
             throw UniffiInternalError.unexpectedNullPointer
         }
         return try lift(ptr!)
@@ -534,6 +554,7 @@ public struct FfiConverterTypeRustGlobalViewModel: FfiConverter {
     }
 }
 
+
 public func FfiConverterTypeRustGlobalViewModel_lift(_ pointer: UnsafeMutableRawPointer) throws -> RustGlobalViewModel {
     return try FfiConverterTypeRustGlobalViewModel.lift(pointer)
 }
@@ -542,22 +563,24 @@ public func FfiConverterTypeRustGlobalViewModel_lower(_ value: RustGlobalViewMod
     return FfiConverterTypeRustGlobalViewModel.lower(value)
 }
 
+
 public protocol RustMainViewModelProtocol {
-    func addUpdateListener(updater: MainViewModelUpdater)
-    func currentFocusRegion() -> FocusRegion
-    func handleKeyInput(keyInput: KeyAwareEvent) -> Bool
-    func selectFirstFilteredTab()
-    func selectedCluster() -> Cluster?
-    func selectedTab() -> TabId
-    func setCurrentFocusRegion(currentFocusRegion: FocusRegion)
-    func setSelectedCluster(cluster: Cluster)
-    func setSelectedTab(selectedTab: TabId)
-    func setTabGroupExpansions(tabGroupExpansions: [TabGroupId: Bool])
-    func setWindowClosed()
-    func tabGroupExpansions() -> [TabGroupId: Bool]
-    func tabGroupsFiltered(search: String) -> [TabGroup]
-    func tabs() -> [Tab]
-    func tabsMap() -> [TabId: Tab]
+    func `addUpdateListener`(`updater`: MainViewModelUpdater)  
+    func `currentFocusRegion`()   -> FocusRegion
+    func `handleKeyInput`(`keyInput`: KeyAwareEvent)   -> Bool
+    func `selectFirstFilteredTab`()  
+    func `selectedCluster`()   -> Cluster?
+    func `selectedTab`()   -> TabId
+    func `setCurrentFocusRegion`(`currentFocusRegion`: FocusRegion)  
+    func `setSelectedCluster`(`cluster`: Cluster)  
+    func `setSelectedTab`(`selectedTab`: TabId)  
+    func `setTabGroupExpansions`(`tabGroupExpansions`: [TabGroupId: Bool])  
+    func `setWindowClosed`()  
+    func `tabGroupExpansions`()   -> [TabGroupId: Bool]
+    func `tabGroupsFiltered`(`search`: String)   -> [TabGroup]
+    func `tabs`()   -> [Tab]
+    func `tabsMap`()   -> [TabId: Tab]
+    
 }
 
 public class RustMainViewModel: RustMainViewModelProtocol {
@@ -569,144 +592,177 @@ public class RustMainViewModel: RustMainViewModelProtocol {
     required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
         self.pointer = pointer
     }
-
-    public convenience init(windowId: String) {
-        self.init(unsafeFromRawPointer: try! rustCall {
-            uniffi_kube_viewer_fn_constructor_rustmainviewmodel_new(
-                FfiConverterString.lower(windowId), $0
-            )
-        })
+    public convenience init(`windowId`: String)  {
+        self.init(unsafeFromRawPointer: try! rustCall() {
+    uniffi_kube_viewer_fn_constructor_rustmainviewmodel_new(
+        FfiConverterString.lower(`windowId`),$0)
+})
     }
 
     deinit {
         try! rustCall { uniffi_kube_viewer_fn_free_rustmainviewmodel(pointer, $0) }
     }
 
-    public func addUpdateListener(updater: MainViewModelUpdater) {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustmainviewmodel_add_update_listener(self.pointer,
-                                                                                   FfiConverterCallbackInterfaceMainViewModelUpdater.lower(updater), $0)
-            }
+    
+
+    
+    
+
+    public func `addUpdateListener`(`updater`: MainViewModelUpdater)  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_add_update_listener(self.pointer, 
+        FfiConverterCallbackInterfaceMainViewModelUpdater.lower(`updater`),$0
+    )
+}
     }
 
-    public func currentFocusRegion() -> FocusRegion {
-        return try! FfiConverterTypeFocusRegion.lift(
-            try!
-                rustCall {
-                    uniffi_kube_viewer_fn_method_rustmainviewmodel_current_focus_region(self.pointer, $0)
-                }
+    public func `currentFocusRegion`()  -> FocusRegion {
+        return try!  FfiConverterTypeFocusRegion.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_current_focus_region(self.pointer, $0
+    )
+}
         )
     }
 
-    public func handleKeyInput(keyInput: KeyAwareEvent) -> Bool {
-        return try! FfiConverterBool.lift(
-            try!
-                rustCall {
-                    uniffi_kube_viewer_fn_method_rustmainviewmodel_handle_key_input(self.pointer,
-                                                                                    FfiConverterTypeKeyAwareEvent.lower(keyInput), $0)
-                }
+    public func `handleKeyInput`(`keyInput`: KeyAwareEvent)  -> Bool {
+        return try!  FfiConverterBool.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_handle_key_input(self.pointer, 
+        FfiConverterTypeKeyAwareEvent.lower(`keyInput`),$0
+    )
+}
         )
     }
 
-    public func selectFirstFilteredTab() {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustmainviewmodel_select_first_filtered_tab(self.pointer, $0)
-            }
+    public func `selectFirstFilteredTab`()  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_select_first_filtered_tab(self.pointer, $0
+    )
+}
     }
 
-    public func selectedCluster() -> Cluster? {
-        return try! FfiConverterOptionTypeCluster.lift(
-            try!
-                rustCall {
-                    uniffi_kube_viewer_fn_method_rustmainviewmodel_selected_cluster(self.pointer, $0)
-                }
+    public func `selectedCluster`()  -> Cluster? {
+        return try!  FfiConverterOptionTypeCluster.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_selected_cluster(self.pointer, $0
+    )
+}
         )
     }
 
-    public func selectedTab() -> TabId {
-        return try! FfiConverterTypeTabId.lift(
-            try!
-                rustCall {
-                    uniffi_kube_viewer_fn_method_rustmainviewmodel_selected_tab(self.pointer, $0)
-                }
+    public func `selectedTab`()  -> TabId {
+        return try!  FfiConverterTypeTabId.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_selected_tab(self.pointer, $0
+    )
+}
         )
     }
 
-    public func setCurrentFocusRegion(currentFocusRegion: FocusRegion) {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustmainviewmodel_set_current_focus_region(self.pointer,
-                                                                                        FfiConverterTypeFocusRegion.lower(currentFocusRegion), $0)
-            }
+    public func `setCurrentFocusRegion`(`currentFocusRegion`: FocusRegion)  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_set_current_focus_region(self.pointer, 
+        FfiConverterTypeFocusRegion.lower(`currentFocusRegion`),$0
+    )
+}
     }
 
-    public func setSelectedCluster(cluster: Cluster) {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustmainviewmodel_set_selected_cluster(self.pointer,
-                                                                                    FfiConverterTypeCluster.lower(cluster), $0)
-            }
+    public func `setSelectedCluster`(`cluster`: Cluster)  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_set_selected_cluster(self.pointer, 
+        FfiConverterTypeCluster.lower(`cluster`),$0
+    )
+}
     }
 
-    public func setSelectedTab(selectedTab: TabId) {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustmainviewmodel_set_selected_tab(self.pointer,
-                                                                                FfiConverterTypeTabId.lower(selectedTab), $0)
-            }
+    public func `setSelectedTab`(`selectedTab`: TabId)  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_set_selected_tab(self.pointer, 
+        FfiConverterTypeTabId.lower(`selectedTab`),$0
+    )
+}
     }
 
-    public func setTabGroupExpansions(tabGroupExpansions: [TabGroupId: Bool]) {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustmainviewmodel_set_tab_group_expansions(self.pointer,
-                                                                                        FfiConverterDictionaryTypeTabGroupIdBool.lower(tabGroupExpansions), $0)
-            }
+    public func `setTabGroupExpansions`(`tabGroupExpansions`: [TabGroupId: Bool])  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_set_tab_group_expansions(self.pointer, 
+        FfiConverterDictionaryTypeTabGroupIdBool.lower(`tabGroupExpansions`),$0
+    )
+}
     }
 
-    public func setWindowClosed() {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustmainviewmodel_set_window_closed(self.pointer, $0)
-            }
+    public func `setWindowClosed`()  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_set_window_closed(self.pointer, $0
+    )
+}
     }
 
-    public func tabGroupExpansions() -> [TabGroupId: Bool] {
-        return try! FfiConverterDictionaryTypeTabGroupIdBool.lift(
-            try!
-                rustCall {
-                    uniffi_kube_viewer_fn_method_rustmainviewmodel_tab_group_expansions(self.pointer, $0)
-                }
+    public func `tabGroupExpansions`()  -> [TabGroupId: Bool] {
+        return try!  FfiConverterDictionaryTypeTabGroupIdBool.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_tab_group_expansions(self.pointer, $0
+    )
+}
         )
     }
 
-    public func tabGroupsFiltered(search: String) -> [TabGroup] {
-        return try! FfiConverterSequenceTypeTabGroup.lift(
-            try!
-                rustCall {
-                    uniffi_kube_viewer_fn_method_rustmainviewmodel_tab_groups_filtered(self.pointer,
-                                                                                       FfiConverterString.lower(search), $0)
-                }
+    public func `tabGroupsFiltered`(`search`: String)  -> [TabGroup] {
+        return try!  FfiConverterSequenceTypeTabGroup.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_tab_groups_filtered(self.pointer, 
+        FfiConverterString.lower(`search`),$0
+    )
+}
         )
     }
 
-    public func tabs() -> [Tab] {
-        return try! FfiConverterSequenceTypeTab.lift(
-            try!
-                rustCall {
-                    uniffi_kube_viewer_fn_method_rustmainviewmodel_tabs(self.pointer, $0)
-                }
+    public func `tabs`()  -> [Tab] {
+        return try!  FfiConverterSequenceTypeTab.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_tabs(self.pointer, $0
+    )
+}
         )
     }
 
-    public func tabsMap() -> [TabId: Tab] {
-        return try! FfiConverterDictionaryTypeTabIdTypeTab.lift(
-            try!
-                rustCall {
-                    uniffi_kube_viewer_fn_method_rustmainviewmodel_tabs_map(self.pointer, $0)
-                }
+    public func `tabsMap`()  -> [TabId: Tab] {
+        return try!  FfiConverterDictionaryTypeTabIdTypeTab.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustmainviewmodel_tabs_map(self.pointer, $0
+    )
+}
         )
     }
 }
@@ -720,7 +776,7 @@ public struct FfiConverterTypeRustMainViewModel: FfiConverter {
         // The Rust code won't compile if a pointer won't fit in a UInt64.
         // We have to go via `UInt` because that's the thing that's the size of a pointer.
         let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
-        if ptr == nil {
+        if (ptr == nil) {
             throw UniffiInternalError.unexpectedNullPointer
         }
         return try lift(ptr!)
@@ -741,6 +797,7 @@ public struct FfiConverterTypeRustMainViewModel: FfiConverter {
     }
 }
 
+
 public func FfiConverterTypeRustMainViewModel_lift(_ pointer: UnsafeMutableRawPointer) throws -> RustMainViewModel {
     return try FfiConverterTypeRustMainViewModel.lift(pointer)
 }
@@ -749,11 +806,13 @@ public func FfiConverterTypeRustMainViewModel_lower(_ value: RustMainViewModel) 
     return FfiConverterTypeRustMainViewModel.lower(value)
 }
 
+
 public protocol RustNodeViewModelProtocol {
-    func fetchNodes(selectedCluster: ClusterId)
-    func nodes(selectedCluster: ClusterId) -> [Node]
-    func refreshNodes(selectedCluster: ClusterId)
-    func stopWatcher()
+    func `fetchNodes`(`selectedCluster`: ClusterId)  
+    func `nodes`(`selectedCluster`: ClusterId)   -> [Node]
+    func `refreshNodes`(`selectedCluster`: ClusterId)  
+    func `stopWatcher`()  
+    
 }
 
 public class RustNodeViewModel: RustNodeViewModelProtocol {
@@ -765,58 +824,70 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
     required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
         self.pointer = pointer
     }
-
-    public convenience init(windowId: String) {
-        self.init(unsafeFromRawPointer: try! rustCall {
-            uniffi_kube_viewer_fn_constructor_rustnodeviewmodel_new(
-                FfiConverterString.lower(windowId), $0
-            )
-        })
+    public convenience init(`windowId`: String)  {
+        self.init(unsafeFromRawPointer: try! rustCall() {
+    uniffi_kube_viewer_fn_constructor_rustnodeviewmodel_new(
+        FfiConverterString.lower(`windowId`),$0)
+})
     }
 
     deinit {
         try! rustCall { uniffi_kube_viewer_fn_free_rustnodeviewmodel(pointer, $0) }
     }
 
-    public static func preview(windowId: String) -> RustNodeViewModel {
-        return RustNodeViewModel(unsafeFromRawPointer: try! rustCall {
-            uniffi_kube_viewer_fn_constructor_rustnodeviewmodel_preview(
-                FfiConverterString.lower(windowId), $0
-            )
-        })
+    
+
+    public static func `preview`(`windowId`: String)  -> RustNodeViewModel {
+        return RustNodeViewModel(unsafeFromRawPointer: try! rustCall() {
+    uniffi_kube_viewer_fn_constructor_rustnodeviewmodel_preview(
+        FfiConverterString.lower(`windowId`),$0)
+})
     }
 
-    public func fetchNodes(selectedCluster: ClusterId) {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustnodeviewmodel_fetch_nodes(self.pointer,
-                                                                           FfiConverterTypeClusterId.lower(selectedCluster), $0)
-            }
+    
+
+    
+    
+
+    public func `fetchNodes`(`selectedCluster`: ClusterId)  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustnodeviewmodel_fetch_nodes(self.pointer, 
+        FfiConverterTypeClusterId.lower(`selectedCluster`),$0
+    )
+}
     }
 
-    public func nodes(selectedCluster: ClusterId) -> [Node] {
-        return try! FfiConverterSequenceTypeNode.lift(
-            try!
-                rustCall {
-                    uniffi_kube_viewer_fn_method_rustnodeviewmodel_nodes(self.pointer,
-                                                                         FfiConverterTypeClusterId.lower(selectedCluster), $0)
-                }
+    public func `nodes`(`selectedCluster`: ClusterId)  -> [Node] {
+        return try!  FfiConverterSequenceTypeNode.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustnodeviewmodel_nodes(self.pointer, 
+        FfiConverterTypeClusterId.lower(`selectedCluster`),$0
+    )
+}
         )
     }
 
-    public func refreshNodes(selectedCluster: ClusterId) {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustnodeviewmodel_refresh_nodes(self.pointer,
-                                                                             FfiConverterTypeClusterId.lower(selectedCluster), $0)
-            }
+    public func `refreshNodes`(`selectedCluster`: ClusterId)  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustnodeviewmodel_refresh_nodes(self.pointer, 
+        FfiConverterTypeClusterId.lower(`selectedCluster`),$0
+    )
+}
     }
 
-    public func stopWatcher() {
-        try!
-            rustCall {
-                uniffi_kube_viewer_fn_method_rustnodeviewmodel_stop_watcher(self.pointer, $0)
-            }
+    public func `stopWatcher`()  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustnodeviewmodel_stop_watcher(self.pointer, $0
+    )
+}
     }
 }
 
@@ -829,7 +900,7 @@ public struct FfiConverterTypeRustNodeViewModel: FfiConverter {
         // The Rust code won't compile if a pointer won't fit in a UInt64.
         // We have to go via `UInt` because that's the thing that's the size of a pointer.
         let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
-        if ptr == nil {
+        if (ptr == nil) {
             throw UniffiInternalError.unexpectedNullPointer
         }
         return try lift(ptr!)
@@ -850,6 +921,7 @@ public struct FfiConverterTypeRustNodeViewModel: FfiConverter {
     }
 }
 
+
 public func FfiConverterTypeRustNodeViewModel_lift(_ pointer: UnsafeMutableRawPointer) throws -> RustNodeViewModel {
     return try FfiConverterTypeRustNodeViewModel.lift(pointer)
 }
@@ -858,72 +930,76 @@ public func FfiConverterTypeRustNodeViewModel_lower(_ value: RustNodeViewModel) 
     return FfiConverterTypeRustNodeViewModel.lower(value)
 }
 
+
 public struct Cluster {
-    public var id: ClusterId
-    public var server: String?
-    public var proxyUrl: String?
-    public var nickname: String?
-    public var loadStatus: LoadStatus
+    public var `id`: ClusterId
+    public var `server`: String?
+    public var `proxyUrl`: String?
+    public var `nickname`: String?
+    public var `loadStatus`: LoadStatus
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(id: ClusterId, server: String?, proxyUrl: String?, nickname: String?, loadStatus: LoadStatus) {
-        self.id = id
-        self.server = server
-        self.proxyUrl = proxyUrl
-        self.nickname = nickname
-        self.loadStatus = loadStatus
+    public init(`id`: ClusterId, `server`: String?, `proxyUrl`: String?, `nickname`: String?, `loadStatus`: LoadStatus) {
+        self.`id` = `id`
+        self.`server` = `server`
+        self.`proxyUrl` = `proxyUrl`
+        self.`nickname` = `nickname`
+        self.`loadStatus` = `loadStatus`
     }
 }
 
+
 extension Cluster: Equatable, Hashable {
-    public static func == (lhs: Cluster, rhs: Cluster) -> Bool {
-        if lhs.id != rhs.id {
+    public static func ==(lhs: Cluster, rhs: Cluster) -> Bool {
+        if lhs.`id` != rhs.`id` {
             return false
         }
-        if lhs.server != rhs.server {
+        if lhs.`server` != rhs.`server` {
             return false
         }
-        if lhs.proxyUrl != rhs.proxyUrl {
+        if lhs.`proxyUrl` != rhs.`proxyUrl` {
             return false
         }
-        if lhs.nickname != rhs.nickname {
+        if lhs.`nickname` != rhs.`nickname` {
             return false
         }
-        if lhs.loadStatus != rhs.loadStatus {
+        if lhs.`loadStatus` != rhs.`loadStatus` {
             return false
         }
         return true
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(server)
-        hasher.combine(proxyUrl)
-        hasher.combine(nickname)
-        hasher.combine(loadStatus)
+        hasher.combine(`id`)
+        hasher.combine(`server`)
+        hasher.combine(`proxyUrl`)
+        hasher.combine(`nickname`)
+        hasher.combine(`loadStatus`)
     }
 }
+
 
 public struct FfiConverterTypeCluster: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Cluster {
         return try Cluster(
-            id: FfiConverterTypeClusterId.read(from: &buf),
-            server: FfiConverterOptionString.read(from: &buf),
-            proxyUrl: FfiConverterOptionString.read(from: &buf),
-            nickname: FfiConverterOptionString.read(from: &buf),
-            loadStatus: FfiConverterTypeLoadStatus.read(from: &buf)
+            `id`: FfiConverterTypeClusterId.read(from: &buf), 
+            `server`: FfiConverterOptionString.read(from: &buf), 
+            `proxyUrl`: FfiConverterOptionString.read(from: &buf), 
+            `nickname`: FfiConverterOptionString.read(from: &buf), 
+            `loadStatus`: FfiConverterTypeLoadStatus.read(from: &buf)
         )
     }
 
     public static func write(_ value: Cluster, into buf: inout [UInt8]) {
-        FfiConverterTypeClusterId.write(value.id, into: &buf)
-        FfiConverterOptionString.write(value.server, into: &buf)
-        FfiConverterOptionString.write(value.proxyUrl, into: &buf)
-        FfiConverterOptionString.write(value.nickname, into: &buf)
-        FfiConverterTypeLoadStatus.write(value.loadStatus, into: &buf)
+        FfiConverterTypeClusterId.write(value.`id`, into: &buf)
+        FfiConverterOptionString.write(value.`server`, into: &buf)
+        FfiConverterOptionString.write(value.`proxyUrl`, into: &buf)
+        FfiConverterOptionString.write(value.`nickname`, into: &buf)
+        FfiConverterTypeLoadStatus.write(value.`loadStatus`, into: &buf)
     }
 }
+
 
 public func FfiConverterTypeCluster_lift(_ buf: RustBuffer) throws -> Cluster {
     return try FfiConverterTypeCluster.lift(buf)
@@ -933,40 +1009,44 @@ public func FfiConverterTypeCluster_lower(_ value: Cluster) -> RustBuffer {
     return FfiConverterTypeCluster.lower(value)
 }
 
+
 public struct ClusterId {
-    public var rawValue: String
+    public var `rawValue`: String
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(rawValue: String) {
-        self.rawValue = rawValue
+    public init(`rawValue`: String) {
+        self.`rawValue` = `rawValue`
     }
 }
 
+
 extension ClusterId: Equatable, Hashable {
-    public static func == (lhs: ClusterId, rhs: ClusterId) -> Bool {
-        if lhs.rawValue != rhs.rawValue {
+    public static func ==(lhs: ClusterId, rhs: ClusterId) -> Bool {
+        if lhs.`rawValue` != rhs.`rawValue` {
             return false
         }
         return true
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
+        hasher.combine(`rawValue`)
     }
 }
+
 
 public struct FfiConverterTypeClusterId: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ClusterId {
         return try ClusterId(
-            rawValue: FfiConverterString.read(from: &buf)
+            `rawValue`: FfiConverterString.read(from: &buf)
         )
     }
 
     public static func write(_ value: ClusterId, into buf: inout [UInt8]) {
-        FfiConverterString.write(value.rawValue, into: &buf)
+        FfiConverterString.write(value.`rawValue`, into: &buf)
     }
 }
+
 
 public func FfiConverterTypeClusterId_lift(_ buf: RustBuffer) throws -> ClusterId {
     return try FfiConverterTypeClusterId.lift(buf)
@@ -976,144 +1056,148 @@ public func FfiConverterTypeClusterId_lower(_ value: ClusterId) -> RustBuffer {
     return FfiConverterTypeClusterId.lower(value)
 }
 
+
 public struct Node {
-    public var id: NodeId
-    public var name: String
-    public var createdAt: Int64?
-    public var labels: [String: String]
-    public var annotations: [String: String]
-    public var taints: [Taint]
-    public var addresses: [NodeAddress]
-    public var os: String?
-    public var arch: String?
-    public var osImage: String?
-    public var kernelVersion: String?
-    public var containerRuntime: String?
-    public var kubeletVersion: String?
-    public var conditions: [NodeCondition]
+    public var `id`: NodeId
+    public var `name`: String
+    public var `createdAt`: Int64?
+    public var `labels`: [String: String]
+    public var `annotations`: [String: String]
+    public var `taints`: [Taint]
+    public var `addresses`: [NodeAddress]
+    public var `os`: String?
+    public var `arch`: String?
+    public var `osImage`: String?
+    public var `kernelVersion`: String?
+    public var `containerRuntime`: String?
+    public var `kubeletVersion`: String?
+    public var `conditions`: [NodeCondition]
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(id: NodeId, name: String, createdAt: Int64?, labels: [String: String], annotations: [String: String], taints: [Taint], addresses: [NodeAddress], os: String?, arch: String?, osImage: String?, kernelVersion: String?, containerRuntime: String?, kubeletVersion: String?, conditions: [NodeCondition]) {
-        self.id = id
-        self.name = name
-        self.createdAt = createdAt
-        self.labels = labels
-        self.annotations = annotations
-        self.taints = taints
-        self.addresses = addresses
-        self.os = os
-        self.arch = arch
-        self.osImage = osImage
-        self.kernelVersion = kernelVersion
-        self.containerRuntime = containerRuntime
-        self.kubeletVersion = kubeletVersion
-        self.conditions = conditions
+    public init(`id`: NodeId, `name`: String, `createdAt`: Int64?, `labels`: [String: String], `annotations`: [String: String], `taints`: [Taint], `addresses`: [NodeAddress], `os`: String?, `arch`: String?, `osImage`: String?, `kernelVersion`: String?, `containerRuntime`: String?, `kubeletVersion`: String?, `conditions`: [NodeCondition]) {
+        self.`id` = `id`
+        self.`name` = `name`
+        self.`createdAt` = `createdAt`
+        self.`labels` = `labels`
+        self.`annotations` = `annotations`
+        self.`taints` = `taints`
+        self.`addresses` = `addresses`
+        self.`os` = `os`
+        self.`arch` = `arch`
+        self.`osImage` = `osImage`
+        self.`kernelVersion` = `kernelVersion`
+        self.`containerRuntime` = `containerRuntime`
+        self.`kubeletVersion` = `kubeletVersion`
+        self.`conditions` = `conditions`
     }
 }
 
+
 extension Node: Equatable, Hashable {
-    public static func == (lhs: Node, rhs: Node) -> Bool {
-        if lhs.id != rhs.id {
+    public static func ==(lhs: Node, rhs: Node) -> Bool {
+        if lhs.`id` != rhs.`id` {
             return false
         }
-        if lhs.name != rhs.name {
+        if lhs.`name` != rhs.`name` {
             return false
         }
-        if lhs.createdAt != rhs.createdAt {
+        if lhs.`createdAt` != rhs.`createdAt` {
             return false
         }
-        if lhs.labels != rhs.labels {
+        if lhs.`labels` != rhs.`labels` {
             return false
         }
-        if lhs.annotations != rhs.annotations {
+        if lhs.`annotations` != rhs.`annotations` {
             return false
         }
-        if lhs.taints != rhs.taints {
+        if lhs.`taints` != rhs.`taints` {
             return false
         }
-        if lhs.addresses != rhs.addresses {
+        if lhs.`addresses` != rhs.`addresses` {
             return false
         }
-        if lhs.os != rhs.os {
+        if lhs.`os` != rhs.`os` {
             return false
         }
-        if lhs.arch != rhs.arch {
+        if lhs.`arch` != rhs.`arch` {
             return false
         }
-        if lhs.osImage != rhs.osImage {
+        if lhs.`osImage` != rhs.`osImage` {
             return false
         }
-        if lhs.kernelVersion != rhs.kernelVersion {
+        if lhs.`kernelVersion` != rhs.`kernelVersion` {
             return false
         }
-        if lhs.containerRuntime != rhs.containerRuntime {
+        if lhs.`containerRuntime` != rhs.`containerRuntime` {
             return false
         }
-        if lhs.kubeletVersion != rhs.kubeletVersion {
+        if lhs.`kubeletVersion` != rhs.`kubeletVersion` {
             return false
         }
-        if lhs.conditions != rhs.conditions {
+        if lhs.`conditions` != rhs.`conditions` {
             return false
         }
         return true
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(name)
-        hasher.combine(createdAt)
-        hasher.combine(labels)
-        hasher.combine(annotations)
-        hasher.combine(taints)
-        hasher.combine(addresses)
-        hasher.combine(os)
-        hasher.combine(arch)
-        hasher.combine(osImage)
-        hasher.combine(kernelVersion)
-        hasher.combine(containerRuntime)
-        hasher.combine(kubeletVersion)
-        hasher.combine(conditions)
+        hasher.combine(`id`)
+        hasher.combine(`name`)
+        hasher.combine(`createdAt`)
+        hasher.combine(`labels`)
+        hasher.combine(`annotations`)
+        hasher.combine(`taints`)
+        hasher.combine(`addresses`)
+        hasher.combine(`os`)
+        hasher.combine(`arch`)
+        hasher.combine(`osImage`)
+        hasher.combine(`kernelVersion`)
+        hasher.combine(`containerRuntime`)
+        hasher.combine(`kubeletVersion`)
+        hasher.combine(`conditions`)
     }
 }
+
 
 public struct FfiConverterTypeNode: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Node {
         return try Node(
-            id: FfiConverterTypeNodeId.read(from: &buf),
-            name: FfiConverterString.read(from: &buf),
-            createdAt: FfiConverterOptionInt64.read(from: &buf),
-            labels: FfiConverterDictionaryStringString.read(from: &buf),
-            annotations: FfiConverterDictionaryStringString.read(from: &buf),
-            taints: FfiConverterSequenceTypeTaint.read(from: &buf),
-            addresses: FfiConverterSequenceTypeNodeAddress.read(from: &buf),
-            os: FfiConverterOptionString.read(from: &buf),
-            arch: FfiConverterOptionString.read(from: &buf),
-            osImage: FfiConverterOptionString.read(from: &buf),
-            kernelVersion: FfiConverterOptionString.read(from: &buf),
-            containerRuntime: FfiConverterOptionString.read(from: &buf),
-            kubeletVersion: FfiConverterOptionString.read(from: &buf),
-            conditions: FfiConverterSequenceTypeNodeCondition.read(from: &buf)
+            `id`: FfiConverterTypeNodeId.read(from: &buf), 
+            `name`: FfiConverterString.read(from: &buf), 
+            `createdAt`: FfiConverterOptionInt64.read(from: &buf), 
+            `labels`: FfiConverterDictionaryStringString.read(from: &buf), 
+            `annotations`: FfiConverterDictionaryStringString.read(from: &buf), 
+            `taints`: FfiConverterSequenceTypeTaint.read(from: &buf), 
+            `addresses`: FfiConverterSequenceTypeNodeAddress.read(from: &buf), 
+            `os`: FfiConverterOptionString.read(from: &buf), 
+            `arch`: FfiConverterOptionString.read(from: &buf), 
+            `osImage`: FfiConverterOptionString.read(from: &buf), 
+            `kernelVersion`: FfiConverterOptionString.read(from: &buf), 
+            `containerRuntime`: FfiConverterOptionString.read(from: &buf), 
+            `kubeletVersion`: FfiConverterOptionString.read(from: &buf), 
+            `conditions`: FfiConverterSequenceTypeNodeCondition.read(from: &buf)
         )
     }
 
     public static func write(_ value: Node, into buf: inout [UInt8]) {
-        FfiConverterTypeNodeId.write(value.id, into: &buf)
-        FfiConverterString.write(value.name, into: &buf)
-        FfiConverterOptionInt64.write(value.createdAt, into: &buf)
-        FfiConverterDictionaryStringString.write(value.labels, into: &buf)
-        FfiConverterDictionaryStringString.write(value.annotations, into: &buf)
-        FfiConverterSequenceTypeTaint.write(value.taints, into: &buf)
-        FfiConverterSequenceTypeNodeAddress.write(value.addresses, into: &buf)
-        FfiConverterOptionString.write(value.os, into: &buf)
-        FfiConverterOptionString.write(value.arch, into: &buf)
-        FfiConverterOptionString.write(value.osImage, into: &buf)
-        FfiConverterOptionString.write(value.kernelVersion, into: &buf)
-        FfiConverterOptionString.write(value.containerRuntime, into: &buf)
-        FfiConverterOptionString.write(value.kubeletVersion, into: &buf)
-        FfiConverterSequenceTypeNodeCondition.write(value.conditions, into: &buf)
+        FfiConverterTypeNodeId.write(value.`id`, into: &buf)
+        FfiConverterString.write(value.`name`, into: &buf)
+        FfiConverterOptionInt64.write(value.`createdAt`, into: &buf)
+        FfiConverterDictionaryStringString.write(value.`labels`, into: &buf)
+        FfiConverterDictionaryStringString.write(value.`annotations`, into: &buf)
+        FfiConverterSequenceTypeTaint.write(value.`taints`, into: &buf)
+        FfiConverterSequenceTypeNodeAddress.write(value.`addresses`, into: &buf)
+        FfiConverterOptionString.write(value.`os`, into: &buf)
+        FfiConverterOptionString.write(value.`arch`, into: &buf)
+        FfiConverterOptionString.write(value.`osImage`, into: &buf)
+        FfiConverterOptionString.write(value.`kernelVersion`, into: &buf)
+        FfiConverterOptionString.write(value.`containerRuntime`, into: &buf)
+        FfiConverterOptionString.write(value.`kubeletVersion`, into: &buf)
+        FfiConverterSequenceTypeNodeCondition.write(value.`conditions`, into: &buf)
     }
 }
+
 
 public func FfiConverterTypeNode_lift(_ buf: RustBuffer) throws -> Node {
     return try FfiConverterTypeNode.lift(buf)
@@ -1123,48 +1207,52 @@ public func FfiConverterTypeNode_lower(_ value: Node) -> RustBuffer {
     return FfiConverterTypeNode.lower(value)
 }
 
+
 public struct NodeAddress {
-    public var address: String
-    public var nodeType: String
+    public var `address`: String
+    public var `nodeType`: String
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(address: String, nodeType: String) {
-        self.address = address
-        self.nodeType = nodeType
+    public init(`address`: String, `nodeType`: String) {
+        self.`address` = `address`
+        self.`nodeType` = `nodeType`
     }
 }
 
+
 extension NodeAddress: Equatable, Hashable {
-    public static func == (lhs: NodeAddress, rhs: NodeAddress) -> Bool {
-        if lhs.address != rhs.address {
+    public static func ==(lhs: NodeAddress, rhs: NodeAddress) -> Bool {
+        if lhs.`address` != rhs.`address` {
             return false
         }
-        if lhs.nodeType != rhs.nodeType {
+        if lhs.`nodeType` != rhs.`nodeType` {
             return false
         }
         return true
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(address)
-        hasher.combine(nodeType)
+        hasher.combine(`address`)
+        hasher.combine(`nodeType`)
     }
 }
+
 
 public struct FfiConverterTypeNodeAddress: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> NodeAddress {
         return try NodeAddress(
-            address: FfiConverterString.read(from: &buf),
-            nodeType: FfiConverterString.read(from: &buf)
+            `address`: FfiConverterString.read(from: &buf), 
+            `nodeType`: FfiConverterString.read(from: &buf)
         )
     }
 
     public static func write(_ value: NodeAddress, into buf: inout [UInt8]) {
-        FfiConverterString.write(value.address, into: &buf)
-        FfiConverterString.write(value.nodeType, into: &buf)
+        FfiConverterString.write(value.`address`, into: &buf)
+        FfiConverterString.write(value.`nodeType`, into: &buf)
     }
 }
+
 
 public func FfiConverterTypeNodeAddress_lift(_ buf: RustBuffer) throws -> NodeAddress {
     return try FfiConverterTypeNodeAddress.lift(buf)
@@ -1174,64 +1262,68 @@ public func FfiConverterTypeNodeAddress_lower(_ value: NodeAddress) -> RustBuffe
     return FfiConverterTypeNodeAddress.lower(value)
 }
 
+
 public struct NodeCondition {
-    public var name: String
-    public var status: String
-    public var reason: String?
-    public var message: String?
+    public var `name`: String
+    public var `status`: String
+    public var `reason`: String?
+    public var `message`: String?
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(name: String, status: String, reason: String?, message: String?) {
-        self.name = name
-        self.status = status
-        self.reason = reason
-        self.message = message
+    public init(`name`: String, `status`: String, `reason`: String?, `message`: String?) {
+        self.`name` = `name`
+        self.`status` = `status`
+        self.`reason` = `reason`
+        self.`message` = `message`
     }
 }
 
+
 extension NodeCondition: Equatable, Hashable {
-    public static func == (lhs: NodeCondition, rhs: NodeCondition) -> Bool {
-        if lhs.name != rhs.name {
+    public static func ==(lhs: NodeCondition, rhs: NodeCondition) -> Bool {
+        if lhs.`name` != rhs.`name` {
             return false
         }
-        if lhs.status != rhs.status {
+        if lhs.`status` != rhs.`status` {
             return false
         }
-        if lhs.reason != rhs.reason {
+        if lhs.`reason` != rhs.`reason` {
             return false
         }
-        if lhs.message != rhs.message {
+        if lhs.`message` != rhs.`message` {
             return false
         }
         return true
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(status)
-        hasher.combine(reason)
-        hasher.combine(message)
+        hasher.combine(`name`)
+        hasher.combine(`status`)
+        hasher.combine(`reason`)
+        hasher.combine(`message`)
     }
 }
+
 
 public struct FfiConverterTypeNodeCondition: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> NodeCondition {
         return try NodeCondition(
-            name: FfiConverterString.read(from: &buf),
-            status: FfiConverterString.read(from: &buf),
-            reason: FfiConverterOptionString.read(from: &buf),
-            message: FfiConverterOptionString.read(from: &buf)
+            `name`: FfiConverterString.read(from: &buf), 
+            `status`: FfiConverterString.read(from: &buf), 
+            `reason`: FfiConverterOptionString.read(from: &buf), 
+            `message`: FfiConverterOptionString.read(from: &buf)
         )
     }
 
     public static func write(_ value: NodeCondition, into buf: inout [UInt8]) {
-        FfiConverterString.write(value.name, into: &buf)
-        FfiConverterString.write(value.status, into: &buf)
-        FfiConverterOptionString.write(value.reason, into: &buf)
-        FfiConverterOptionString.write(value.message, into: &buf)
+        FfiConverterString.write(value.`name`, into: &buf)
+        FfiConverterString.write(value.`status`, into: &buf)
+        FfiConverterOptionString.write(value.`reason`, into: &buf)
+        FfiConverterOptionString.write(value.`message`, into: &buf)
     }
 }
+
 
 public func FfiConverterTypeNodeCondition_lift(_ buf: RustBuffer) throws -> NodeCondition {
     return try FfiConverterTypeNodeCondition.lift(buf)
@@ -1241,40 +1333,44 @@ public func FfiConverterTypeNodeCondition_lower(_ value: NodeCondition) -> RustB
     return FfiConverterTypeNodeCondition.lower(value)
 }
 
+
 public struct NodeId {
-    public var rawValue: String
+    public var `rawValue`: String
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(rawValue: String) {
-        self.rawValue = rawValue
+    public init(`rawValue`: String) {
+        self.`rawValue` = `rawValue`
     }
 }
 
+
 extension NodeId: Equatable, Hashable {
-    public static func == (lhs: NodeId, rhs: NodeId) -> Bool {
-        if lhs.rawValue != rhs.rawValue {
+    public static func ==(lhs: NodeId, rhs: NodeId) -> Bool {
+        if lhs.`rawValue` != rhs.`rawValue` {
             return false
         }
         return true
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
+        hasher.combine(`rawValue`)
     }
 }
+
 
 public struct FfiConverterTypeNodeId: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> NodeId {
         return try NodeId(
-            rawValue: FfiConverterString.read(from: &buf)
+            `rawValue`: FfiConverterString.read(from: &buf)
         )
     }
 
     public static func write(_ value: NodeId, into buf: inout [UInt8]) {
-        FfiConverterString.write(value.rawValue, into: &buf)
+        FfiConverterString.write(value.`rawValue`, into: &buf)
     }
 }
+
 
 public func FfiConverterTypeNodeId_lift(_ buf: RustBuffer) throws -> NodeId {
     return try FfiConverterTypeNodeId.lift(buf)
@@ -1284,56 +1380,60 @@ public func FfiConverterTypeNodeId_lower(_ value: NodeId) -> RustBuffer {
     return FfiConverterTypeNodeId.lower(value)
 }
 
+
 public struct Tab {
-    public var id: TabId
-    public var icon: String
-    public var name: String
+    public var `id`: TabId
+    public var `icon`: String
+    public var `name`: String
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(id: TabId, icon: String, name: String) {
-        self.id = id
-        self.icon = icon
-        self.name = name
+    public init(`id`: TabId, `icon`: String, `name`: String) {
+        self.`id` = `id`
+        self.`icon` = `icon`
+        self.`name` = `name`
     }
 }
 
+
 extension Tab: Equatable, Hashable {
-    public static func == (lhs: Tab, rhs: Tab) -> Bool {
-        if lhs.id != rhs.id {
+    public static func ==(lhs: Tab, rhs: Tab) -> Bool {
+        if lhs.`id` != rhs.`id` {
             return false
         }
-        if lhs.icon != rhs.icon {
+        if lhs.`icon` != rhs.`icon` {
             return false
         }
-        if lhs.name != rhs.name {
+        if lhs.`name` != rhs.`name` {
             return false
         }
         return true
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(icon)
-        hasher.combine(name)
+        hasher.combine(`id`)
+        hasher.combine(`icon`)
+        hasher.combine(`name`)
     }
 }
+
 
 public struct FfiConverterTypeTab: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Tab {
         return try Tab(
-            id: FfiConverterTypeTabId.read(from: &buf),
-            icon: FfiConverterString.read(from: &buf),
-            name: FfiConverterString.read(from: &buf)
+            `id`: FfiConverterTypeTabId.read(from: &buf), 
+            `icon`: FfiConverterString.read(from: &buf), 
+            `name`: FfiConverterString.read(from: &buf)
         )
     }
 
     public static func write(_ value: Tab, into buf: inout [UInt8]) {
-        FfiConverterTypeTabId.write(value.id, into: &buf)
-        FfiConverterString.write(value.icon, into: &buf)
-        FfiConverterString.write(value.name, into: &buf)
+        FfiConverterTypeTabId.write(value.`id`, into: &buf)
+        FfiConverterString.write(value.`icon`, into: &buf)
+        FfiConverterString.write(value.`name`, into: &buf)
     }
 }
+
 
 public func FfiConverterTypeTab_lift(_ buf: RustBuffer) throws -> Tab {
     return try FfiConverterTypeTab.lift(buf)
@@ -1343,56 +1443,60 @@ public func FfiConverterTypeTab_lower(_ value: Tab) -> RustBuffer {
     return FfiConverterTypeTab.lower(value)
 }
 
+
 public struct TabGroup {
-    public var id: TabGroupId
-    public var name: String
-    public var tabs: [Tab]
+    public var `id`: TabGroupId
+    public var `name`: String
+    public var `tabs`: [Tab]
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(id: TabGroupId, name: String, tabs: [Tab]) {
-        self.id = id
-        self.name = name
-        self.tabs = tabs
+    public init(`id`: TabGroupId, `name`: String, `tabs`: [Tab]) {
+        self.`id` = `id`
+        self.`name` = `name`
+        self.`tabs` = `tabs`
     }
 }
 
+
 extension TabGroup: Equatable, Hashable {
-    public static func == (lhs: TabGroup, rhs: TabGroup) -> Bool {
-        if lhs.id != rhs.id {
+    public static func ==(lhs: TabGroup, rhs: TabGroup) -> Bool {
+        if lhs.`id` != rhs.`id` {
             return false
         }
-        if lhs.name != rhs.name {
+        if lhs.`name` != rhs.`name` {
             return false
         }
-        if lhs.tabs != rhs.tabs {
+        if lhs.`tabs` != rhs.`tabs` {
             return false
         }
         return true
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(name)
-        hasher.combine(tabs)
+        hasher.combine(`id`)
+        hasher.combine(`name`)
+        hasher.combine(`tabs`)
     }
 }
+
 
 public struct FfiConverterTypeTabGroup: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> TabGroup {
         return try TabGroup(
-            id: FfiConverterTypeTabGroupId.read(from: &buf),
-            name: FfiConverterString.read(from: &buf),
-            tabs: FfiConverterSequenceTypeTab.read(from: &buf)
+            `id`: FfiConverterTypeTabGroupId.read(from: &buf), 
+            `name`: FfiConverterString.read(from: &buf), 
+            `tabs`: FfiConverterSequenceTypeTab.read(from: &buf)
         )
     }
 
     public static func write(_ value: TabGroup, into buf: inout [UInt8]) {
-        FfiConverterTypeTabGroupId.write(value.id, into: &buf)
-        FfiConverterString.write(value.name, into: &buf)
-        FfiConverterSequenceTypeTab.write(value.tabs, into: &buf)
+        FfiConverterTypeTabGroupId.write(value.`id`, into: &buf)
+        FfiConverterString.write(value.`name`, into: &buf)
+        FfiConverterSequenceTypeTab.write(value.`tabs`, into: &buf)
     }
 }
+
 
 public func FfiConverterTypeTabGroup_lift(_ buf: RustBuffer) throws -> TabGroup {
     return try FfiConverterTypeTabGroup.lift(buf)
@@ -1402,64 +1506,68 @@ public func FfiConverterTypeTabGroup_lower(_ value: TabGroup) -> RustBuffer {
     return FfiConverterTypeTabGroup.lower(value)
 }
 
+
 public struct Taint {
-    public var effect: String
-    public var key: String
-    public var timeAdded: String?
-    public var value: String?
+    public var `effect`: String
+    public var `key`: String
+    public var `timeAdded`: String?
+    public var `value`: String?
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(effect: String, key: String, timeAdded: String?, value: String?) {
-        self.effect = effect
-        self.key = key
-        self.timeAdded = timeAdded
-        self.value = value
+    public init(`effect`: String, `key`: String, `timeAdded`: String?, `value`: String?) {
+        self.`effect` = `effect`
+        self.`key` = `key`
+        self.`timeAdded` = `timeAdded`
+        self.`value` = `value`
     }
 }
 
+
 extension Taint: Equatable, Hashable {
-    public static func == (lhs: Taint, rhs: Taint) -> Bool {
-        if lhs.effect != rhs.effect {
+    public static func ==(lhs: Taint, rhs: Taint) -> Bool {
+        if lhs.`effect` != rhs.`effect` {
             return false
         }
-        if lhs.key != rhs.key {
+        if lhs.`key` != rhs.`key` {
             return false
         }
-        if lhs.timeAdded != rhs.timeAdded {
+        if lhs.`timeAdded` != rhs.`timeAdded` {
             return false
         }
-        if lhs.value != rhs.value {
+        if lhs.`value` != rhs.`value` {
             return false
         }
         return true
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(effect)
-        hasher.combine(key)
-        hasher.combine(timeAdded)
-        hasher.combine(value)
+        hasher.combine(`effect`)
+        hasher.combine(`key`)
+        hasher.combine(`timeAdded`)
+        hasher.combine(`value`)
     }
 }
+
 
 public struct FfiConverterTypeTaint: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Taint {
         return try Taint(
-            effect: FfiConverterString.read(from: &buf),
-            key: FfiConverterString.read(from: &buf),
-            timeAdded: FfiConverterOptionString.read(from: &buf),
-            value: FfiConverterOptionString.read(from: &buf)
+            `effect`: FfiConverterString.read(from: &buf), 
+            `key`: FfiConverterString.read(from: &buf), 
+            `timeAdded`: FfiConverterOptionString.read(from: &buf), 
+            `value`: FfiConverterOptionString.read(from: &buf)
         )
     }
 
     public static func write(_ value: Taint, into buf: inout [UInt8]) {
-        FfiConverterString.write(value.effect, into: &buf)
-        FfiConverterString.write(value.key, into: &buf)
-        FfiConverterOptionString.write(value.timeAdded, into: &buf)
-        FfiConverterOptionString.write(value.value, into: &buf)
+        FfiConverterString.write(value.`effect`, into: &buf)
+        FfiConverterString.write(value.`key`, into: &buf)
+        FfiConverterOptionString.write(value.`timeAdded`, into: &buf)
+        FfiConverterOptionString.write(value.`value`, into: &buf)
     }
 }
+
 
 public func FfiConverterTypeTaint_lift(_ buf: RustBuffer) throws -> Taint {
     return try FfiConverterTypeTaint.lift(buf)
@@ -1472,11 +1580,12 @@ public func FfiConverterTypeTaint_lower(_ value: Taint) -> RustBuffer {
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum FocusRegion {
-    case sidebarSearch
-    case sidebarGroup(id: TabGroupId)
-    case inTabGroup(tabGroupId: TabGroupId, tabId: TabId)
-    case clusterSelection
-    case content
+    
+    case `sidebarSearch`
+    case `sidebarGroup`(`id`: TabGroupId)
+    case `inTabGroup`(`tabGroupId`: TabGroupId, `tabId`: TabId)
+    case `clusterSelection`
+    case `content`
 }
 
 public struct FfiConverterTypeFocusRegion: FfiConverterRustBuffer {
@@ -1485,47 +1594,56 @@ public struct FfiConverterTypeFocusRegion: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> FocusRegion {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-        case 1: return .sidebarSearch
-
-        case 2: return try .sidebarGroup(
-                id: FfiConverterTypeTabGroupId.read(from: &buf)
-            )
-
-        case 3: return try .inTabGroup(
-                tabGroupId: FfiConverterTypeTabGroupId.read(from: &buf),
-                tabId: FfiConverterTypeTabId.read(from: &buf)
-            )
-
-        case 4: return .clusterSelection
-
-        case 5: return .content
-
+        
+        case 1: return .`sidebarSearch`
+        
+        case 2: return .`sidebarGroup`(
+            `id`: try FfiConverterTypeTabGroupId.read(from: &buf)
+        )
+        
+        case 3: return .`inTabGroup`(
+            `tabGroupId`: try FfiConverterTypeTabGroupId.read(from: &buf), 
+            `tabId`: try FfiConverterTypeTabId.read(from: &buf)
+        )
+        
+        case 4: return .`clusterSelection`
+        
+        case 5: return .`content`
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: FocusRegion, into buf: inout [UInt8]) {
         switch value {
-        case .sidebarSearch:
+        
+        
+        case .`sidebarSearch`:
             writeInt(&buf, Int32(1))
-
-        case let .sidebarGroup(id):
+        
+        
+        case let .`sidebarGroup`(`id`):
             writeInt(&buf, Int32(2))
-            FfiConverterTypeTabGroupId.write(id, into: &buf)
-
-        case let .inTabGroup(tabGroupId, tabId):
+            FfiConverterTypeTabGroupId.write(`id`, into: &buf)
+            
+        
+        case let .`inTabGroup`(`tabGroupId`,`tabId`):
             writeInt(&buf, Int32(3))
-            FfiConverterTypeTabGroupId.write(tabGroupId, into: &buf)
-            FfiConverterTypeTabId.write(tabId, into: &buf)
-
-        case .clusterSelection:
+            FfiConverterTypeTabGroupId.write(`tabGroupId`, into: &buf)
+            FfiConverterTypeTabId.write(`tabId`, into: &buf)
+            
+        
+        case .`clusterSelection`:
             writeInt(&buf, Int32(4))
-
-        case .content:
+        
+        
+        case .`content`:
             writeInt(&buf, Int32(5))
+        
         }
     }
 }
+
 
 public func FfiConverterTypeFocusRegion_lift(_ buf: RustBuffer) throws -> FocusRegion {
     return try FfiConverterTypeFocusRegion.lift(buf)
@@ -1535,15 +1653,19 @@ public func FfiConverterTypeFocusRegion_lower(_ value: FocusRegion) -> RustBuffe
     return FfiConverterTypeFocusRegion.lower(value)
 }
 
+
 extension FocusRegion: Equatable, Hashable {}
+
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum GlobalViewModelMessage {
-    case clustersLoaded
-    case loadingClient
-    case clientLoaded
-    case clientLoadError(error: String)
+    
+    case `clustersLoaded`
+    case `loadingClient`
+    case `clientLoaded`
+    case `clientLoadError`(`error`: String)
 }
 
 public struct FfiConverterTypeGlobalViewModelMessage: FfiConverterRustBuffer {
@@ -1552,37 +1674,45 @@ public struct FfiConverterTypeGlobalViewModelMessage: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> GlobalViewModelMessage {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-        case 1: return .clustersLoaded
-
-        case 2: return .loadingClient
-
-        case 3: return .clientLoaded
-
-        case 4: return try .clientLoadError(
-                error: FfiConverterString.read(from: &buf)
-            )
-
+        
+        case 1: return .`clustersLoaded`
+        
+        case 2: return .`loadingClient`
+        
+        case 3: return .`clientLoaded`
+        
+        case 4: return .`clientLoadError`(
+            `error`: try FfiConverterString.read(from: &buf)
+        )
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: GlobalViewModelMessage, into buf: inout [UInt8]) {
         switch value {
-        case .clustersLoaded:
+        
+        
+        case .`clustersLoaded`:
             writeInt(&buf, Int32(1))
-
-        case .loadingClient:
+        
+        
+        case .`loadingClient`:
             writeInt(&buf, Int32(2))
-
-        case .clientLoaded:
+        
+        
+        case .`clientLoaded`:
             writeInt(&buf, Int32(3))
-
-        case let .clientLoadError(error):
+        
+        
+        case let .`clientLoadError`(`error`):
             writeInt(&buf, Int32(4))
-            FfiConverterString.write(error, into: &buf)
+            FfiConverterString.write(`error`, into: &buf)
+            
         }
     }
 }
+
 
 public func FfiConverterTypeGlobalViewModelMessage_lift(_ buf: RustBuffer) throws -> GlobalViewModelMessage {
     return try FfiConverterTypeGlobalViewModelMessage.lift(buf)
@@ -1592,22 +1722,26 @@ public func FfiConverterTypeGlobalViewModelMessage_lower(_ value: GlobalViewMode
     return FfiConverterTypeGlobalViewModelMessage.lower(value)
 }
 
+
 extension GlobalViewModelMessage: Equatable, Hashable {}
+
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum KeyAwareEvent {
-    case delete
-    case upArrow
-    case downArrow
-    case leftArrow
-    case rightArrow
-    case space
-    case enter
-    case shiftTab
-    case tabKey
-    case escape
-    case optionF
+    
+    case `delete`
+    case `upArrow`
+    case `downArrow`
+    case `leftArrow`
+    case `rightArrow`
+    case `space`
+    case `enter`
+    case `shiftTab`
+    case `tabKey`
+    case `escape`
+    case `optionF`
 }
 
 public struct FfiConverterTypeKeyAwareEvent: FfiConverterRustBuffer {
@@ -1616,69 +1750,84 @@ public struct FfiConverterTypeKeyAwareEvent: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> KeyAwareEvent {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-        case 1: return .delete
-
-        case 2: return .upArrow
-
-        case 3: return .downArrow
-
-        case 4: return .leftArrow
-
-        case 5: return .rightArrow
-
-        case 6: return .space
-
-        case 7: return .enter
-
-        case 8: return .shiftTab
-
-        case 9: return .tabKey
-
-        case 10: return .escape
-
-        case 11: return .optionF
-
+        
+        case 1: return .`delete`
+        
+        case 2: return .`upArrow`
+        
+        case 3: return .`downArrow`
+        
+        case 4: return .`leftArrow`
+        
+        case 5: return .`rightArrow`
+        
+        case 6: return .`space`
+        
+        case 7: return .`enter`
+        
+        case 8: return .`shiftTab`
+        
+        case 9: return .`tabKey`
+        
+        case 10: return .`escape`
+        
+        case 11: return .`optionF`
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: KeyAwareEvent, into buf: inout [UInt8]) {
         switch value {
-        case .delete:
+        
+        
+        case .`delete`:
             writeInt(&buf, Int32(1))
-
-        case .upArrow:
+        
+        
+        case .`upArrow`:
             writeInt(&buf, Int32(2))
-
-        case .downArrow:
+        
+        
+        case .`downArrow`:
             writeInt(&buf, Int32(3))
-
-        case .leftArrow:
+        
+        
+        case .`leftArrow`:
             writeInt(&buf, Int32(4))
-
-        case .rightArrow:
+        
+        
+        case .`rightArrow`:
             writeInt(&buf, Int32(5))
-
-        case .space:
+        
+        
+        case .`space`:
             writeInt(&buf, Int32(6))
-
-        case .enter:
+        
+        
+        case .`enter`:
             writeInt(&buf, Int32(7))
-
-        case .shiftTab:
+        
+        
+        case .`shiftTab`:
             writeInt(&buf, Int32(8))
-
-        case .tabKey:
+        
+        
+        case .`tabKey`:
             writeInt(&buf, Int32(9))
-
-        case .escape:
+        
+        
+        case .`escape`:
             writeInt(&buf, Int32(10))
-
-        case .optionF:
+        
+        
+        case .`optionF`:
             writeInt(&buf, Int32(11))
+        
         }
     }
 }
+
 
 public func FfiConverterTypeKeyAwareEvent_lift(_ buf: RustBuffer) throws -> KeyAwareEvent {
     return try FfiConverterTypeKeyAwareEvent.lift(buf)
@@ -1688,15 +1837,19 @@ public func FfiConverterTypeKeyAwareEvent_lower(_ value: KeyAwareEvent) -> RustB
     return FfiConverterTypeKeyAwareEvent.lower(value)
 }
 
+
 extension KeyAwareEvent: Equatable, Hashable {}
+
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum LoadStatus {
-    case initial
-    case loading
-    case loaded
-    case error(error: String)
+    
+    case `initial`
+    case `loading`
+    case `loaded`
+    case `error`(`error`: String)
 }
 
 public struct FfiConverterTypeLoadStatus: FfiConverterRustBuffer {
@@ -1705,37 +1858,45 @@ public struct FfiConverterTypeLoadStatus: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> LoadStatus {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-        case 1: return .initial
-
-        case 2: return .loading
-
-        case 3: return .loaded
-
-        case 4: return try .error(
-                error: FfiConverterString.read(from: &buf)
-            )
-
+        
+        case 1: return .`initial`
+        
+        case 2: return .`loading`
+        
+        case 3: return .`loaded`
+        
+        case 4: return .`error`(
+            `error`: try FfiConverterString.read(from: &buf)
+        )
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: LoadStatus, into buf: inout [UInt8]) {
         switch value {
-        case .initial:
+        
+        
+        case .`initial`:
             writeInt(&buf, Int32(1))
-
-        case .loading:
+        
+        
+        case .`loading`:
             writeInt(&buf, Int32(2))
-
-        case .loaded:
+        
+        
+        case .`loaded`:
             writeInt(&buf, Int32(3))
-
-        case let .error(error):
+        
+        
+        case let .`error`(`error`):
             writeInt(&buf, Int32(4))
-            FfiConverterString.write(error, into: &buf)
+            FfiConverterString.write(`error`, into: &buf)
+            
         }
     }
 }
+
 
 public func FfiConverterTypeLoadStatus_lift(_ buf: RustBuffer) throws -> LoadStatus {
     return try FfiConverterTypeLoadStatus.lift(buf)
@@ -1745,14 +1906,18 @@ public func FfiConverterTypeLoadStatus_lower(_ value: LoadStatus) -> RustBuffer 
     return FfiConverterTypeLoadStatus.lower(value)
 }
 
+
 extension LoadStatus: Equatable, Hashable {}
+
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum MainViewModelField {
-    case currentFocusRegion
-    case selectedTab
-    case tabGroupExpansions
+    
+    case `currentFocusRegion`
+    case `selectedTab`
+    case `tabGroupExpansions`
 }
 
 public struct FfiConverterTypeMainViewModelField: FfiConverterRustBuffer {
@@ -1761,29 +1926,36 @@ public struct FfiConverterTypeMainViewModelField: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> MainViewModelField {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-        case 1: return .currentFocusRegion
-
-        case 2: return .selectedTab
-
-        case 3: return .tabGroupExpansions
-
+        
+        case 1: return .`currentFocusRegion`
+        
+        case 2: return .`selectedTab`
+        
+        case 3: return .`tabGroupExpansions`
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: MainViewModelField, into buf: inout [UInt8]) {
         switch value {
-        case .currentFocusRegion:
+        
+        
+        case .`currentFocusRegion`:
             writeInt(&buf, Int32(1))
-
-        case .selectedTab:
+        
+        
+        case .`selectedTab`:
             writeInt(&buf, Int32(2))
-
-        case .tabGroupExpansions:
+        
+        
+        case .`tabGroupExpansions`:
             writeInt(&buf, Int32(3))
+        
         }
     }
 }
+
 
 public func FfiConverterTypeMainViewModelField_lift(_ buf: RustBuffer) throws -> MainViewModelField {
     return try FfiConverterTypeMainViewModelField.lift(buf)
@@ -1793,15 +1965,19 @@ public func FfiConverterTypeMainViewModelField_lower(_ value: MainViewModelField
     return FfiConverterTypeMainViewModelField.lower(value)
 }
 
+
 extension MainViewModelField: Equatable, Hashable {}
+
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum NodeLoadStatus {
-    case initial
-    case loading
-    case loaded(nodes: [Node])
-    case error(error: String)
+    
+    case `initial`
+    case `loading`
+    case `loaded`(`nodes`: [Node])
+    case `error`(`error`: String)
 }
 
 public struct FfiConverterTypeNodeLoadStatus: FfiConverterRustBuffer {
@@ -1810,40 +1986,48 @@ public struct FfiConverterTypeNodeLoadStatus: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> NodeLoadStatus {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-        case 1: return .initial
-
-        case 2: return .loading
-
-        case 3: return try .loaded(
-                nodes: FfiConverterSequenceTypeNode.read(from: &buf)
-            )
-
-        case 4: return try .error(
-                error: FfiConverterString.read(from: &buf)
-            )
-
+        
+        case 1: return .`initial`
+        
+        case 2: return .`loading`
+        
+        case 3: return .`loaded`(
+            `nodes`: try FfiConverterSequenceTypeNode.read(from: &buf)
+        )
+        
+        case 4: return .`error`(
+            `error`: try FfiConverterString.read(from: &buf)
+        )
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: NodeLoadStatus, into buf: inout [UInt8]) {
         switch value {
-        case .initial:
+        
+        
+        case .`initial`:
             writeInt(&buf, Int32(1))
-
-        case .loading:
+        
+        
+        case .`loading`:
             writeInt(&buf, Int32(2))
-
-        case let .loaded(nodes):
+        
+        
+        case let .`loaded`(`nodes`):
             writeInt(&buf, Int32(3))
-            FfiConverterSequenceTypeNode.write(nodes, into: &buf)
-
-        case let .error(error):
+            FfiConverterSequenceTypeNode.write(`nodes`, into: &buf)
+            
+        
+        case let .`error`(`error`):
             writeInt(&buf, Int32(4))
-            FfiConverterString.write(error, into: &buf)
+            FfiConverterString.write(`error`, into: &buf)
+            
         }
     }
 }
+
 
 public func FfiConverterTypeNodeLoadStatus_lift(_ buf: RustBuffer) throws -> NodeLoadStatus {
     return try FfiConverterTypeNodeLoadStatus.lift(buf)
@@ -1853,14 +2037,18 @@ public func FfiConverterTypeNodeLoadStatus_lower(_ value: NodeLoadStatus) -> Rus
     return FfiConverterTypeNodeLoadStatus.lower(value)
 }
 
+
 extension NodeLoadStatus: Equatable, Hashable {}
+
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum NodeViewModelMessage {
-    case loadingNodes
-    case nodesLoaded
-    case nodeLoadingFailed(error: String)
+    
+    case `loadingNodes`
+    case `nodesLoaded`
+    case `nodeLoadingFailed`(`error`: String)
 }
 
 public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
@@ -1869,32 +2057,39 @@ public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> NodeViewModelMessage {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-        case 1: return .loadingNodes
-
-        case 2: return .nodesLoaded
-
-        case 3: return try .nodeLoadingFailed(
-                error: FfiConverterString.read(from: &buf)
-            )
-
+        
+        case 1: return .`loadingNodes`
+        
+        case 2: return .`nodesLoaded`
+        
+        case 3: return .`nodeLoadingFailed`(
+            `error`: try FfiConverterString.read(from: &buf)
+        )
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: NodeViewModelMessage, into buf: inout [UInt8]) {
         switch value {
-        case .loadingNodes:
+        
+        
+        case .`loadingNodes`:
             writeInt(&buf, Int32(1))
-
-        case .nodesLoaded:
+        
+        
+        case .`nodesLoaded`:
             writeInt(&buf, Int32(2))
-
-        case let .nodeLoadingFailed(error):
+        
+        
+        case let .`nodeLoadingFailed`(`error`):
             writeInt(&buf, Int32(3))
-            FfiConverterString.write(error, into: &buf)
+            FfiConverterString.write(`error`, into: &buf)
+            
         }
     }
 }
+
 
 public func FfiConverterTypeNodeViewModelMessage_lift(_ buf: RustBuffer) throws -> NodeViewModelMessage {
     return try FfiConverterTypeNodeViewModelMessage.lift(buf)
@@ -1904,18 +2099,22 @@ public func FfiConverterTypeNodeViewModelMessage_lower(_ value: NodeViewModelMes
     return FfiConverterTypeNodeViewModelMessage.lower(value)
 }
 
+
 extension NodeViewModelMessage: Equatable, Hashable {}
+
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum TabGroupId {
-    case general
-    case workloads
-    case config
-    case network
-    case storage
-    case accessControl
-    case helm
+    
+    case `general`
+    case `workloads`
+    case `config`
+    case `network`
+    case `storage`
+    case `accessControl`
+    case `helm`
 }
 
 public struct FfiConverterTypeTabGroupId: FfiConverterRustBuffer {
@@ -1924,49 +2123,60 @@ public struct FfiConverterTypeTabGroupId: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> TabGroupId {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-        case 1: return .general
-
-        case 2: return .workloads
-
-        case 3: return .config
-
-        case 4: return .network
-
-        case 5: return .storage
-
-        case 6: return .accessControl
-
-        case 7: return .helm
-
+        
+        case 1: return .`general`
+        
+        case 2: return .`workloads`
+        
+        case 3: return .`config`
+        
+        case 4: return .`network`
+        
+        case 5: return .`storage`
+        
+        case 6: return .`accessControl`
+        
+        case 7: return .`helm`
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: TabGroupId, into buf: inout [UInt8]) {
         switch value {
-        case .general:
+        
+        
+        case .`general`:
             writeInt(&buf, Int32(1))
-
-        case .workloads:
+        
+        
+        case .`workloads`:
             writeInt(&buf, Int32(2))
-
-        case .config:
+        
+        
+        case .`config`:
             writeInt(&buf, Int32(3))
-
-        case .network:
+        
+        
+        case .`network`:
             writeInt(&buf, Int32(4))
-
-        case .storage:
+        
+        
+        case .`storage`:
             writeInt(&buf, Int32(5))
-
-        case .accessControl:
+        
+        
+        case .`accessControl`:
             writeInt(&buf, Int32(6))
-
-        case .helm:
+        
+        
+        case .`helm`:
             writeInt(&buf, Int32(7))
+        
         }
     }
 }
+
 
 public func FfiConverterTypeTabGroupId_lift(_ buf: RustBuffer) throws -> TabGroupId {
     return try FfiConverterTypeTabGroupId.lift(buf)
@@ -1976,48 +2186,52 @@ public func FfiConverterTypeTabGroupId_lower(_ value: TabGroupId) -> RustBuffer 
     return FfiConverterTypeTabGroupId.lower(value)
 }
 
+
 extension TabGroupId: Equatable, Hashable {}
+
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum TabId {
-    case clusterTab
-    case nodes
-    case nameSpaces
-    case events
-    case overview
-    case pods
-    case deployments
-    case daemonSets
-    case statefulSets
-    case replicaSets
-    case jobs
-    case cronJobs
-    case configMaps
-    case secrets
-    case resourceQuotas
-    case limitRanges
-    case horizontalPodAutoscalers
-    case podDisruptionBudgets
-    case priorityClasses
-    case runtimeClasses
-    case leases
-    case services
-    case endpoints
-    case ingresses
-    case networkPolicies
-    case portForwarding
-    case persistentVolumeClaims
-    case persistentVolumes
-    case storageClasses
-    case serviceAccounts
-    case clusterRoles
-    case roles
-    case clusterRoleBindings
-    case roleBindings
-    case podSecurityPolicies
-    case charts
-    case releases
+    
+    case `clusterTab`
+    case `nodes`
+    case `nameSpaces`
+    case `events`
+    case `overview`
+    case `pods`
+    case `deployments`
+    case `daemonSets`
+    case `statefulSets`
+    case `replicaSets`
+    case `jobs`
+    case `cronJobs`
+    case `configMaps`
+    case `secrets`
+    case `resourceQuotas`
+    case `limitRanges`
+    case `horizontalPodAutoscalers`
+    case `podDisruptionBudgets`
+    case `priorityClasses`
+    case `runtimeClasses`
+    case `leases`
+    case `services`
+    case `endpoints`
+    case `ingresses`
+    case `networkPolicies`
+    case `portForwarding`
+    case `persistentVolumeClaims`
+    case `persistentVolumes`
+    case `storageClasses`
+    case `serviceAccounts`
+    case `clusterRoles`
+    case `roles`
+    case `clusterRoleBindings`
+    case `roleBindings`
+    case `podSecurityPolicies`
+    case `charts`
+    case `releases`
 }
 
 public struct FfiConverterTypeTabId: FfiConverterRustBuffer {
@@ -2026,199 +2240,240 @@ public struct FfiConverterTypeTabId: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> TabId {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-        case 1: return .clusterTab
-
-        case 2: return .nodes
-
-        case 3: return .nameSpaces
-
-        case 4: return .events
-
-        case 5: return .overview
-
-        case 6: return .pods
-
-        case 7: return .deployments
-
-        case 8: return .daemonSets
-
-        case 9: return .statefulSets
-
-        case 10: return .replicaSets
-
-        case 11: return .jobs
-
-        case 12: return .cronJobs
-
-        case 13: return .configMaps
-
-        case 14: return .secrets
-
-        case 15: return .resourceQuotas
-
-        case 16: return .limitRanges
-
-        case 17: return .horizontalPodAutoscalers
-
-        case 18: return .podDisruptionBudgets
-
-        case 19: return .priorityClasses
-
-        case 20: return .runtimeClasses
-
-        case 21: return .leases
-
-        case 22: return .services
-
-        case 23: return .endpoints
-
-        case 24: return .ingresses
-
-        case 25: return .networkPolicies
-
-        case 26: return .portForwarding
-
-        case 27: return .persistentVolumeClaims
-
-        case 28: return .persistentVolumes
-
-        case 29: return .storageClasses
-
-        case 30: return .serviceAccounts
-
-        case 31: return .clusterRoles
-
-        case 32: return .roles
-
-        case 33: return .clusterRoleBindings
-
-        case 34: return .roleBindings
-
-        case 35: return .podSecurityPolicies
-
-        case 36: return .charts
-
-        case 37: return .releases
-
+        
+        case 1: return .`clusterTab`
+        
+        case 2: return .`nodes`
+        
+        case 3: return .`nameSpaces`
+        
+        case 4: return .`events`
+        
+        case 5: return .`overview`
+        
+        case 6: return .`pods`
+        
+        case 7: return .`deployments`
+        
+        case 8: return .`daemonSets`
+        
+        case 9: return .`statefulSets`
+        
+        case 10: return .`replicaSets`
+        
+        case 11: return .`jobs`
+        
+        case 12: return .`cronJobs`
+        
+        case 13: return .`configMaps`
+        
+        case 14: return .`secrets`
+        
+        case 15: return .`resourceQuotas`
+        
+        case 16: return .`limitRanges`
+        
+        case 17: return .`horizontalPodAutoscalers`
+        
+        case 18: return .`podDisruptionBudgets`
+        
+        case 19: return .`priorityClasses`
+        
+        case 20: return .`runtimeClasses`
+        
+        case 21: return .`leases`
+        
+        case 22: return .`services`
+        
+        case 23: return .`endpoints`
+        
+        case 24: return .`ingresses`
+        
+        case 25: return .`networkPolicies`
+        
+        case 26: return .`portForwarding`
+        
+        case 27: return .`persistentVolumeClaims`
+        
+        case 28: return .`persistentVolumes`
+        
+        case 29: return .`storageClasses`
+        
+        case 30: return .`serviceAccounts`
+        
+        case 31: return .`clusterRoles`
+        
+        case 32: return .`roles`
+        
+        case 33: return .`clusterRoleBindings`
+        
+        case 34: return .`roleBindings`
+        
+        case 35: return .`podSecurityPolicies`
+        
+        case 36: return .`charts`
+        
+        case 37: return .`releases`
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: TabId, into buf: inout [UInt8]) {
         switch value {
-        case .clusterTab:
+        
+        
+        case .`clusterTab`:
             writeInt(&buf, Int32(1))
-
-        case .nodes:
+        
+        
+        case .`nodes`:
             writeInt(&buf, Int32(2))
-
-        case .nameSpaces:
+        
+        
+        case .`nameSpaces`:
             writeInt(&buf, Int32(3))
-
-        case .events:
+        
+        
+        case .`events`:
             writeInt(&buf, Int32(4))
-
-        case .overview:
+        
+        
+        case .`overview`:
             writeInt(&buf, Int32(5))
-
-        case .pods:
+        
+        
+        case .`pods`:
             writeInt(&buf, Int32(6))
-
-        case .deployments:
+        
+        
+        case .`deployments`:
             writeInt(&buf, Int32(7))
-
-        case .daemonSets:
+        
+        
+        case .`daemonSets`:
             writeInt(&buf, Int32(8))
-
-        case .statefulSets:
+        
+        
+        case .`statefulSets`:
             writeInt(&buf, Int32(9))
-
-        case .replicaSets:
+        
+        
+        case .`replicaSets`:
             writeInt(&buf, Int32(10))
-
-        case .jobs:
+        
+        
+        case .`jobs`:
             writeInt(&buf, Int32(11))
-
-        case .cronJobs:
+        
+        
+        case .`cronJobs`:
             writeInt(&buf, Int32(12))
-
-        case .configMaps:
+        
+        
+        case .`configMaps`:
             writeInt(&buf, Int32(13))
-
-        case .secrets:
+        
+        
+        case .`secrets`:
             writeInt(&buf, Int32(14))
-
-        case .resourceQuotas:
+        
+        
+        case .`resourceQuotas`:
             writeInt(&buf, Int32(15))
-
-        case .limitRanges:
+        
+        
+        case .`limitRanges`:
             writeInt(&buf, Int32(16))
-
-        case .horizontalPodAutoscalers:
+        
+        
+        case .`horizontalPodAutoscalers`:
             writeInt(&buf, Int32(17))
-
-        case .podDisruptionBudgets:
+        
+        
+        case .`podDisruptionBudgets`:
             writeInt(&buf, Int32(18))
-
-        case .priorityClasses:
+        
+        
+        case .`priorityClasses`:
             writeInt(&buf, Int32(19))
-
-        case .runtimeClasses:
+        
+        
+        case .`runtimeClasses`:
             writeInt(&buf, Int32(20))
-
-        case .leases:
+        
+        
+        case .`leases`:
             writeInt(&buf, Int32(21))
-
-        case .services:
+        
+        
+        case .`services`:
             writeInt(&buf, Int32(22))
-
-        case .endpoints:
+        
+        
+        case .`endpoints`:
             writeInt(&buf, Int32(23))
-
-        case .ingresses:
+        
+        
+        case .`ingresses`:
             writeInt(&buf, Int32(24))
-
-        case .networkPolicies:
+        
+        
+        case .`networkPolicies`:
             writeInt(&buf, Int32(25))
-
-        case .portForwarding:
+        
+        
+        case .`portForwarding`:
             writeInt(&buf, Int32(26))
-
-        case .persistentVolumeClaims:
+        
+        
+        case .`persistentVolumeClaims`:
             writeInt(&buf, Int32(27))
-
-        case .persistentVolumes:
+        
+        
+        case .`persistentVolumes`:
             writeInt(&buf, Int32(28))
-
-        case .storageClasses:
+        
+        
+        case .`storageClasses`:
             writeInt(&buf, Int32(29))
-
-        case .serviceAccounts:
+        
+        
+        case .`serviceAccounts`:
             writeInt(&buf, Int32(30))
-
-        case .clusterRoles:
+        
+        
+        case .`clusterRoles`:
             writeInt(&buf, Int32(31))
-
-        case .roles:
+        
+        
+        case .`roles`:
             writeInt(&buf, Int32(32))
-
-        case .clusterRoleBindings:
+        
+        
+        case .`clusterRoleBindings`:
             writeInt(&buf, Int32(33))
-
-        case .roleBindings:
+        
+        
+        case .`roleBindings`:
             writeInt(&buf, Int32(34))
-
-        case .podSecurityPolicies:
+        
+        
+        case .`podSecurityPolicies`:
             writeInt(&buf, Int32(35))
-
-        case .charts:
+        
+        
+        case .`charts`:
             writeInt(&buf, Int32(36))
-
-        case .releases:
+        
+        
+        case .`releases`:
             writeInt(&buf, Int32(37))
+        
         }
     }
 }
+
 
 public func FfiConverterTypeTabId_lift(_ buf: RustBuffer) throws -> TabId {
     return try FfiConverterTypeTabId.lift(buf)
@@ -2228,18 +2483,21 @@ public func FfiConverterTypeTabId_lower(_ value: TabId) -> RustBuffer {
     return FfiConverterTypeTabId.lower(value)
 }
 
+
 extension TabId: Equatable, Hashable {}
 
-private extension NSLock {
+
+
+fileprivate extension NSLock {
     func withLock<T>(f: () throws -> T) rethrows -> T {
-        lock()
+        self.lock()
         defer { self.unlock() }
         return try f()
     }
 }
 
-private typealias UniFFICallbackHandle = UInt64
-private class UniFFICallbackHandleMap<T> {
+fileprivate typealias UniFFICallbackHandle = UInt64
+fileprivate class UniFFICallbackHandleMap<T> {
     private var leftMap: [UniFFICallbackHandle: T] = [:]
     private var counter: [UniFFICallbackHandle: UInt64] = [:]
     private var rightMap: [ObjectIdentifier: UniFFICallbackHandle] = [:]
@@ -2297,26 +2555,29 @@ private let UNIFFI_CALLBACK_UNEXPECTED_ERROR: Int32 = 2
 
 // Declaration and FfiConverters for GlobalViewModelCallback Callback Interface
 
-public protocol GlobalViewModelCallback: AnyObject {
-    func callback(message: GlobalViewModelMessage)
+public protocol GlobalViewModelCallback : AnyObject {
+    func `callback`(`message`: GlobalViewModelMessage) 
+    
 }
 
 // The ForeignCallback that is passed to Rust.
-private let foreignCallbackCallbackInterfaceGlobalViewModelCallback: ForeignCallback =
+fileprivate let foreignCallbackCallbackInterfaceGlobalViewModelCallback : ForeignCallback =
     { (handle: UniFFICallbackHandle, method: Int32, argsData: UnsafePointer<UInt8>, argsLen: Int32, out_buf: UnsafeMutablePointer<RustBuffer>) -> Int32 in
+    
 
-        func invokeCallback(_ swiftCallbackInterface: GlobalViewModelCallback, _ argsData: UnsafePointer<UInt8>, _ argsLen: Int32, _: UnsafeMutablePointer<RustBuffer>) throws -> Int32 {
-            var reader = createReader(data: Data(bytes: argsData, count: Int(argsLen)))
-            func makeCall() throws -> Int32 {
-                try swiftCallbackInterface.callback(
-                    message: FfiConverterTypeGlobalViewModelMessage.read(from: &reader)
-                )
-                return UNIFFI_CALLBACK_SUCCESS
-            }
-            return try makeCall()
+    func `invokeCallback`(_ swiftCallbackInterface: GlobalViewModelCallback, _ argsData: UnsafePointer<UInt8>, _ argsLen: Int32, _ out_buf: UnsafeMutablePointer<RustBuffer>) throws -> Int32 {
+        var reader = createReader(data: Data(bytes: argsData, count: Int(argsLen)))
+        func makeCall() throws -> Int32 {
+            try swiftCallbackInterface.`callback`(
+                    `message`:  try FfiConverterTypeGlobalViewModelMessage.read(from: &reader)
+                    )
+            return UNIFFI_CALLBACK_SUCCESS
         }
+        return try makeCall()
+    }
 
-        switch method {
+
+    switch method {
         case IDX_CALLBACK_FREE:
             FfiConverterCallbackInterfaceGlobalViewModelCallback.drop(handle: handle)
             // Sucessful return
@@ -2331,12 +2592,12 @@ private let foreignCallbackCallbackInterfaceGlobalViewModelCallback: ForeignCall
                 return UNIFFI_CALLBACK_UNEXPECTED_ERROR
             }
             do {
-                return try invokeCallback(cb, argsData, argsLen, out_buf)
-            } catch {
+                return try `invokeCallback`(cb, argsData, argsLen, out_buf)
+            } catch let error {
                 out_buf.pointee = FfiConverterString.lower(String(describing: error))
                 return UNIFFI_CALLBACK_UNEXPECTED_ERROR
             }
-
+        
         // This should never happen, because an out of bounds method index won't
         // ever be used. Once we can catch errors, we should return an InternalError.
         // https://github.com/mozilla/uniffi-rs/issues/351
@@ -2344,11 +2605,11 @@ private let foreignCallbackCallbackInterfaceGlobalViewModelCallback: ForeignCall
             // An unexpected error happened.
             // See docs of ForeignCallback in `uniffi_core/src/ffi/foreigncallbacks.rs`
             return UNIFFI_CALLBACK_UNEXPECTED_ERROR
-        }
     }
+}
 
 // FfiConverter protocol for callback interfaces
-private enum FfiConverterCallbackInterfaceGlobalViewModelCallback {
+fileprivate struct FfiConverterCallbackInterfaceGlobalViewModelCallback {
     private static let initCallbackOnce: () = {
         // Swift ensures this initializer code will once run once, even when accessed by multiple threads.
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
@@ -2367,13 +2628,13 @@ private enum FfiConverterCallbackInterfaceGlobalViewModelCallback {
     private static var handleMap = UniFFICallbackHandleMap<GlobalViewModelCallback>()
 }
 
-extension FfiConverterCallbackInterfaceGlobalViewModelCallback: FfiConverter {
+extension FfiConverterCallbackInterfaceGlobalViewModelCallback : FfiConverter {
     typealias SwiftType = GlobalViewModelCallback
     // We can use Handle as the FfiType because it's a typealias to UInt64
     typealias FfiType = UniFFICallbackHandle
 
     public static func lift(_ handle: UniFFICallbackHandle) throws -> SwiftType {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         guard let callback = handleMap.get(handle: handle) else {
             throw UniffiInternalError.unexpectedStaleHandle
         }
@@ -2381,44 +2642,49 @@ extension FfiConverterCallbackInterfaceGlobalViewModelCallback: FfiConverter {
     }
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         let handle: UniFFICallbackHandle = try readInt(&buf)
         return try lift(handle)
     }
 
     public static func lower(_ v: SwiftType) -> UniFFICallbackHandle {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         return handleMap.insert(obj: v)
     }
 
     public static func write(_ v: SwiftType, into buf: inout [UInt8]) {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         writeInt(&buf, lower(v))
     }
 }
 
+
+
 // Declaration and FfiConverters for MainViewModelUpdater Callback Interface
 
-public protocol MainViewModelUpdater: AnyObject {
-    func update(field: MainViewModelField)
+public protocol MainViewModelUpdater : AnyObject {
+    func `update`(`field`: MainViewModelField) 
+    
 }
 
 // The ForeignCallback that is passed to Rust.
-private let foreignCallbackCallbackInterfaceMainViewModelUpdater: ForeignCallback =
+fileprivate let foreignCallbackCallbackInterfaceMainViewModelUpdater : ForeignCallback =
     { (handle: UniFFICallbackHandle, method: Int32, argsData: UnsafePointer<UInt8>, argsLen: Int32, out_buf: UnsafeMutablePointer<RustBuffer>) -> Int32 in
+    
 
-        func invokeUpdate(_ swiftCallbackInterface: MainViewModelUpdater, _ argsData: UnsafePointer<UInt8>, _ argsLen: Int32, _: UnsafeMutablePointer<RustBuffer>) throws -> Int32 {
-            var reader = createReader(data: Data(bytes: argsData, count: Int(argsLen)))
-            func makeCall() throws -> Int32 {
-                try swiftCallbackInterface.update(
-                    field: FfiConverterTypeMainViewModelField.read(from: &reader)
-                )
-                return UNIFFI_CALLBACK_SUCCESS
-            }
-            return try makeCall()
+    func `invokeUpdate`(_ swiftCallbackInterface: MainViewModelUpdater, _ argsData: UnsafePointer<UInt8>, _ argsLen: Int32, _ out_buf: UnsafeMutablePointer<RustBuffer>) throws -> Int32 {
+        var reader = createReader(data: Data(bytes: argsData, count: Int(argsLen)))
+        func makeCall() throws -> Int32 {
+            try swiftCallbackInterface.`update`(
+                    `field`:  try FfiConverterTypeMainViewModelField.read(from: &reader)
+                    )
+            return UNIFFI_CALLBACK_SUCCESS
         }
+        return try makeCall()
+    }
 
-        switch method {
+
+    switch method {
         case IDX_CALLBACK_FREE:
             FfiConverterCallbackInterfaceMainViewModelUpdater.drop(handle: handle)
             // Sucessful return
@@ -2433,12 +2699,12 @@ private let foreignCallbackCallbackInterfaceMainViewModelUpdater: ForeignCallbac
                 return UNIFFI_CALLBACK_UNEXPECTED_ERROR
             }
             do {
-                return try invokeUpdate(cb, argsData, argsLen, out_buf)
-            } catch {
+                return try `invokeUpdate`(cb, argsData, argsLen, out_buf)
+            } catch let error {
                 out_buf.pointee = FfiConverterString.lower(String(describing: error))
                 return UNIFFI_CALLBACK_UNEXPECTED_ERROR
             }
-
+        
         // This should never happen, because an out of bounds method index won't
         // ever be used. Once we can catch errors, we should return an InternalError.
         // https://github.com/mozilla/uniffi-rs/issues/351
@@ -2446,11 +2712,11 @@ private let foreignCallbackCallbackInterfaceMainViewModelUpdater: ForeignCallbac
             // An unexpected error happened.
             // See docs of ForeignCallback in `uniffi_core/src/ffi/foreigncallbacks.rs`
             return UNIFFI_CALLBACK_UNEXPECTED_ERROR
-        }
     }
+}
 
 // FfiConverter protocol for callback interfaces
-private enum FfiConverterCallbackInterfaceMainViewModelUpdater {
+fileprivate struct FfiConverterCallbackInterfaceMainViewModelUpdater {
     private static let initCallbackOnce: () = {
         // Swift ensures this initializer code will once run once, even when accessed by multiple threads.
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
@@ -2469,13 +2735,13 @@ private enum FfiConverterCallbackInterfaceMainViewModelUpdater {
     private static var handleMap = UniFFICallbackHandleMap<MainViewModelUpdater>()
 }
 
-extension FfiConverterCallbackInterfaceMainViewModelUpdater: FfiConverter {
+extension FfiConverterCallbackInterfaceMainViewModelUpdater : FfiConverter {
     typealias SwiftType = MainViewModelUpdater
     // We can use Handle as the FfiType because it's a typealias to UInt64
     typealias FfiType = UniFFICallbackHandle
 
     public static func lift(_ handle: UniFFICallbackHandle) throws -> SwiftType {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         guard let callback = handleMap.get(handle: handle) else {
             throw UniffiInternalError.unexpectedStaleHandle
         }
@@ -2483,44 +2749,49 @@ extension FfiConverterCallbackInterfaceMainViewModelUpdater: FfiConverter {
     }
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         let handle: UniFFICallbackHandle = try readInt(&buf)
         return try lift(handle)
     }
 
     public static func lower(_ v: SwiftType) -> UniFFICallbackHandle {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         return handleMap.insert(obj: v)
     }
 
     public static func write(_ v: SwiftType, into buf: inout [UInt8]) {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         writeInt(&buf, lower(v))
     }
 }
 
+
+
 // Declaration and FfiConverters for NodeViewModelCallback Callback Interface
 
-public protocol NodeViewModelCallback: AnyObject {
-    func callback(message: NodeViewModelMessage)
+public protocol NodeViewModelCallback : AnyObject {
+    func `callback`(`message`: NodeViewModelMessage) 
+    
 }
 
 // The ForeignCallback that is passed to Rust.
-private let foreignCallbackCallbackInterfaceNodeViewModelCallback: ForeignCallback =
+fileprivate let foreignCallbackCallbackInterfaceNodeViewModelCallback : ForeignCallback =
     { (handle: UniFFICallbackHandle, method: Int32, argsData: UnsafePointer<UInt8>, argsLen: Int32, out_buf: UnsafeMutablePointer<RustBuffer>) -> Int32 in
+    
 
-        func invokeCallback(_ swiftCallbackInterface: NodeViewModelCallback, _ argsData: UnsafePointer<UInt8>, _ argsLen: Int32, _: UnsafeMutablePointer<RustBuffer>) throws -> Int32 {
-            var reader = createReader(data: Data(bytes: argsData, count: Int(argsLen)))
-            func makeCall() throws -> Int32 {
-                try swiftCallbackInterface.callback(
-                    message: FfiConverterTypeNodeViewModelMessage.read(from: &reader)
-                )
-                return UNIFFI_CALLBACK_SUCCESS
-            }
-            return try makeCall()
+    func `invokeCallback`(_ swiftCallbackInterface: NodeViewModelCallback, _ argsData: UnsafePointer<UInt8>, _ argsLen: Int32, _ out_buf: UnsafeMutablePointer<RustBuffer>) throws -> Int32 {
+        var reader = createReader(data: Data(bytes: argsData, count: Int(argsLen)))
+        func makeCall() throws -> Int32 {
+            try swiftCallbackInterface.`callback`(
+                    `message`:  try FfiConverterTypeNodeViewModelMessage.read(from: &reader)
+                    )
+            return UNIFFI_CALLBACK_SUCCESS
         }
+        return try makeCall()
+    }
 
-        switch method {
+
+    switch method {
         case IDX_CALLBACK_FREE:
             FfiConverterCallbackInterfaceNodeViewModelCallback.drop(handle: handle)
             // Sucessful return
@@ -2535,12 +2806,12 @@ private let foreignCallbackCallbackInterfaceNodeViewModelCallback: ForeignCallba
                 return UNIFFI_CALLBACK_UNEXPECTED_ERROR
             }
             do {
-                return try invokeCallback(cb, argsData, argsLen, out_buf)
-            } catch {
+                return try `invokeCallback`(cb, argsData, argsLen, out_buf)
+            } catch let error {
                 out_buf.pointee = FfiConverterString.lower(String(describing: error))
                 return UNIFFI_CALLBACK_UNEXPECTED_ERROR
             }
-
+        
         // This should never happen, because an out of bounds method index won't
         // ever be used. Once we can catch errors, we should return an InternalError.
         // https://github.com/mozilla/uniffi-rs/issues/351
@@ -2548,11 +2819,11 @@ private let foreignCallbackCallbackInterfaceNodeViewModelCallback: ForeignCallba
             // An unexpected error happened.
             // See docs of ForeignCallback in `uniffi_core/src/ffi/foreigncallbacks.rs`
             return UNIFFI_CALLBACK_UNEXPECTED_ERROR
-        }
     }
+}
 
 // FfiConverter protocol for callback interfaces
-private enum FfiConverterCallbackInterfaceNodeViewModelCallback {
+fileprivate struct FfiConverterCallbackInterfaceNodeViewModelCallback {
     private static let initCallbackOnce: () = {
         // Swift ensures this initializer code will once run once, even when accessed by multiple threads.
         try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
@@ -2571,13 +2842,13 @@ private enum FfiConverterCallbackInterfaceNodeViewModelCallback {
     private static var handleMap = UniFFICallbackHandleMap<NodeViewModelCallback>()
 }
 
-extension FfiConverterCallbackInterfaceNodeViewModelCallback: FfiConverter {
+extension FfiConverterCallbackInterfaceNodeViewModelCallback : FfiConverter {
     typealias SwiftType = NodeViewModelCallback
     // We can use Handle as the FfiType because it's a typealias to UInt64
     typealias FfiType = UniFFICallbackHandle
 
     public static func lift(_ handle: UniFFICallbackHandle) throws -> SwiftType {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         guard let callback = handleMap.get(handle: handle) else {
             throw UniffiInternalError.unexpectedStaleHandle
         }
@@ -2585,23 +2856,23 @@ extension FfiConverterCallbackInterfaceNodeViewModelCallback: FfiConverter {
     }
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         let handle: UniFFICallbackHandle = try readInt(&buf)
         return try lift(handle)
     }
 
     public static func lower(_ v: SwiftType) -> UniFFICallbackHandle {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         return handleMap.insert(obj: v)
     }
 
     public static func write(_ v: SwiftType, into buf: inout [UInt8]) {
-        ensureCallbackinitialized()
+        ensureCallbackinitialized();
         writeInt(&buf, lower(v))
     }
 }
 
-private struct FfiConverterOptionInt64: FfiConverterRustBuffer {
+fileprivate struct FfiConverterOptionInt64: FfiConverterRustBuffer {
     typealias SwiftType = Int64?
 
     public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
@@ -2622,7 +2893,7 @@ private struct FfiConverterOptionInt64: FfiConverterRustBuffer {
     }
 }
 
-private struct FfiConverterOptionString: FfiConverterRustBuffer {
+fileprivate struct FfiConverterOptionString: FfiConverterRustBuffer {
     typealias SwiftType = String?
 
     public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
@@ -2643,7 +2914,7 @@ private struct FfiConverterOptionString: FfiConverterRustBuffer {
     }
 }
 
-private struct FfiConverterOptionTypeCluster: FfiConverterRustBuffer {
+fileprivate struct FfiConverterOptionTypeCluster: FfiConverterRustBuffer {
     typealias SwiftType = Cluster?
 
     public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
@@ -2664,7 +2935,7 @@ private struct FfiConverterOptionTypeCluster: FfiConverterRustBuffer {
     }
 }
 
-private struct FfiConverterSequenceTypeNode: FfiConverterRustBuffer {
+fileprivate struct FfiConverterSequenceTypeNode: FfiConverterRustBuffer {
     typealias SwiftType = [Node]
 
     public static func write(_ value: [Node], into buf: inout [UInt8]) {
@@ -2680,13 +2951,13 @@ private struct FfiConverterSequenceTypeNode: FfiConverterRustBuffer {
         var seq = [Node]()
         seq.reserveCapacity(Int(len))
         for _ in 0 ..< len {
-            try seq.append(FfiConverterTypeNode.read(from: &buf))
+            seq.append(try FfiConverterTypeNode.read(from: &buf))
         }
         return seq
     }
 }
 
-private struct FfiConverterSequenceTypeNodeAddress: FfiConverterRustBuffer {
+fileprivate struct FfiConverterSequenceTypeNodeAddress: FfiConverterRustBuffer {
     typealias SwiftType = [NodeAddress]
 
     public static func write(_ value: [NodeAddress], into buf: inout [UInt8]) {
@@ -2702,13 +2973,13 @@ private struct FfiConverterSequenceTypeNodeAddress: FfiConverterRustBuffer {
         var seq = [NodeAddress]()
         seq.reserveCapacity(Int(len))
         for _ in 0 ..< len {
-            try seq.append(FfiConverterTypeNodeAddress.read(from: &buf))
+            seq.append(try FfiConverterTypeNodeAddress.read(from: &buf))
         }
         return seq
     }
 }
 
-private struct FfiConverterSequenceTypeNodeCondition: FfiConverterRustBuffer {
+fileprivate struct FfiConverterSequenceTypeNodeCondition: FfiConverterRustBuffer {
     typealias SwiftType = [NodeCondition]
 
     public static func write(_ value: [NodeCondition], into buf: inout [UInt8]) {
@@ -2724,13 +2995,13 @@ private struct FfiConverterSequenceTypeNodeCondition: FfiConverterRustBuffer {
         var seq = [NodeCondition]()
         seq.reserveCapacity(Int(len))
         for _ in 0 ..< len {
-            try seq.append(FfiConverterTypeNodeCondition.read(from: &buf))
+            seq.append(try FfiConverterTypeNodeCondition.read(from: &buf))
         }
         return seq
     }
 }
 
-private struct FfiConverterSequenceTypeTab: FfiConverterRustBuffer {
+fileprivate struct FfiConverterSequenceTypeTab: FfiConverterRustBuffer {
     typealias SwiftType = [Tab]
 
     public static func write(_ value: [Tab], into buf: inout [UInt8]) {
@@ -2746,13 +3017,13 @@ private struct FfiConverterSequenceTypeTab: FfiConverterRustBuffer {
         var seq = [Tab]()
         seq.reserveCapacity(Int(len))
         for _ in 0 ..< len {
-            try seq.append(FfiConverterTypeTab.read(from: &buf))
+            seq.append(try FfiConverterTypeTab.read(from: &buf))
         }
         return seq
     }
 }
 
-private struct FfiConverterSequenceTypeTabGroup: FfiConverterRustBuffer {
+fileprivate struct FfiConverterSequenceTypeTabGroup: FfiConverterRustBuffer {
     typealias SwiftType = [TabGroup]
 
     public static func write(_ value: [TabGroup], into buf: inout [UInt8]) {
@@ -2768,13 +3039,13 @@ private struct FfiConverterSequenceTypeTabGroup: FfiConverterRustBuffer {
         var seq = [TabGroup]()
         seq.reserveCapacity(Int(len))
         for _ in 0 ..< len {
-            try seq.append(FfiConverterTypeTabGroup.read(from: &buf))
+            seq.append(try FfiConverterTypeTabGroup.read(from: &buf))
         }
         return seq
     }
 }
 
-private struct FfiConverterSequenceTypeTaint: FfiConverterRustBuffer {
+fileprivate struct FfiConverterSequenceTypeTaint: FfiConverterRustBuffer {
     typealias SwiftType = [Taint]
 
     public static func write(_ value: [Taint], into buf: inout [UInt8]) {
@@ -2790,13 +3061,13 @@ private struct FfiConverterSequenceTypeTaint: FfiConverterRustBuffer {
         var seq = [Taint]()
         seq.reserveCapacity(Int(len))
         for _ in 0 ..< len {
-            try seq.append(FfiConverterTypeTaint.read(from: &buf))
+            seq.append(try FfiConverterTypeTaint.read(from: &buf))
         }
         return seq
     }
 }
 
-private struct FfiConverterDictionaryStringString: FfiConverterRustBuffer {
+fileprivate struct FfiConverterDictionaryStringString: FfiConverterRustBuffer {
     public static func write(_ value: [String: String], into buf: inout [UInt8]) {
         let len = Int32(value.count)
         writeInt(&buf, len)
@@ -2810,7 +3081,7 @@ private struct FfiConverterDictionaryStringString: FfiConverterRustBuffer {
         let len: Int32 = try readInt(&buf)
         var dict = [String: String]()
         dict.reserveCapacity(Int(len))
-        for _ in 0 ..< len {
+        for _ in 0..<len {
             let key = try FfiConverterString.read(from: &buf)
             let value = try FfiConverterString.read(from: &buf)
             dict[key] = value
@@ -2819,7 +3090,7 @@ private struct FfiConverterDictionaryStringString: FfiConverterRustBuffer {
     }
 }
 
-private struct FfiConverterDictionaryTypeClusterIdTypeCluster: FfiConverterRustBuffer {
+fileprivate struct FfiConverterDictionaryTypeClusterIdTypeCluster: FfiConverterRustBuffer {
     public static func write(_ value: [ClusterId: Cluster], into buf: inout [UInt8]) {
         let len = Int32(value.count)
         writeInt(&buf, len)
@@ -2833,7 +3104,7 @@ private struct FfiConverterDictionaryTypeClusterIdTypeCluster: FfiConverterRustB
         let len: Int32 = try readInt(&buf)
         var dict = [ClusterId: Cluster]()
         dict.reserveCapacity(Int(len))
-        for _ in 0 ..< len {
+        for _ in 0..<len {
             let key = try FfiConverterTypeClusterId.read(from: &buf)
             let value = try FfiConverterTypeCluster.read(from: &buf)
             dict[key] = value
@@ -2842,7 +3113,7 @@ private struct FfiConverterDictionaryTypeClusterIdTypeCluster: FfiConverterRustB
     }
 }
 
-private struct FfiConverterDictionaryTypeTabGroupIdBool: FfiConverterRustBuffer {
+fileprivate struct FfiConverterDictionaryTypeTabGroupIdBool: FfiConverterRustBuffer {
     public static func write(_ value: [TabGroupId: Bool], into buf: inout [UInt8]) {
         let len = Int32(value.count)
         writeInt(&buf, len)
@@ -2856,7 +3127,7 @@ private struct FfiConverterDictionaryTypeTabGroupIdBool: FfiConverterRustBuffer 
         let len: Int32 = try readInt(&buf)
         var dict = [TabGroupId: Bool]()
         dict.reserveCapacity(Int(len))
-        for _ in 0 ..< len {
+        for _ in 0..<len {
             let key = try FfiConverterTypeTabGroupId.read(from: &buf)
             let value = try FfiConverterBool.read(from: &buf)
             dict[key] = value
@@ -2865,7 +3136,7 @@ private struct FfiConverterDictionaryTypeTabGroupIdBool: FfiConverterRustBuffer 
     }
 }
 
-private struct FfiConverterDictionaryTypeTabIdTypeTab: FfiConverterRustBuffer {
+fileprivate struct FfiConverterDictionaryTypeTabIdTypeTab: FfiConverterRustBuffer {
     public static func write(_ value: [TabId: Tab], into buf: inout [UInt8]) {
         let len = Int32(value.count)
         writeInt(&buf, len)
@@ -2879,7 +3150,7 @@ private struct FfiConverterDictionaryTypeTabIdTypeTab: FfiConverterRustBuffer {
         let len: Int32 = try readInt(&buf)
         var dict = [TabId: Tab]()
         dict.reserveCapacity(Int(len))
-        for _ in 0 ..< len {
+        for _ in 0..<len {
             let key = try FfiConverterTypeTabId.read(from: &buf)
             let value = try FfiConverterTypeTab.read(from: &buf)
             dict[key] = value
@@ -2888,11 +3159,11 @@ private struct FfiConverterDictionaryTypeTabIdTypeTab: FfiConverterRustBuffer {
     }
 }
 
-public func nodePreview() -> Node {
-    return try! FfiConverterTypeNode.lift(
-        try! rustCall {
-            uniffi_kube_viewer_fn_func_node_preview($0)
-        }
+public func `nodePreview`()  -> Node {
+    return try!  FfiConverterTypeNode.lift(
+        try! rustCall() {
+    uniffi_kube_viewer_fn_func_node_preview($0)
+}
     )
 }
 
@@ -2901,7 +3172,6 @@ private enum InitializationResult {
     case contractVersionMismatch
     case apiChecksumMismatch
 }
-
 // Use a global variables to perform the versioning checks. Swift ensures that
 // the code inside is only computed once.
 private var initializationResult: InitializationResult {
@@ -2912,100 +3182,100 @@ private var initializationResult: InitializationResult {
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
-    if uniffi_kube_viewer_checksum_func_node_preview() != 63126 {
+    if (uniffi_kube_viewer_checksum_func_node_preview() != 63126) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_focusregionhasher_hash() != 26261 {
+    if (uniffi_kube_viewer_checksum_method_focusregionhasher_hash() != 26261) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustglobalviewmodel_add_callback_listener() != 28573 {
+    if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_add_callback_listener() != 28573) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustglobalviewmodel_clusters() != 2845 {
+    if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_clusters() != 2845) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustglobalviewmodel_load_client() != 24253 {
+    if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_load_client() != 24253) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_add_update_listener() != 49177 {
+    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_fetch_nodes() != 60112) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_current_focus_region() != 22196 {
+    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_nodes() != 38863) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_handle_key_input() != 28228 {
+    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_refresh_nodes() != 36557) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_select_first_filtered_tab() != 11835 {
+    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_stop_watcher() != 63314) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_selected_cluster() != 10174 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_add_update_listener() != 49177) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_selected_tab() != 10584 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_current_focus_region() != 22196) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_set_current_focus_region() != 26495 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_handle_key_input() != 28228) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_set_selected_cluster() != 34172 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_select_first_filtered_tab() != 11835) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_set_selected_tab() != 27353 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_selected_cluster() != 10174) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_set_tab_group_expansions() != 58831 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_selected_tab() != 10584) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_set_window_closed() != 5586 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_set_current_focus_region() != 26495) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_tab_group_expansions() != 4820 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_set_selected_cluster() != 34172) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_tab_groups_filtered() != 7306 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_set_selected_tab() != 27353) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs() != 23974 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_set_tab_group_expansions() != 58831) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs_map() != 2970 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_set_window_closed() != 5586) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustnodeviewmodel_fetch_nodes() != 60112 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_tab_group_expansions() != 4820) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustnodeviewmodel_nodes() != 38863 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_tab_groups_filtered() != 7306) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustnodeviewmodel_refresh_nodes() != 36557 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs() != 23974) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_rustnodeviewmodel_stop_watcher() != 63314 {
+    if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs_map() != 2970) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_constructor_focusregionhasher_new() != 32388 {
+    if (uniffi_kube_viewer_checksum_constructor_focusregionhasher_new() != 32388) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_constructor_rustglobalviewmodel_new() != 25783 {
+    if (uniffi_kube_viewer_checksum_constructor_rustglobalviewmodel_new() != 25783) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_constructor_rustmainviewmodel_new() != 31635 {
+    if (uniffi_kube_viewer_checksum_constructor_rustnodeviewmodel_new() != 35854) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_constructor_rustnodeviewmodel_new() != 35854 {
+    if (uniffi_kube_viewer_checksum_constructor_rustnodeviewmodel_preview() != 15716) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_constructor_rustnodeviewmodel_preview() != 15716 {
+    if (uniffi_kube_viewer_checksum_constructor_rustmainviewmodel_new() != 52692) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_globalviewmodelcallback_callback() != 30455 {
+    if (uniffi_kube_viewer_checksum_method_globalviewmodelcallback_callback() != 30455) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_mainviewmodelupdater_update() != 41841 {
+    if (uniffi_kube_viewer_checksum_method_mainviewmodelupdater_update() != 41841) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_kube_viewer_checksum_method_nodeviewmodelcallback_callback() != 48251 {
+    if (uniffi_kube_viewer_checksum_method_nodeviewmodelcallback_callback() != 48251) {
         return InitializationResult.apiChecksumMismatch
     }
 
