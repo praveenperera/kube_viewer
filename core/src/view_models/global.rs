@@ -1,6 +1,5 @@
 use std::{
     collections::{HashMap, VecDeque},
-    sync::Arc,
     thread,
 };
 
@@ -53,6 +52,10 @@ impl Default for GlobalViewModel {
 }
 
 impl RustGlobalViewModel {
+    pub fn new() -> Self {
+        Self
+    }
+
     pub fn inner(&self) -> &RwLock<GlobalViewModel> {
         GlobalViewModel::global()
     }
@@ -60,15 +63,10 @@ impl RustGlobalViewModel {
 
 #[uniffi::export]
 impl RustGlobalViewModel {
-    #[uniffi::constructor]
-    pub fn new() -> Arc<Self> {
-        Arc::new(Self)
+    pub fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
+        let addr = GlobalViewModel::global().read().worker.clone();
+        task::spawn(async move { send!(addr.add_callback_listener(responder)) });
     }
-
-    // pub fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
-    //     let addr = GlobalViewModel::global().read().worker.clone();
-    //     task::spawn(async move { send!(addr.add_callback_listener(responder)) });
-    // }
 
     pub fn clusters(&self) -> HashMap<ClusterId, Cluster> {
         self.inner().read().clusters()

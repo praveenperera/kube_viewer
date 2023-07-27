@@ -7,4 +7,4 @@ version = "0.1.0"
 
 [dependencies]
 kube_viewer = {path = "../core"}
-uniffi = {version = "0.24.2", features = ["cli"]}
+uniffi  = {git = "https://github.com/mozilla/uniffi-rs.git", features = ["cli"]}

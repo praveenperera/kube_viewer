@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::{generic_hasher::GenericHasher, tab::TabId, tab_group::TabGroupId};
 use uniffi::Enum;
 
@@ -57,13 +55,14 @@ impl KeyHandler {
 
 pub struct FocusRegionHasher(GenericHasher<FocusRegion>);
 
+impl FocusRegionHasher {
+    pub fn new() -> Self {
+        Self(GenericHasher::new())
+    }
+}
+
 #[uniffi::export]
 impl FocusRegionHasher {
-    #[uniffi::constructor]
-    pub fn new() -> Arc<Self> {
-        Arc::new(Self(GenericHasher::new()))
-    }
-
     fn hash(&self, value: FocusRegion) -> u64 {
         self.0.hash(value)
     }

@@ -79,26 +79,26 @@ pub struct Worker {
     state: Arc<RwLock<State>>,
 }
 
-#[uniffi::export]
 impl RustNodeViewModel {
-    #[uniffi::constructor]
-    pub fn new(window_id: String) -> Arc<Self> {
+    pub fn new(window_id: String) -> Self {
         let window_id = WindowId(window_id);
 
         let state = Arc::new(RwLock::new(State::new(window_id.clone())));
         state.write().extra_worker = Worker::start_actor(state.clone());
 
-        Arc::new(Self { state, window_id })
+        Self { state, window_id }
     }
 
-    #[uniffi::constructor]
-    pub fn preview(window_id: String) -> Arc<Self> {
+    pub fn preview(window_id: String) -> Self {
         let window_id = WindowId(window_id);
 
         let state = Arc::new(RwLock::new(State::preview()));
-        Arc::new(Self { state, window_id })
+        Self { state, window_id }
     }
+}
 
+#[uniffi::export]
+impl RustNodeViewModel {
     /// Sets the the loading status to loading and fetches the nodes for the selected cluster.
     pub fn fetch_nodes(&self, selected_cluster: ClusterId) {
         let worker = Worker::start_actor(self.state.clone());

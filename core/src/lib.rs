@@ -14,6 +14,11 @@ pub mod view_models;
 // uniffi::setup_scaffolding!();
 uniffi::include_scaffolding!("kube_viewer");
 
+use crate::key_handler::FocusRegionHasher;
+use crate::view_models::global::RustGlobalViewModel;
+use crate::view_models::main::RustMainViewModel;
+use crate::view_models::node::RustNodeViewModel;
+
 #[derive(Debug, Clone, uniffi::Enum)]
 pub enum LoadStatus {
     Initial,

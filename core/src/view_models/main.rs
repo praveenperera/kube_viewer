@@ -5,7 +5,7 @@ use crossbeam::channel::Sender;
 use log::{debug, error};
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use crate::{
     cluster::{Cluster, ClusterId},
@@ -66,6 +66,16 @@ pub struct MainViewModel {
 }
 
 impl RustMainViewModel {
+    pub fn new(window_id: String) -> Self {
+        Self {
+            inner: RwLock::new(MainViewModel::new(window_id.clone().into())),
+            window_id: window_id.into(),
+        }
+    }
+}
+
+#[uniffi::export]
+impl RustMainViewModel {
     pub fn add_update_listener(&self, updater: Box<dyn MainViewModelUpdater>) {
         let (sender, receiver) = crossbeam::channel::unbounded();
         Updater::init(&self.window_id, sender);
@@ -75,17 +85,6 @@ impl RustMainViewModel {
                 updater.update(field);
             }
         });
-    }
-}
-
-#[uniffi::export]
-impl RustMainViewModel {
-    #[uniffi::constructor]
-    pub fn new(window_id: String) -> Arc<Self> {
-        Arc::new(Self {
-            inner: RwLock::new(MainViewModel::new(window_id.clone().into())),
-            window_id: window_id.into(),
-        })
     }
 
     pub fn selected_tab(&self) -> TabId {
