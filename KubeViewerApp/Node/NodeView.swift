@@ -72,17 +72,14 @@ struct NodeView: View {
         .toast(isPresenting: self.$isLoading) {
             AlertToast(displayMode: .alert, type: .loading, title: "Loading")
         }
-        .onAppear {
+        .task {
             if let selectedCluster = self.mainViewModel.selectedCluster {
                 if selectedCluster != self.model.selectedCluster {
-                    Task {
-                        await self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
-                    }
+                    await self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
+
                     self.model.selectedCluster = selectedCluster
                 } else {
-                    Task {
-                        await self.model.data.refreshNodes(selectedCluster: selectedCluster.id)
-                    }
+                    await self.model.data.refreshNodes(selectedCluster: selectedCluster.id)
                 }
             }
         }
