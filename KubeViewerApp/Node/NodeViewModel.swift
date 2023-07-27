@@ -41,10 +41,12 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
     #endif
 
     private func setupCallback() {
-        self.data.addCallbackListener(responder: self)
+        Task {
+            self.data.addCallbackListener(responder: self)
 
-        if let selectedCluster = self.selectedCluster {
-            self.data.fetchNodes(selectedCluster: selectedCluster.id)
+            if let selectedCluster = self.selectedCluster {
+                await self.data.fetchNodes(selectedCluster: selectedCluster.id)
+            }
         }
     }
 

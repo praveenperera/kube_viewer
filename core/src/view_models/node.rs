@@ -97,38 +97,34 @@ impl RustNodeViewModel {
     }
 }
 
-#[uniffi::export]
+#[uniffi::export(async_runtime = "tokio")]
 impl RustNodeViewModel {
     pub fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
         self.state.write().responder = Some(responder);
     }
 
     /// Sets the the loading status to loading and fetches the nodes for the selected cluster.
-    pub fn fetch_nodes(&self, selected_cluster: ClusterId) {
+    pub async fn fetch_nodes(&self, selected_cluster: ClusterId) {
         let worker = Worker::start_actor(self.state.clone());
 
         {
             self.state.write().current_worker = worker.clone();
         }
 
-        task::spawn(async move {
-            let _ = call!(worker.notify_and_load_nodes(selected_cluster.clone())).await;
-            send!(worker.start_watcher(selected_cluster.clone()));
-            send!(worker.refresh_on_interval(selected_cluster));
-        });
+        let _ = call!(worker.notify_and_load_nodes(selected_cluster.clone())).await;
+        send!(worker.start_watcher(selected_cluster.clone()));
+        send!(worker.refresh_on_interval(selected_cluster));
     }
 
     /// Gets the new nodes without changing the loading status, used for background refreshes of
     /// the nodes of the same cluster
-    pub fn refresh_nodes(&self, selected_cluster: ClusterId) {
+    pub async fn refresh_nodes(&self, selected_cluster: ClusterId) {
         let worker = Worker::start_actor(self.state.clone());
         self.state.write().current_worker = worker.clone();
 
-        task::spawn(async move {
-            let _ = call!(worker.load_nodes(selected_cluster.clone())).await;
-            send!(worker.start_watcher(selected_cluster.clone()));
-            send!(worker.refresh_on_interval(selected_cluster));
-        });
+        let _ = call!(worker.load_nodes(selected_cluster.clone())).await;
+        send!(worker.start_watcher(selected_cluster.clone()));
+        send!(worker.refresh_on_interval(selected_cluster));
     }
 
     pub fn stop_watcher(&self) {

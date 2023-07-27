@@ -1,17 +1,8 @@
 use act_zero::{Actor, Addr};
 use core::future::Future;
-use once_cell::sync::Lazy;
 
 use futures::task::{Spawn, SpawnError};
-use tokio::runtime::{Builder, Runtime};
 use tokio::task::JoinHandle;
-
-pub static TOKIO: Lazy<Runtime> = Lazy::new(|| {
-    Builder::new_multi_thread()
-        .enable_all()
-        .build()
-        .expect("Core: Failed to start tokio runtime")
-});
 
 struct CustomRuntime;
 
@@ -27,15 +18,7 @@ where
     T: Future + Send + 'static,
     T::Output: Send + 'static,
 {
-    TOKIO.spawn(task)
-}
-
-pub fn block_on<T>(task: T) -> T::Output
-where
-    T: Future + Send + 'static,
-    T::Output: Send + 'static,
-{
-    TOKIO.block_on(task)
+    tokio::spawn(task)
 }
 
 /// Provides an infallible way to spawn an actor onto the Tokio runtime,

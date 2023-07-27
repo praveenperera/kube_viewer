@@ -63,16 +63,17 @@ impl RustGlobalViewModel {
     }
 }
 
-#[uniffi::export]
+#[uniffi::export(async_runtime = "tokio")]
 impl RustGlobalViewModel {
     #[uniffi::constructor]
     pub fn new() -> Arc<Self> {
         Arc::new(Self)
     }
 
-    pub fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
+    pub async fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
         let addr = GlobalViewModel::global().read().worker.clone();
-        task::spawn(async move { send!(addr.add_callback_listener(responder)) });
+
+        let _ = call!(addr.add_callback_listener(responder)).await;
     }
 
     pub fn clusters(&self) -> HashMap<ClusterId, Cluster> {

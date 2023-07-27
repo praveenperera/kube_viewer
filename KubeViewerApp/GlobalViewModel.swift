@@ -22,7 +22,9 @@ class GlobalViewModel: ObservableObject, GlobalViewModelCallback {
     }
 
     private func setupCallback() {
-        self.data.addCallbackListener(responder: self)
+        Task {
+            await self.data.addCallbackListener(responder: self)
+        }
     }
 
     func callback(message: GlobalViewModelMessage) {
