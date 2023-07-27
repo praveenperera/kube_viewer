@@ -79,12 +79,6 @@ pub struct Worker {
     state: Arc<RwLock<State>>,
 }
 
-impl RustNodeViewModel {
-    // pub fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
-    //     self.state.write().responder = Some(responder);
-    // }
-}
-
 #[uniffi::export]
 impl RustNodeViewModel {
     #[uniffi::constructor]

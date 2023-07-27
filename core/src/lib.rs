@@ -11,6 +11,9 @@ pub mod task;
 pub mod user_config;
 pub mod view_models;
 
+// uniffi::setup_scaffolding!();
+uniffi::include_scaffolding!("kube_viewer");
+
 #[derive(Debug, Clone, uniffi::Enum)]
 pub enum LoadStatus {
     Initial,
@@ -18,6 +21,3 @@ pub enum LoadStatus {
     Loaded,
     Error { error: String },
 }
-
-// uniffi::include_scaffolding!("kube_viewer");
-uniffi::setup_scaffolding!();

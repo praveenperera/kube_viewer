@@ -46,12 +46,6 @@ pub struct GlobalViewModel {
     pub worker: Addr<Worker>,
 }
 
-impl Default for RustGlobalViewModel {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Default for GlobalViewModel {
     fn default() -> Self {
         Self::new()
