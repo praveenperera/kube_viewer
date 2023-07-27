@@ -60,7 +60,7 @@ class MainViewModel: ObservableObject {
     private func setupListener() {
         if self.listener == nil {
             self.listener = Listener(callback: self.receiveListenerUpdate)
-            self.data.addUpdateListener(listener: self.listener!)
+            self.data.addUpdateListener(updater: self.listener!)
         }
     }
 

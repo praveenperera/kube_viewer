@@ -25,10 +25,10 @@ class GlobalViewModel: ObservableObject, GlobalViewModelCallback {
         self.data.addCallbackListener(responder: self)
     }
 
-    func callback(msg: GlobalViewModelMessage) {
+    func callback(message: GlobalViewModelMessage) {
         Task {
             await MainActor.run {
-                switch msg {
+                switch message {
                 case .clustersLoaded:
                     print("[swift] clusters loaded")
                     self.clusters = self.data.clusters()

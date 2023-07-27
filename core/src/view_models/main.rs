@@ -1,12 +1,11 @@
 mod key_handler;
 
-use crate::GlobalViewModel;
 use act_zero::send;
 use crossbeam::channel::Sender;
 use log::{debug, error};
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     cluster::{Cluster, ClusterId},
@@ -16,7 +15,7 @@ use crate::{
     user_config::USER_CONFIG,
 };
 
-use super::WindowId;
+use super::{global::GlobalViewModel, WindowId};
 
 #[derive(Debug)]
 pub struct Updater(RwLock<HashMap<WindowId, Sender<MainViewModelField>>>);
@@ -45,10 +44,12 @@ pub enum MainViewModelField {
     TabGroupExpansions,
 }
 
+#[uniffi::export(callback_interface)]
 pub trait MainViewModelUpdater: Send + Sync {
     fn update(&self, field: MainViewModelField);
 }
 
+#[derive(uniffi::Object)]
 pub struct RustMainViewModel {
     inner: RwLock<MainViewModel>,
     window_id: WindowId,
@@ -65,12 +66,14 @@ pub struct MainViewModel {
     search: Option<String>,
 }
 
+#[uniffi::export]
 impl RustMainViewModel {
-    pub fn new(window_id: String) -> Self {
-        Self {
+    #[uniffi::constructor]
+    pub fn new(window_id: String) -> Arc<Self> {
+        Arc::new(Self {
             inner: RwLock::new(MainViewModel::new(window_id.clone().into())),
             window_id: window_id.into(),
-        }
+        })
     }
 
     pub fn add_update_listener(&self, updater: Box<dyn MainViewModelUpdater>) {
@@ -83,10 +86,7 @@ impl RustMainViewModel {
             }
         });
     }
-}
 
-#[uniffi::export]
-impl RustMainViewModel {
     pub fn selected_tab(&self) -> TabId {
         self.inner.read().selected_tab.clone()
     }

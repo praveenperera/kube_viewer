@@ -11,8 +11,10 @@ pub mod task;
 pub mod user_config;
 pub mod view_models;
 
-use crate::uniffi_types::*;
 uniffi::include_scaffolding!("kube_viewer");
+
+use crate::key_handler::FocusRegionHasher;
+use crate::view_models::node::RustNodeViewModel;
 
 #[derive(Debug, Clone, uniffi::Enum)]
 pub enum LoadStatus {
@@ -20,22 +22,4 @@ pub enum LoadStatus {
     Loading,
     Loaded,
     Error { error: String },
-}
-
-mod uniffi_types {
-    // view models
-    pub(crate) use crate::view_models::global::*;
-    pub(crate) use crate::view_models::main::*;
-    pub(crate) use crate::view_models::node::*;
-
-    // view model helpers
-    pub(crate) use crate::key_handler::*;
-
-    pub(crate) use crate::cluster::*;
-    pub(crate) use crate::tab::*;
-    pub(crate) use crate::tab_group::*;
-
-    pub(crate) use crate::kubernetes::node::*;
-
-    pub(crate) use crate::LoadStatus;
 }

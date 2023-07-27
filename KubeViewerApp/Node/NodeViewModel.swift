@@ -48,10 +48,10 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
         }
     }
 
-    func callback(msg: NodeViewModelMessage) {
+    func callback(message: NodeViewModelMessage) {
         Task {
             await MainActor.run {
-                switch msg {
+                switch message {
                     case .loadingNodes:
                         self.nodes = .loading
 

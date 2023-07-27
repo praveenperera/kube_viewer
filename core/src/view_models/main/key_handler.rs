@@ -1,11 +1,8 @@
-use crate::Updater;
-use tab::{BorrowedTabs, TabId};
-
 use crate::{
     key_handler::{FocusRegion, KeyAwareEvent},
-    tab,
+    tab::BorrowedTabs,
     tab_group::TabGroups,
-    TabGroupId,
+    view_models::main::{TabGroupId, TabId, Updater},
 };
 
 use super::{MainViewModel, MainViewModelField};

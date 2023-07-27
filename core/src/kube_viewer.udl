@@ -1,59 +1,12 @@
 namespace kube_viewer {};
 
-interface RustGlobalViewModel {
-  constructor();
-  void add_callback_listener(GlobalViewModelCallback responder);
-};
-
-
-callback interface GlobalViewModelCallback {
-  void callback(GlobalViewModelMessage msg);
-};
-
-[Enum]
-interface GlobalViewModelMessage {
-  ClustersLoaded();
-  LoadingClient();
-  ClientLoaded();
-  ClientLoadError(string error);
-};
-
-interface RustMainViewModel {
-  constructor(string window_id);
-  void add_update_listener(MainViewModelUpdater listener);
-};
-
-
 interface RustNodeViewModel {
   constructor(string window_id);
-  void add_callback_listener(NodeViewModelCallback responder);
 
   [Name=preview]
   constructor(string window_id);
 };
 
-callback interface NodeViewModelCallback {
-  void callback(NodeViewModelMessage msg);
-};
-
-[Enum]
-interface NodeViewModelMessage {
-  LoadingNodes();
-  NodesLoaded();
-  NodeLoadingFailed(string error);
-};
-
-
 interface FocusRegionHasher {
   constructor();
-};
-
-callback interface MainViewModelUpdater {
-  void update(MainViewModelField field);
-};
-
-enum MainViewModelField {
-  "CurrentFocusRegion",
-  "SelectedTab",
-  "TabGroupExpansions"
 };

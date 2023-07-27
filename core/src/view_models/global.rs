@@ -1,4 +1,7 @@
-use std::collections::{HashMap, VecDeque};
+use std::{
+    collections::{HashMap, VecDeque},
+    sync::Arc,
+};
 
 use act_zero::*;
 use kube::Client;
@@ -21,10 +24,12 @@ impl GlobalViewModel {
     }
 }
 
+#[uniffi::export(callback_interface)]
 pub trait GlobalViewModelCallback: Send + Sync + 'static {
     fn callback(&self, message: GlobalViewModelMessage);
 }
 
+#[derive(uniffi::Enum)]
 pub enum GlobalViewModelMessage {
     ClustersLoaded,
     LoadingClient,
@@ -32,18 +37,13 @@ pub enum GlobalViewModelMessage {
     ClientLoadError { error: String },
 }
 
+#[derive(uniffi::Object)]
 pub struct RustGlobalViewModel;
 
 pub struct GlobalViewModel {
     pub clusters: Option<Clusters>,
     pub client_store: ClientStore,
     pub worker: Addr<Worker>,
-}
-
-impl Default for RustGlobalViewModel {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl Default for GlobalViewModel {
@@ -53,22 +53,23 @@ impl Default for GlobalViewModel {
 }
 
 impl RustGlobalViewModel {
-    pub fn new() -> Self {
-        Self
-    }
-
     pub fn inner(&self) -> &RwLock<GlobalViewModel> {
         GlobalViewModel::global()
+    }
+}
+
+#[uniffi::export]
+impl RustGlobalViewModel {
+    #[uniffi::constructor]
+    pub fn new() -> Arc<Self> {
+        Arc::new(Self)
     }
 
     pub fn add_callback_listener(&self, responder: Box<dyn GlobalViewModelCallback>) {
         let addr = GlobalViewModel::global().read().worker.clone();
         task::spawn(async move { send!(addr.add_callback_listener(responder)) });
     }
-}
 
-#[uniffi::export]
-impl RustGlobalViewModel {
     pub fn clusters(&self) -> HashMap<ClusterId, Cluster> {
         self.inner().read().clusters()
     }
