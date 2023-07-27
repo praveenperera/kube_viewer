@@ -99,6 +99,10 @@ impl RustNodeViewModel {
 
 #[uniffi::export]
 impl RustNodeViewModel {
+    pub fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
+        self.state.write().responder = Some(responder);
+    }
+
     /// Sets the the loading status to loading and fetches the nodes for the selected cluster.
     pub fn fetch_nodes(&self, selected_cluster: ClusterId) {
         let worker = Worker::start_actor(self.state.clone());

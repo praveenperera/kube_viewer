@@ -77,6 +77,22 @@ void*_Nonnull uniffi_kube_viewer_fn_constructor_focusregionhasher_new(RustCallSt
 );
 uint64_t uniffi_kube_viewer_fn_method_focusregionhasher_hash(void*_Nonnull ptr, RustBuffer value, RustCallStatus *_Nonnull out_status
 );
+void uniffi_kube_viewer_fn_free_rustnodeviewmodel(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
+);
+void*_Nonnull uniffi_kube_viewer_fn_constructor_rustnodeviewmodel_new(RustBuffer window_id, RustCallStatus *_Nonnull out_status
+);
+void*_Nonnull uniffi_kube_viewer_fn_constructor_rustnodeviewmodel_preview(RustBuffer window_id, RustCallStatus *_Nonnull out_status
+);
+void uniffi_kube_viewer_fn_method_rustnodeviewmodel_add_callback_listener(void*_Nonnull ptr, uint64_t responder, RustCallStatus *_Nonnull out_status
+);
+void uniffi_kube_viewer_fn_method_rustnodeviewmodel_fetch_nodes(void*_Nonnull ptr, RustBuffer selected_cluster, RustCallStatus *_Nonnull out_status
+);
+RustBuffer uniffi_kube_viewer_fn_method_rustnodeviewmodel_nodes(void*_Nonnull ptr, RustBuffer selected_cluster, RustCallStatus *_Nonnull out_status
+);
+void uniffi_kube_viewer_fn_method_rustnodeviewmodel_refresh_nodes(void*_Nonnull ptr, RustBuffer selected_cluster, RustCallStatus *_Nonnull out_status
+);
+void uniffi_kube_viewer_fn_method_rustnodeviewmodel_stop_watcher(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
+);
 void uniffi_kube_viewer_fn_free_rustglobalviewmodel(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
 );
 void*_Nonnull uniffi_kube_viewer_fn_constructor_rustglobalviewmodel_new(RustCallStatus *_Nonnull out_status
@@ -87,20 +103,6 @@ void uniffi_kube_viewer_fn_method_rustglobalviewmodel_add_callback_listener(void
 RustBuffer uniffi_kube_viewer_fn_method_rustglobalviewmodel_clusters(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
 );
 void uniffi_kube_viewer_fn_method_rustglobalviewmodel_load_client(void*_Nonnull ptr, RustBuffer cluster_id, RustCallStatus *_Nonnull out_status
-);
-void uniffi_kube_viewer_fn_free_rustnodeviewmodel(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
-);
-void*_Nonnull uniffi_kube_viewer_fn_constructor_rustnodeviewmodel_new(RustBuffer window_id, RustCallStatus *_Nonnull out_status
-);
-void*_Nonnull uniffi_kube_viewer_fn_constructor_rustnodeviewmodel_preview(RustBuffer window_id, RustCallStatus *_Nonnull out_status
-);
-void uniffi_kube_viewer_fn_method_rustnodeviewmodel_fetch_nodes(void*_Nonnull ptr, RustBuffer selected_cluster, RustCallStatus *_Nonnull out_status
-);
-RustBuffer uniffi_kube_viewer_fn_method_rustnodeviewmodel_nodes(void*_Nonnull ptr, RustBuffer selected_cluster, RustCallStatus *_Nonnull out_status
-);
-void uniffi_kube_viewer_fn_method_rustnodeviewmodel_refresh_nodes(void*_Nonnull ptr, RustBuffer selected_cluster, RustCallStatus *_Nonnull out_status
-);
-void uniffi_kube_viewer_fn_method_rustnodeviewmodel_stop_watcher(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
 );
 void uniffi_kube_viewer_fn_free_rustmainviewmodel(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
 );
@@ -159,13 +161,7 @@ uint16_t uniffi_kube_viewer_checksum_func_node_preview(void
 uint16_t uniffi_kube_viewer_checksum_method_focusregionhasher_hash(void
     
 );
-uint16_t uniffi_kube_viewer_checksum_method_rustglobalviewmodel_add_callback_listener(void
-    
-);
-uint16_t uniffi_kube_viewer_checksum_method_rustglobalviewmodel_clusters(void
-    
-);
-uint16_t uniffi_kube_viewer_checksum_method_rustglobalviewmodel_load_client(void
+uint16_t uniffi_kube_viewer_checksum_method_rustnodeviewmodel_add_callback_listener(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_rustnodeviewmodel_fetch_nodes(void
@@ -178,6 +174,15 @@ uint16_t uniffi_kube_viewer_checksum_method_rustnodeviewmodel_refresh_nodes(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_rustnodeviewmodel_stop_watcher(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_method_rustglobalviewmodel_add_callback_listener(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_method_rustglobalviewmodel_clusters(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_method_rustglobalviewmodel_load_client(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_rustmainviewmodel_add_update_listener(void
@@ -228,13 +233,13 @@ uint16_t uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs_map(void
 uint16_t uniffi_kube_viewer_checksum_constructor_focusregionhasher_new(void
     
 );
-uint16_t uniffi_kube_viewer_checksum_constructor_rustglobalviewmodel_new(void
-    
-);
 uint16_t uniffi_kube_viewer_checksum_constructor_rustnodeviewmodel_new(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_constructor_rustnodeviewmodel_preview(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_constructor_rustglobalviewmodel_new(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_constructor_rustmainviewmodel_new(void

@@ -808,6 +808,7 @@ public func FfiConverterTypeRustMainViewModel_lower(_ value: RustMainViewModel) 
 
 
 public protocol RustNodeViewModelProtocol {
+    func `addCallbackListener`(`responder`: NodeViewModelCallback)  
     func `fetchNodes`(`selectedCluster`: ClusterId)  
     func `nodes`(`selectedCluster`: ClusterId)   -> [Node]
     func `refreshNodes`(`selectedCluster`: ClusterId)  
@@ -848,6 +849,16 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
 
     
     
+
+    public func `addCallbackListener`(`responder`: NodeViewModelCallback)  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustnodeviewmodel_add_callback_listener(self.pointer, 
+        FfiConverterCallbackInterfaceNodeViewModelCallback.lower(`responder`),$0
+    )
+}
+    }
 
     public func `fetchNodes`(`selectedCluster`: ClusterId)  {
         try! 
@@ -3188,13 +3199,7 @@ private var initializationResult: InitializationResult {
     if (uniffi_kube_viewer_checksum_method_focusregionhasher_hash() != 26261) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_add_callback_listener() != 28573) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_clusters() != 2845) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_load_client() != 24253) {
+    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_add_callback_listener() != 23074) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_fetch_nodes() != 60112) {
@@ -3207,6 +3212,15 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_stop_watcher() != 63314) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_add_callback_listener() != 28573) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_clusters() != 2845) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_load_client() != 24253) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_add_update_listener() != 49177) {
@@ -3257,13 +3271,13 @@ private var initializationResult: InitializationResult {
     if (uniffi_kube_viewer_checksum_constructor_focusregionhasher_new() != 32388) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_kube_viewer_checksum_constructor_rustglobalviewmodel_new() != 25783) {
-        return InitializationResult.apiChecksumMismatch
-    }
     if (uniffi_kube_viewer_checksum_constructor_rustnodeviewmodel_new() != 35854) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_constructor_rustnodeviewmodel_preview() != 15716) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_constructor_rustglobalviewmodel_new() != 2525) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_constructor_rustmainviewmodel_new() != 52692) {
