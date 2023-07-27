@@ -11,7 +11,6 @@ pub mod task;
 pub mod user_config;
 pub mod view_models;
 
-// uniffi::setup_scaffolding!();
 uniffi::include_scaffolding!("kube_viewer");
 
 use crate::key_handler::FocusRegionHasher;
