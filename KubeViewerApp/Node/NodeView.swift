@@ -60,32 +60,26 @@ struct NodeView: View {
         VStack {
             self.innerBody
                 .onChange(of: self.model.nodes, perform: self.setLoading)
-                .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
-                    if let selectedCluster = newSelectedCluster {
-                        Task {
-                            await self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
-                        }
-                    }
-                }
         }
         .frame(minWidth: 100)
         .toast(isPresenting: self.$isLoading) {
             AlertToast(displayMode: .alert, type: .loading, title: "Loading")
         }
-        .task {
-            if let selectedCluster = self.mainViewModel.selectedCluster {
-                if selectedCluster != self.model.selectedCluster {
+        .onDisappear {
+            Task {
+                await self.model.data.stopWatcher()
+            }
+        }
+        .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
+            if let selectedCluster = newSelectedCluster {
+                Task {
                     await self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
-
-                    self.model.selectedCluster = selectedCluster
-                } else {
-                    await self.model.data.refreshNodes(selectedCluster: selectedCluster.id)
                 }
             }
         }
-        .onDisappear {
-            Task {
-                self.model.data.stopWatcher()
+        .task {
+            if let selectedCluster = self.mainViewModel.selectedCluster {
+                await self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
             }
         }
         .background(KeyAwareView(onEvent: self.mainViewModel.data.handleKeyInput))
