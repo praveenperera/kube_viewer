@@ -15,12 +15,9 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
 
     @Published var nodes: NodeLoadStatus = .initial
 
-    private var selectedCluster: Cluster?
-
     init(windowId: UUID, selectedCluster: Cluster?) {
         self.windowId = windowId
         self.data = RustNodeViewModel(windowId: windowId.uuidString)
-        self.selectedCluster = selectedCluster
 
         DispatchQueue.main.async { self.setupCallback() }
     }
@@ -30,10 +27,8 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
     init(windowId: UUID) {
         self.windowId = windowId
         self.data = RustNodeViewModel.preview(windowId: windowId.uuidString)
-        self.selectedCluster = nil
 
-        let nodes = self.selectedCluster.map { self.data.nodes(selectedCluster: $0.id) }
-        self.nodes = .loaded(nodes: nodes ?? [])
+        self.nodes = .loaded(nodes: [])
 
         DispatchQueue.main.async { self.setupCallback() }
     }
