@@ -4,10 +4,10 @@ use k8s_openapi::api::core::v1::{
     Node as K8sNode, NodeAddress as K8sNodeAddress, NodeCondition as K8sNodeCondition,
     NodeSystemInfo, Taint as K8sTaint,
 };
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uniffi::Record;
-
 #[derive(
     Debug,
     Clone,

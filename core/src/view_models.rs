@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub mod global;
 pub mod main;
 pub mod node;
+pub mod pod;
 
 #[derive(
     Debug, Clone, AsRef, From, FromStr, Display, Hash, PartialEq, Eq, Serialize, Deserialize,

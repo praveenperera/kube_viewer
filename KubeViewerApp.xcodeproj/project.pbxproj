@@ -35,6 +35,7 @@
 		ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */; };
 		ACC45D532995AE480063B358 /* if.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D522995AE480063B358 /* if.swift */; };
 		ACC45D552995EFA00063B358 /* whenHovered.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D542995EFA00063B358 /* whenHovered.swift */; };
+		ACD5D6A82A737255002E2F05 /* PodViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD5D6A72A737255002E2F05 /* PodViewModel.swift */; };
 		ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621E629803DFB00FE2CE2 /* MainView.swift */; };
 		ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621EA2980415E00FE2CE2 /* TabContentView.swift */; };
 		ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621ED2980569500FE2CE2 /* MainViewModel.swift */; };
@@ -90,6 +91,7 @@
 		ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideUpDown.swift; sourceTree = "<group>"; };
 		ACC45D522995AE480063B358 /* if.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = if.swift; sourceTree = "<group>"; };
 		ACC45D542995EFA00063B358 /* whenHovered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = whenHovered.swift; sourceTree = "<group>"; };
+		ACD5D6A72A737255002E2F05 /* PodViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodViewModel.swift; sourceTree = "<group>"; };
 		ACD621E629803DFB00FE2CE2 /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		ACD621EA2980415E00FE2CE2 /* TabContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabContentView.swift; sourceTree = "<group>"; };
 		ACD621ED2980569500FE2CE2 /* MainViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
@@ -200,6 +202,14 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		ACD5D6A52A7371F2002E2F05 /* Pod */ = {
+			isa = PBXGroup;
+			children = (
+				ACD5D6A72A737255002E2F05 /* PodViewModel.swift */,
+			);
+			path = Pod;
+			sourceTree = "<group>";
+		};
 		ACD621F02980573E00FE2CE2 /* TabContent */ = {
 			isa = PBXGroup;
 			children = (
@@ -248,6 +258,7 @@
 		DADF4C7C295E6DB9006CA792 /* KubeViewerApp */ = {
 			isa = PBXGroup;
 			children = (
+				ACD5D6A52A7371F2002E2F05 /* Pod */,
 				ACFA988229F8CF30009C2A32 /* Info.plist */,
 				AC95349F29F4B8490082155D /* Window */,
 				AC95349C29F4B8100082155D /* Node */,
@@ -411,6 +422,7 @@
 				AC65E77D29A9278600F3A7CE /* StandardFocusRing.swift in Sources */,
 				AC4CF6F72A698FFC0098E879 /* Pill.swift in Sources */,
 				AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */,
+				ACD5D6A82A737255002E2F05 /* PodViewModel.swift in Sources */,
 				AC1651B829874DB000CBC220 /* Theme.swift in Sources */,
 				ACB49CB12A32694100488B72 /* GeneralComparators.swift in Sources */,
 				ACB49CB32A32715200488B72 /* NodeComparators.swift in Sources */,
