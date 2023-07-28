@@ -43,13 +43,15 @@ pub async fn watch_nodes(
     while let Some(status) = stream.try_next().await? {
         match status {
             watcher::Event::Applied(node) => {
+                debug!("applied event received on cluster {:?}", selected_cluster);
                 send!(addr.applied(node.into()))
             }
             watcher::Event::Deleted(node) => {
+                debug!("deleted event received on cluster {:?}", selected_cluster);
                 send!(addr.deleted(node.into()))
             }
             watcher::Event::Restarted(_) => {
-                debug!("restarted, loading nodes");
+                debug!("restarted event received on cluster {:?}", selected_cluster);
                 send!(addr.load_nodes(selected_cluster.clone()))
             }
         }

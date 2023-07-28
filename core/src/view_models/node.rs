@@ -99,6 +99,8 @@ impl RustNodeViewModel {
 #[uniffi::export(async_runtime = "tokio")]
 impl RustNodeViewModel {
     pub async fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
+        debug!("node view model callback listener added");
+
         let mut state = self.state.write();
         state.responder = Some(responder);
         state.extra_worker = Worker::start_actor(self.state.clone());
@@ -106,33 +108,19 @@ impl RustNodeViewModel {
 
     /// Sets the the loading status to loading and fetches the nodes for the selected cluster.
     pub async fn fetch_nodes(&self, selected_cluster: ClusterId) {
-        debug!("fethc nodes");
-
-        let worker = Worker::start_actor(self.state.clone());
-
-        {
-            self.state.write().current_worker = worker.clone();
-        }
-
-        let _ = call!(worker.notify_and_load_nodes(selected_cluster.clone())).await;
-        send!(worker.start_watcher(selected_cluster.clone()));
-        send!(worker.refresh_on_interval(selected_cluster));
-    }
-
-    /// Gets the new nodes without changing the loading status, used for background refreshes of
-    /// the nodes of the same cluster
-    pub async fn refresh_nodes(&self, selected_cluster: ClusterId) {
-        debug!("refreshing nodes");
+        debug!("fetching nodes");
 
         let worker = Worker::start_actor(self.state.clone());
         self.state.write().current_worker = worker.clone();
 
-        let _ = call!(worker.load_nodes(selected_cluster.clone())).await;
-        send!(worker.start_watcher(selected_cluster.clone()));
+        let _ = call!(worker.notify_and_load_nodes(selected_cluster.clone())).await;
+        let _ = call!(worker.start_watcher(selected_cluster.clone())).await;
+
         send!(worker.refresh_on_interval(selected_cluster));
     }
 
-    pub fn stop_watcher(&self) {
+    pub async fn stop_watcher(&self) {
+        debug!("stopping watcher");
         self.state.write().current_worker = Addr::default();
     }
 
@@ -207,22 +195,27 @@ impl Worker {
     }
 
     pub async fn applied(&mut self, node: Node) -> ActorResult<()> {
-        if let Some(ref nodes) = self.state.read().nodes {
-            if let Some(existing_node) = nodes.get(&node.id) {
-                if existing_node == &node {
-                    debug!("same node already exists, ignoring");
-                    return Produces::ok(());
+        {
+            if let Some(ref nodes) = self.state.read().nodes {
+                if let Some(existing_node) = nodes.get(&node.id) {
+                    if existing_node == &node {
+                        debug!("same node already exists, ignoring");
+                        return Produces::ok(());
+                    }
                 }
-            }
-        };
+            };
+        }
 
-        if let Some(ref mut nodes) = self.state.write().nodes {
-            debug!("node updated, notifying listeners");
-            nodes.insert(node.id.clone(), node);
-            self.callback(NodeViewModelMessage::NodesLoaded {
-                nodes: nodes.values().cloned().collect(),
-            });
-        };
+        {
+            if let Some(ref mut nodes) = self.state.write().nodes {
+                debug!("node updated, notifying listeners");
+                nodes.insert(node.id.clone(), node);
+
+                self.callback(NodeViewModelMessage::NodesLoaded {
+                    nodes: nodes.values().cloned().collect(),
+                });
+            };
+        }
 
         Produces::ok(())
     }
@@ -288,8 +281,6 @@ impl Worker {
     }
 
     async fn notify_and_load_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
-        debug!("fetch_nodes() called");
-
         // notify and load
         self.callback(NodeViewModelMessage::LoadingNodes);
 
@@ -297,16 +288,12 @@ impl Worker {
             .await
             .map_err(|e| NodeError::NodeLoadError(eyre!("{e:?}")))?;
 
-        if let Some(ref nodes) = self.state.read().nodes {
-            self.callback(NodeViewModelMessage::NodesLoaded {
-                nodes: nodes.values().cloned().collect(),
-            });
-        }
-
         Produces::ok(())
     }
 
     async fn start_watcher(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
+        debug!("starting nodes watcher");
+
         let client: Client = GlobalViewModel::global()
             .read()
             .get_cluster_client(selected_cluster.as_ref())
@@ -325,9 +312,11 @@ impl Worker {
     async fn refresh_on_interval(&mut self, selected_cluster: ClusterId) {
         self.addr.send_fut_with(|addr| async move {
             let mut interval = time::interval(Duration::from_secs(60));
+            interval.tick().await;
 
             loop {
                 interval.tick().await;
+                debug!("60 seconds past, loading nodes");
                 send!(addr.load_nodes(selected_cluster.clone()));
             }
         })

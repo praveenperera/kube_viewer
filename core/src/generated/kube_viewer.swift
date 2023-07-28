@@ -851,8 +851,7 @@ public protocol RustNodeViewModelProtocol {
     func `addCallbackListener`(`responder`: NodeViewModelCallback) async 
     func `fetchNodes`(`selectedCluster`: ClusterId) async 
     func `nodes`(`selectedCluster`: ClusterId)   -> [Node]
-    func `refreshNodes`(`selectedCluster`: ClusterId) async 
-    func `stopWatcher`()  
+    func `stopWatcher`() async 
     
 }
 
@@ -952,7 +951,7 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
         )
     }
 
-    public func `refreshNodes`(`selectedCluster`: ClusterId) async  {
+    public func `stopWatcher`() async  {
         // Suspend the function and call the scaffolding function, passing it a callback handler from
         // `AsyncTypes.swift`
         //
@@ -962,10 +961,9 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
         return try!  await withCheckedThrowingContinuation {
             continuation = $0
             try! rustCall() {
-                uniffi_kube_viewer_fn_method_rustnodeviewmodel_refresh_nodes(
+                uniffi_kube_viewer_fn_method_rustnodeviewmodel_stop_watcher(
                     self.pointer,
                     
-        FfiConverterTypeClusterId.lower(`selectedCluster`),
                     FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
                     uniffiFutureCallbackHandlerVoid,
                     &continuation,
@@ -976,15 +974,6 @@ public class RustNodeViewModel: RustNodeViewModelProtocol {
     }
 
     
-
-    public func `stopWatcher`()  {
-        try! 
-    rustCall() {
-    
-    uniffi_kube_viewer_fn_method_rustnodeviewmodel_stop_watcher(self.pointer, $0
-    )
-}
-    }
 }
 
 public struct FfiConverterTypeRustNodeViewModel: FfiConverter {
@@ -3664,10 +3653,7 @@ private var initializationResult: InitializationResult {
     if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_nodes() != 38863) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_refresh_nodes() != 64754) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_stop_watcher() != 63314) {
+    if (uniffi_kube_viewer_checksum_method_rustnodeviewmodel_stop_watcher() != 42163) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustglobalviewmodel_add_callback_listener() != 33763) {

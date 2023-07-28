@@ -15,10 +15,9 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
 
     @Published var nodes: NodeLoadStatus = .initial
 
-    var selectedCluster: Cluster?
+    private var selectedCluster: Cluster?
 
     init(windowId: UUID, selectedCluster: Cluster?) {
-        print("loading node view model")
         self.windowId = windowId
         self.data = RustNodeViewModel(windowId: windowId.uuidString)
         self.selectedCluster = selectedCluster
@@ -43,10 +42,6 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
     private func setupCallback() {
         Task {
             await self.data.addCallbackListener(responder: self)
-
-            if let selectedCluster = self.selectedCluster {
-                await self.data.fetchNodes(selectedCluster: selectedCluster.id)
-            }
         }
     }
 
