@@ -101,6 +101,7 @@ impl GlobalViewModel {
         let clusters = Clusters::try_new().ok();
 
         // Create a background thread which checks for deadlocks every 10s
+        // TODO: FIX BEFORE RELEASE: remove deadlock detection
         use std::thread;
         thread::spawn(move || loop {
             thread::sleep(std::time::Duration::from_secs(2));

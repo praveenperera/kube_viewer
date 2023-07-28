@@ -4,7 +4,7 @@ use act_zero::*;
 use eyre::{eyre, Result};
 use kube::Client;
 use log::{debug, error, warn};
-use parking_lot::RwLock;
+use tokio::sync::RwLock;
 
 use fake::{Fake, Faker};
 
@@ -101,7 +101,7 @@ impl RustNodeViewModel {
     pub async fn add_callback_listener(&self, responder: Box<dyn NodeViewModelCallback>) {
         debug!("node view model callback listener added");
 
-        let mut state = self.state.write();
+        let mut state = self.state.write().await;
         state.responder = Some(responder);
         state.extra_worker = Worker::start_actor(self.state.clone());
     }
@@ -111,7 +111,7 @@ impl RustNodeViewModel {
         debug!("fetching nodes");
 
         let worker = Worker::start_actor(self.state.clone());
-        self.state.write().current_worker = worker.clone();
+        self.state.write().await.current_worker = worker.clone();
 
         let _ = call!(worker.notify_and_load_nodes(selected_cluster.clone())).await;
         let _ = call!(worker.start_watcher(selected_cluster.clone())).await;
@@ -121,15 +121,20 @@ impl RustNodeViewModel {
 
     pub async fn stop_watcher(&self) {
         debug!("stopping watcher");
-        self.state.write().current_worker = Addr::default();
+        self.state.write().await.current_worker = Addr::default();
     }
 
     pub fn nodes(&self, selected_cluster: ClusterId) -> Vec<Node> {
         // TODO: handle error
-        self.state
-            .read()
-            .nodes(selected_cluster)
-            .unwrap_or_default()
+        let state = self.state.clone();
+
+        task::block_on(async move {
+            state
+                .read()
+                .await
+                .nodes(selected_cluster)
+                .unwrap_or_default()
+        })
     }
 }
 
@@ -188,46 +193,44 @@ impl Worker {
         }
     }
 
-    pub fn callback(&self, msg: NodeViewModelMessage) {
-        if let Some(responder) = self.state.read().responder.as_ref() {
+    pub async fn callback(&self, msg: NodeViewModelMessage) {
+        if let Some(responder) = self.state.read().await.responder.as_ref() {
             responder.callback(msg);
         }
     }
 
     pub async fn applied(&mut self, node: Node) -> ActorResult<()> {
-        {
-            if let Some(ref nodes) = self.state.read().nodes {
-                if let Some(existing_node) = nodes.get(&node.id) {
-                    if existing_node == &node {
-                        debug!("same node already exists, ignoring");
-                        return Produces::ok(());
-                    }
+        if let Some(ref nodes) = self.state.read().await.nodes {
+            if let Some(existing_node) = nodes.get(&node.id) {
+                if existing_node == &node {
+                    debug!("same node already exists, ignoring");
+                    return Produces::ok(());
                 }
-            };
-        }
+            }
+        };
 
-        {
-            if let Some(ref mut nodes) = self.state.write().nodes {
-                debug!("node updated, notifying listeners");
-                nodes.insert(node.id.clone(), node);
+        if let Some(ref mut nodes) = self.state.write().await.nodes {
+            debug!("node updated, notifying listeners");
+            nodes.insert(node.id.clone(), node);
 
-                self.callback(NodeViewModelMessage::NodesLoaded {
-                    nodes: nodes.values().cloned().collect(),
-                });
-            };
-        }
+            self.callback(NodeViewModelMessage::NodesLoaded {
+                nodes: nodes.values().cloned().collect(),
+            })
+            .await
+        };
 
         Produces::ok(())
     }
 
     pub async fn deleted(&mut self, node: Node) -> ActorResult<()> {
-        if let Some(nodes) = self.state.write().nodes.as_mut() {
+        if let Some(nodes) = self.state.write().await.nodes.as_mut() {
             debug!("node deleted, notifying listeners");
             nodes.remove(&node.id);
 
             self.callback(NodeViewModelMessage::NodesLoaded {
                 nodes: nodes.values().cloned().collect(),
-            });
+            })
+            .await
         };
 
         Produces::ok(())
@@ -255,12 +258,13 @@ impl Worker {
             .await
             .map_err(NodeError::NodeLoadError)?;
 
-        self.state.write().nodes = Some(nodes.clone());
+        self.state.write().await.nodes = Some(nodes.clone());
 
         // notify frontend, nodes loaded
         self.callback(NodeViewModelMessage::NodesLoaded {
             nodes: nodes.into_values().collect(),
-        });
+        })
+        .await;
 
         Produces::ok(())
     }
@@ -282,7 +286,7 @@ impl Worker {
 
     async fn notify_and_load_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
         // notify and load
-        self.callback(NodeViewModelMessage::LoadingNodes);
+        self.callback(NodeViewModelMessage::LoadingNodes).await;
 
         self.load_nodes(&selected_cluster)
             .await
@@ -335,11 +339,12 @@ impl Actor for Worker {
         error!("NodeViewModel Actor Error: {error:?}");
 
         if let Some(error) = error.downcast::<NodeError>().ok().map(|e| *e) {
-            self.callback(error.into())
+            self.callback(error.into()).await
         } else {
             self.callback(NodeViewModelMessage::NodeLoadingFailed {
                 error: "Unknown error, please see logs".to_string(),
-            });
+            })
+            .await
         };
 
         false

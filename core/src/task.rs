@@ -21,6 +21,14 @@ where
     tokio::spawn(task)
 }
 
+pub fn block_on<T>(task: T) -> T::Output
+where
+    T: Future + Send + 'static,
+    T::Output: Send + 'static,
+{
+    tokio::runtime::Handle::current().block_on(task)
+}
+
 /// Provides an infallible way to spawn an actor onto the Tokio runtime,
 /// equivalent to `Addr::new`.
 pub fn spawn_actor<T: Actor>(actor: T) -> Addr<T> {
