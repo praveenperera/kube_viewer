@@ -91,7 +91,6 @@ impl GlobalViewModel {
     pub fn new() -> Self {
         //TODO: set manually in code for now
         std::env::set_var("RUST_LOG", "kube_viewer=debug");
-        std::env::set_var("RUST_BACKTRACE", "1");
 
         // one time init
         env_logger::init();
