@@ -2,8 +2,10 @@ use std::collections::HashMap;
 
 use crate::UniffiCustomTypeConverter;
 use derive_more::From;
+use eyre::Result;
 use fake::{Dummy, Fake, Faker};
 use k8s_openapi::api::core::v1::Pod as K8sPod;
+use kube::{Api, Client};
 use serde::{Deserialize, Serialize};
 use uniffi::{Enum, Record};
 
@@ -118,4 +120,17 @@ impl Pod {
 #[uniffi::export]
 pub fn pod_preview() -> Pod {
     Pod::preview()
+}
+
+pub async fn get_pods(client: Client) -> Result<HashMap<PodId, Pod>> {
+    let pods_api: Api<K8sPod> = Api::all(client);
+    let pods = pods_api.list(&Default::default()).await?;
+
+    let pods_hash_map = pods
+        .into_iter()
+        .map(Into::<Pod>::into)
+        .map(|pod| (pod.id.clone(), pod))
+        .collect();
+
+    Ok(pods_hash_map)
 }

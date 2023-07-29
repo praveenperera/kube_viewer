@@ -1,13 +1,20 @@
+use crate::{cluster::ClusterId, view_models::node::Worker as NodeWorker};
+use act_zero::*;
 use derive_more::From;
+use eyre::Result;
 use fake::{Dummy, Fake, Faker};
+use futures::{StreamExt, TryStreamExt};
+use log::debug;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use uniffi::Record;
+
 use k8s_openapi::api::core::v1::{
     Node as K8sNode, NodeAddress as K8sNodeAddress, NodeCondition as K8sNodeCondition,
     NodeSystemInfo, Taint as K8sTaint,
 };
+use kube::{runtime::watcher, Api, Client};
 
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use uniffi::Record;
 #[derive(
     Debug,
     Clone,
@@ -187,4 +194,48 @@ impl Node {
 #[uniffi::export]
 pub fn node_preview() -> Node {
     Node::preview()
+}
+
+pub async fn get_all(client: Client) -> Result<HashMap<NodeId, Node>> {
+    let nodes_api: Api<K8sNode> = Api::all(client);
+    let nodes = nodes_api.list(&Default::default()).await?;
+
+    let nodes_hash_map = nodes
+        .into_iter()
+        .map(Into::<Node>::into)
+        .map(|node| (node.id.clone(), node))
+        .collect();
+
+    Ok(nodes_hash_map)
+}
+
+pub async fn watch(
+    addr: WeakAddr<NodeWorker>,
+    selected_cluster: ClusterId,
+    client: Client,
+) -> Result<()> {
+    debug!("watch_nodes called");
+
+    let nodes_api: Api<K8sNode> = Api::all(client);
+
+    let mut stream = watcher(nodes_api, watcher::Config::default()).boxed();
+
+    while let Some(status) = stream.try_next().await? {
+        match status {
+            watcher::Event::Applied(node) => {
+                debug!("applied event received on cluster {:?}", selected_cluster);
+                send!(addr.applied(node.into()))
+            }
+            watcher::Event::Deleted(node) => {
+                debug!("deleted event received on cluster {:?}", selected_cluster);
+                send!(addr.deleted(node.into()))
+            }
+            watcher::Event::Restarted(_) => {
+                debug!("restarted event received on cluster {:?}", selected_cluster);
+                send!(addr.load_nodes(selected_cluster.clone()))
+            }
+        }
+    }
+
+    Ok(())
 }

@@ -254,7 +254,7 @@ impl Worker {
             .get_cluster_client(selected_cluster)
             .ok_or_else(|| eyre!("client not found"))?;
 
-        let nodes = kubernetes::get_nodes(client.clone())
+        let nodes = kubernetes::node::get_all(client.clone())
             .await
             .map_err(NodeError::NodeLoadError)?;
 
@@ -305,7 +305,7 @@ impl Worker {
 
         // start watcher
         self.addr.send_fut_with(|addr| async move {
-            kubernetes::watch_nodes(addr, selected_cluster, client)
+            kubernetes::node::watch(addr, selected_cluster, client)
                 .await
                 .unwrap();
         });
