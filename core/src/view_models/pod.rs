@@ -15,6 +15,7 @@ use crate::{
         pod::{Pod, PodId},
     },
     task::{self, spawn_actor},
+    DataLoadStatus,
 };
 
 use super::global::GlobalViewModel;
@@ -25,14 +26,6 @@ pub enum PodError {
     PodLoadError(eyre::Report),
 }
 
-#[derive(uniffi::Enum, Clone, Debug)]
-pub enum PodLoadStatus {
-    Initial,
-    Loading,
-    Loaded { pods: HashMap<PodId, Pod> },
-    Error { error: String },
-}
-
 #[uniffi::export(callback_interface)]
 pub trait PodViewModelCallback: Send + Sync + 'static {
     fn callback(&self, message: PodViewModelMessage);
@@ -40,9 +33,9 @@ pub trait PodViewModelCallback: Send + Sync + 'static {
 
 #[derive(uniffi::Enum)]
 pub enum PodViewModelMessage {
-    LoadingPods,
-    PodsLoaded { pods: Vec<Pod> },
-    PodLoadingFailed { error: String },
+    Loading,
+    Loaded { pods: Vec<Pod> },
+    LoadingFailed { error: String },
 }
 
 #[derive(Object)]
@@ -53,7 +46,7 @@ pub struct RustPodViewModel {
 pub struct PodViewModel {
     addr: WeakAddr<Self>,
     watcher: Addr<Watcher>,
-    pods: PodLoadStatus,
+    pods: DataLoadStatus<HashMap<PodId, Pod>, String>,
     responder: Option<Box<dyn PodViewModelCallback>>,
 }
 
@@ -108,21 +101,21 @@ impl PodViewModel {
             addr: Default::default(),
             watcher: Default::default(),
 
-            pods: PodLoadStatus::Initial,
+            pods: DataLoadStatus::Initial,
             responder: None,
         }
     }
 
     pub async fn pods(&self) -> ActorResult<Option<HashMap<PodId, Pod>>> {
         match &self.pods {
-            PodLoadStatus::Loaded { pods } => Produces::ok(Some(pods.clone())),
+            DataLoadStatus::Loaded(pods) => Produces::ok(Some(pods.clone())),
             _ => Produces::ok(None),
         }
     }
 
     pub async fn update_pod(&mut self, pod: Pod) -> Option<Pod> {
         match &mut self.pods {
-            PodLoadStatus::Loaded { pods } => pods.insert(pod.id.clone(), pod),
+            DataLoadStatus::Loaded(pods) => pods.insert(pod.id.clone(), pod),
             _ => None,
         }
     }
@@ -161,7 +154,7 @@ impl PodViewModel {
         let pods_map = kubernetes::pod::get_all(client).await?;
 
         // save in model
-        self.pods = PodLoadStatus::Loaded { pods: pods_map };
+        self.pods = DataLoadStatus::Loaded(pods_map);
 
         // notify ui
         self.notify_pods_loaded().await;
@@ -198,7 +191,7 @@ impl PodViewModel {
     }
 
     pub async fn deleted(&mut self, pod: Pod) -> ActorResult<()> {
-        let PodLoadStatus::Loaded { pods } = &mut self.pods else {
+        let DataLoadStatus::Loaded(pods) = &mut self.pods else {
             return Produces::ok(());
         };
 
@@ -211,12 +204,12 @@ impl PodViewModel {
     }
 
     async fn notify_pods_loading(&self) {
-        self.callback(PodViewModelMessage::LoadingPods).await
+        self.callback(PodViewModelMessage::Loading).await
     }
 
     async fn notify_pods_loaded(&self) {
-        if let PodLoadStatus::Loaded { pods } = &self.pods {
-            self.callback(PodViewModelMessage::PodsLoaded {
+        if let DataLoadStatus::Loaded(pods) = &self.pods {
+            self.callback(PodViewModelMessage::Loaded {
                 pods: pods.values().cloned().collect(),
             })
             .await
@@ -227,7 +220,7 @@ impl PodViewModel {
 impl From<PodError> for PodViewModelMessage {
     fn from(error: PodError) -> Self {
         match error {
-            PodError::PodLoadError(e) => PodViewModelMessage::PodLoadingFailed {
+            PodError::PodLoadError(e) => PodViewModelMessage::LoadingFailed {
                 error: e.to_string(),
             },
         }
@@ -247,7 +240,7 @@ impl Actor for PodViewModel {
         if let Some(error) = error.downcast::<PodError>().ok().map(|e| *e) {
             self.callback(error.into()).await
         } else {
-            self.callback(PodViewModelMessage::PodLoadingFailed {
+            self.callback(PodViewModelMessage::LoadingFailed {
                 error: "Unknown error, please see logs".to_string(),
             })
             .await

@@ -23,3 +23,11 @@ pub enum LoadStatus {
     Loaded,
     Error { error: String },
 }
+
+#[derive(Debug, Clone)]
+pub enum DataLoadStatus<T, E: ToString> {
+    Initial,
+    Loading,
+    Loaded(T),
+    Error(E),
+}
