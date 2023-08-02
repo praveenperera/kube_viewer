@@ -13,7 +13,7 @@ use k8s_openapi::api::core::v1::{
     Node as K8sNode, NodeAddress as K8sNodeAddress, NodeCondition as K8sNodeCondition,
     NodeSystemInfo, Taint as K8sTaint,
 };
-use kube::{runtime::watcher, Api, Client};
+use kube::{Api, Client};
 
 #[derive(
     Debug,
@@ -214,6 +214,7 @@ pub async fn watch(
     selected_cluster: ClusterId,
     client: Client,
 ) -> Result<()> {
+    use kube::runtime::watcher;
     debug!("watch_nodes called");
 
     let nodes_api: Api<K8sNode> = Api::all(client);

@@ -1,11 +1,14 @@
 use std::collections::HashMap;
 
-use crate::UniffiCustomTypeConverter;
+use crate::{cluster::ClusterId, view_models::pod::PodViewModel, UniffiCustomTypeConverter};
+use act_zero::{send, WeakAddr};
 use derive_more::From;
 use eyre::Result;
 use fake::{Dummy, Fake, Faker};
+use futures::{StreamExt, TryStreamExt};
 use k8s_openapi::api::core::v1::Pod as K8sPod;
 use kube::{Api, Client};
+use log::debug;
 use rand::{distributions::Alphanumeric, Rng};
 use serde::{Deserialize, Serialize};
 use uniffi::{Enum, Record};
@@ -347,7 +350,7 @@ pub fn pod_preview() -> Pod {
     Pod::preview()
 }
 
-pub async fn get_pods(client: Client) -> Result<HashMap<PodId, Pod>> {
+pub async fn get_all(client: Client) -> Result<HashMap<PodId, Pod>> {
     let pods_api: Api<K8sPod> = Api::all(client);
     let pods = pods_api.list(&Default::default()).await?;
 
@@ -358,4 +361,36 @@ pub async fn get_pods(client: Client) -> Result<HashMap<PodId, Pod>> {
         .collect();
 
     Ok(pods_hash_map)
+}
+
+pub async fn watch(
+    addr: WeakAddr<PodViewModel>,
+    selected_cluster: ClusterId,
+    client: Client,
+) -> Result<()> {
+    use kube::runtime::watcher;
+    debug!("starting pod watcher for {:?}", selected_cluster);
+
+    let nodes_api: Api<K8sPod> = Api::all(client);
+
+    let mut stream = watcher(nodes_api, watcher::Config::default()).boxed();
+
+    while let Some(status) = stream.try_next().await? {
+        match status {
+            watcher::Event::Applied(pod) => {
+                debug!("applied event received on cluster {:?}", selected_cluster);
+                send!(addr.applied(pod.into()))
+            }
+            watcher::Event::Deleted(pod) => {
+                debug!("deleted event received on cluster {:?}", selected_cluster);
+                send!(addr.deleted(pod.into()))
+            }
+            watcher::Event::Restarted(_) => {
+                debug!("restarted event received on cluster {:?}", selected_cluster);
+                send!(addr.load_pods(selected_cluster.clone()))
+            }
+        }
+    }
+
+    Ok(())
 }

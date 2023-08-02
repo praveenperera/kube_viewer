@@ -4,6 +4,7 @@ use std::{
 };
 
 use act_zero::*;
+use eyre::Result;
 use kube::Client;
 use log::debug;
 use once_cell::sync::OnceCell;
@@ -21,6 +22,23 @@ static INSTANCE: OnceCell<RwLock<GlobalViewModel>> = OnceCell::new();
 impl GlobalViewModel {
     pub fn global() -> &'static RwLock<GlobalViewModel> {
         INSTANCE.get_or_init(|| RwLock::new(GlobalViewModel::new()))
+    }
+
+    /// Checks if the client is already in the client store and loads it if not.
+    /// TODO: create and send explicit error that can be handled in the UI
+    pub async fn check_and_load_client(cluster_id: &ClusterId) -> Result<()> {
+        debug!("loading client for cluster {:?}", cluster_id);
+
+        if !GlobalViewModel::global()
+            .read()
+            .client_store
+            .contains_client(cluster_id)
+        {
+            let client_worker = GlobalViewModel::global().read().worker.clone();
+            call!(client_worker.load_client(cluster_id.clone())).await?;
+        }
+
+        Ok(())
     }
 }
 

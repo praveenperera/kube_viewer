@@ -194,6 +194,8 @@ impl Worker {
     }
 
     pub async fn callback(&self, msg: NodeViewModelMessage) {
+        warn!("node view model callback called, before initializaation");
+
         if let Some(responder) = self.state.read().await.responder.as_ref() {
             responder.callback(msg);
         }
@@ -240,14 +242,7 @@ impl Worker {
         debug!("loading nodes");
 
         let selected_cluster = selected_cluster.as_ref();
-
-        if !GlobalViewModel::global()
-            .read()
-            .client_store
-            .contains_client(selected_cluster)
-        {
-            self.load_client(selected_cluster).await?;
-        };
+        GlobalViewModel::check_and_load_client(selected_cluster).await?;
 
         let client: Client = GlobalViewModel::global()
             .read()
@@ -265,21 +260,6 @@ impl Worker {
             nodes: nodes.into_values().collect(),
         })
         .await;
-
-        Produces::ok(())
-    }
-
-    async fn load_client(&mut self, selected_cluster: &ClusterId) -> ActorResult<()> {
-        debug!("load_client() called");
-
-        if !GlobalViewModel::global()
-            .read()
-            .client_store
-            .contains_client(selected_cluster)
-        {
-            let client_worker = GlobalViewModel::global().read().worker.clone();
-            call!(client_worker.load_client(selected_cluster.clone())).await?;
-        }
 
         Produces::ok(())
     }
