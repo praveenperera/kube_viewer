@@ -6,8 +6,14 @@ use eyre::Result;
 use fake::{Dummy, Fake, Faker};
 use k8s_openapi::api::core::v1::Pod as K8sPod;
 use kube::{Api, Client};
+use rand::{distributions::Alphanumeric, Rng};
 use serde::{Deserialize, Serialize};
 use uniffi::{Enum, Record};
+
+use k8s_openapi::api::core::v1::{
+    Container as K8sContainer, ContainerState as K8sContainerState,
+    ContainerStatus as K8sContainerStatus, PodCondition as K8sPodCondition,
+};
 
 use super::{core::OwnerReference, core::Toleration};
 
@@ -17,6 +23,13 @@ use super::{core::OwnerReference, core::Toleration};
     Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, From, Hash, Serialize, Deserialize, Dummy,
 )]
 pub struct PodId(String);
+
+#[derive(uniffi::CustomType)]
+#[uniffi(newtype=String)]
+#[derive(
+    Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, From, Hash, Serialize, Deserialize, Dummy,
+)]
+pub struct ContainerId(String);
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct Pod {
@@ -34,7 +47,7 @@ pub struct Pod {
     pub message: Option<String>,
     pub phase: Phase,
     // TODO: link to owner
-    pub controlled_by: Option<OwnerReference>,
+    pub controlled_by: Vec<OwnerReference>,
 
     // TODO: link to service account screen
     pub service_account: Option<String>,
@@ -45,10 +58,10 @@ pub struct Pod {
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct Container {
-    container_id: Option<String>,
+    container_id: ContainerId,
     name: String,
     image: String,
-    image_id: String,
+    image_id: Option<String>,
     last_state: Option<ContainerState>,
     ready: bool,
     restart_count: i32,
@@ -78,6 +91,8 @@ pub enum Phase {
     Pending,
     Running,
     Failed,
+    Succeeded,
+    Unknown,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
@@ -109,6 +124,216 @@ pub struct PodCondition {
     pub reason: Option<String>,
     pub status: String,
     pub type_: String,
+}
+
+impl From<K8sPod> for Pod {
+    fn from(pod: K8sPod) -> Self {
+        let containers = pod
+            .spec
+            .as_ref()
+            .map(|s| s.containers.clone())
+            .unwrap_or_default();
+
+        let pod_status = pod.status.as_ref();
+
+        let container_statuses = pod_status
+            .and_then(|s| s.container_statuses.clone())
+            .unwrap_or_default()
+            .into_iter()
+            .map(|status| (ContainerId::from(status.name.clone()), status))
+            .collect::<HashMap<ContainerId, _>>();
+
+        Self {
+            id: pod
+                .metadata
+                .name
+                .as_ref()
+                .map(ToString::to_string)
+                .unwrap_or_else(|| format! {"unknown-node-name-{}", random()})
+                .into(),
+            name: pod
+                .metadata
+                .name
+                .unwrap_or_else(|| "Unknown node name".to_string()),
+            namespace: pod
+                .metadata
+                .namespace
+                .unwrap_or_else(|| "default".to_string()),
+            created_at: pod.metadata.creation_timestamp.map(|t| t.0.timestamp()),
+            labels: pod
+                .metadata
+                .labels
+                .unwrap_or_default()
+                .into_iter()
+                .collect(),
+            annotations: pod
+                .metadata
+                .annotations
+                .unwrap_or_default()
+                .into_iter()
+                .collect(),
+            containers: containers
+                .into_iter()
+                .map(|container| Container::new(container, &container_statuses))
+                .collect(),
+            pod_ip: pod_status.and_then(|s| s.pod_ip.clone()),
+            host_ip: pod_status.and_then(|s| s.host_ip.clone()),
+            pod_ips: pod_status
+                .and_then(|s| s.pod_ips.clone())
+                .unwrap_or_default()
+                .into_iter()
+                .flat_map(|ip| ip.ip)
+                .collect(),
+            qos_class: pod_status.and_then(|s| s.qos_class.clone()),
+            message: pod_status.and_then(|s| s.message.clone()),
+            phase: pod_status
+                .map(|s| Phase::from(s.phase.clone()))
+                .unwrap_or_default(),
+            controlled_by: pod
+                .metadata
+                .owner_references
+                .unwrap_or_default()
+                .into_iter()
+                .map(Into::into)
+                .collect(),
+            service_account: pod
+                .spec
+                .as_ref()
+                .and_then(|s| s.service_account_name.clone())
+                .or_else(|| pod.spec.as_ref()?.service_account.clone()),
+            conditions: pod_status
+                .and_then(|s| s.conditions.clone())
+                .unwrap_or_default()
+                .into_iter()
+                .map(Into::into)
+                .collect(),
+            tolerations: pod
+                .spec
+                .as_ref()
+                .and_then(|s| s.tolerations.clone())
+                .unwrap_or_default()
+                .into_iter()
+                .map(Into::into)
+                .collect(),
+        }
+    }
+}
+
+impl Container {
+    fn new(container: K8sContainer, statuses: &HashMap<ContainerId, K8sContainerStatus>) -> Self {
+        let container_id = ContainerId::from(container.name.clone());
+        let status = statuses.get(&container_id);
+
+        Self {
+            container_id,
+            name: container.name,
+            image: container.image.unwrap_or_default(),
+            image_id: status.map(|s| s.image_id.clone()),
+            last_state: status.and_then(|s| s.last_state.clone()).map(Into::into),
+            ready: status.map(|s| s.ready).unwrap_or_default(),
+            restart_count: status.map(|s| s.restart_count).unwrap_or_default(),
+            started: status.map(|s| s.started).is_some(),
+            state: status.and_then(|s| s.state.clone()).map(Into::into),
+            ports: container
+                .ports
+                .unwrap_or_default()
+                .into_iter()
+                .map(|port| port.container_port as u32)
+                .collect(),
+        }
+    }
+}
+
+impl From<K8sContainerState> for ContainerState {
+    fn from(state: K8sContainerState) -> Self {
+        match state {
+            K8sContainerState {
+                running: Some(running),
+                ..
+            } => Self::Running {
+                data: ContainerStateRunning {
+                    started_at: running
+                        .started_at
+                        .map(|t| t.0.timestamp())
+                        .unwrap_or_default(),
+                },
+            },
+
+            K8sContainerState {
+                terminated: Some(terminated),
+                ..
+            } => Self::Terminated {
+                data: ContainerStateTerminated {
+                    started_at: terminated
+                        .started_at
+                        .map(|t| t.0.timestamp())
+                        .unwrap_or_default(),
+                    finished_at: terminated
+                        .finished_at
+                        .map(|t| t.0.timestamp())
+                        .unwrap_or_default(),
+                    exit_code: terminated.exit_code,
+                    message: terminated.message,
+                    reason: terminated.reason,
+                    signal: terminated.signal,
+                },
+            },
+
+            K8sContainerState {
+                waiting: Some(waiting),
+                ..
+            } => Self::Waiting {
+                data: ContainerStateWaiting {
+                    message: waiting.message,
+                    reason: waiting.reason,
+                },
+            },
+
+            _ => Self::Waiting {
+                data: ContainerStateWaiting {
+                    message: None,
+                    reason: None,
+                },
+            },
+        }
+    }
+}
+
+impl From<Option<String>> for Phase {
+    fn from(phase: Option<String>) -> Self {
+        if phase.is_none() {
+            return Self::Pending;
+        }
+
+        match phase.expect("just checked").to_lowercase().as_str() {
+            "pending" => Self::Pending,
+            "running" => Self::Running,
+            "failed" => Self::Failed,
+            "succeeded" => Self::Succeeded,
+            _ => Self::Unknown,
+        }
+    }
+}
+
+impl From<K8sPodCondition> for PodCondition {
+    fn from(pod_condition: K8sPodCondition) -> Self {
+        Self {
+            last_probe_time: pod_condition.last_probe_time.map(|t| t.0.timestamp()),
+            last_transition_time: pod_condition.last_transition_time.map(|t| t.0.timestamp()),
+            message: pod_condition.message,
+            reason: pod_condition.reason,
+            status: pod_condition.status,
+            type_: pod_condition.type_,
+        }
+    }
+}
+
+fn random() -> String {
+    rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(7)
+        .map(char::from)
+        .collect()
 }
 
 impl Pod {
