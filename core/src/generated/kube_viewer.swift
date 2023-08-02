@@ -293,6 +293,32 @@ private func uniffiCheckCallStatus(
 // Public interface members begin here.
 
 
+fileprivate struct FfiConverterUInt32: FfiConverterPrimitive {
+    typealias FfiType = UInt32
+    typealias SwiftType = UInt32
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> UInt32 {
+        return try lift(readInt(&buf))
+    }
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+fileprivate struct FfiConverterInt32: FfiConverterPrimitive {
+    typealias FfiType = Int32
+    typealias SwiftType = Int32
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Int32 {
+        return try lift(readInt(&buf))
+    }
+
+    public static func write(_ value: Int32, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
 fileprivate struct FfiConverterUInt64: FfiConverterPrimitive {
     typealias FfiType = UInt64
     typealias SwiftType = UInt64
@@ -1015,6 +1041,190 @@ public func FfiConverterTypeRustNodeViewModel_lower(_ value: RustNodeViewModel) 
     return FfiConverterTypeRustNodeViewModel.lower(value)
 }
 
+
+public protocol RustPodViewModelProtocol {
+    func `addCallbackListener`(`responder`: PodViewModelCallback) async 
+    func `fetchPods`(`selectedCluster`: ClusterId) async 
+    func `pods`()   -> [Pod]
+    func `startWatcher`(`selectedCluster`: ClusterId) async 
+    func `stopWatcher`() async 
+    
+}
+
+public class RustPodViewModel: RustPodViewModelProtocol {
+    fileprivate let pointer: UnsafeMutableRawPointer
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `FfiConverter` without making this `required` and we can't
+    // make it `required` without making it `public`.
+    required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
+        self.pointer = pointer
+    }
+    public convenience init()  {
+        self.init(unsafeFromRawPointer: try! rustCall() {
+    uniffi_kube_viewer_fn_constructor_rustpodviewmodel_new($0)
+})
+    }
+
+    deinit {
+        try! rustCall { uniffi_kube_viewer_fn_free_rustpodviewmodel(pointer, $0) }
+    }
+
+    
+
+    
+    
+
+    public func `addCallbackListener`(`responder`: PodViewModelCallback) async  {
+        // Suspend the function and call the scaffolding function, passing it a callback handler from
+        // `AsyncTypes.swift`
+        //
+        // Make sure to hold on to a reference to the continuation in the top-level scope so that
+        // it's not freed before the callback is invoked.
+        var continuation: CheckedContinuation<(), Error>? = nil
+        return try!  await withCheckedThrowingContinuation {
+            continuation = $0
+            try! rustCall() {
+                uniffi_kube_viewer_fn_method_rustpodviewmodel_add_callback_listener(
+                    self.pointer,
+                    
+        FfiConverterCallbackInterfacePodViewModelCallback.lower(`responder`),
+                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
+                    uniffiFutureCallbackHandlerVoid,
+                    &continuation,
+                    $0
+                )
+            }
+        }
+    }
+
+    
+
+    public func `fetchPods`(`selectedCluster`: ClusterId) async  {
+        // Suspend the function and call the scaffolding function, passing it a callback handler from
+        // `AsyncTypes.swift`
+        //
+        // Make sure to hold on to a reference to the continuation in the top-level scope so that
+        // it's not freed before the callback is invoked.
+        var continuation: CheckedContinuation<(), Error>? = nil
+        return try!  await withCheckedThrowingContinuation {
+            continuation = $0
+            try! rustCall() {
+                uniffi_kube_viewer_fn_method_rustpodviewmodel_fetch_pods(
+                    self.pointer,
+                    
+        FfiConverterTypeClusterId.lower(`selectedCluster`),
+                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
+                    uniffiFutureCallbackHandlerVoid,
+                    &continuation,
+                    $0
+                )
+            }
+        }
+    }
+
+    
+
+    public func `pods`()  -> [Pod] {
+        return try!  FfiConverterSequenceTypePod.lift(
+            try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustpodviewmodel_pods(self.pointer, $0
+    )
+}
+        )
+    }
+
+    public func `startWatcher`(`selectedCluster`: ClusterId) async  {
+        // Suspend the function and call the scaffolding function, passing it a callback handler from
+        // `AsyncTypes.swift`
+        //
+        // Make sure to hold on to a reference to the continuation in the top-level scope so that
+        // it's not freed before the callback is invoked.
+        var continuation: CheckedContinuation<(), Error>? = nil
+        return try!  await withCheckedThrowingContinuation {
+            continuation = $0
+            try! rustCall() {
+                uniffi_kube_viewer_fn_method_rustpodviewmodel_start_watcher(
+                    self.pointer,
+                    
+        FfiConverterTypeClusterId.lower(`selectedCluster`),
+                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
+                    uniffiFutureCallbackHandlerVoid,
+                    &continuation,
+                    $0
+                )
+            }
+        }
+    }
+
+    
+
+    public func `stopWatcher`() async  {
+        // Suspend the function and call the scaffolding function, passing it a callback handler from
+        // `AsyncTypes.swift`
+        //
+        // Make sure to hold on to a reference to the continuation in the top-level scope so that
+        // it's not freed before the callback is invoked.
+        var continuation: CheckedContinuation<(), Error>? = nil
+        return try!  await withCheckedThrowingContinuation {
+            continuation = $0
+            try! rustCall() {
+                uniffi_kube_viewer_fn_method_rustpodviewmodel_stop_watcher(
+                    self.pointer,
+                    
+                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
+                    uniffiFutureCallbackHandlerVoid,
+                    &continuation,
+                    $0
+                )
+            }
+        }
+    }
+
+    
+}
+
+public struct FfiConverterTypeRustPodViewModel: FfiConverter {
+    typealias FfiType = UnsafeMutableRawPointer
+    typealias SwiftType = RustPodViewModel
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> RustPodViewModel {
+        let v: UInt64 = try readInt(&buf)
+        // The Rust code won't compile if a pointer won't fit in a UInt64.
+        // We have to go via `UInt` because that's the thing that's the size of a pointer.
+        let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
+        if (ptr == nil) {
+            throw UniffiInternalError.unexpectedNullPointer
+        }
+        return try lift(ptr!)
+    }
+
+    public static func write(_ value: RustPodViewModel, into buf: inout [UInt8]) {
+        // This fiddling is because `Int` is the thing that's the same size as a pointer.
+        // The Rust code won't compile if a pointer won't fit in a `UInt64`.
+        writeInt(&buf, UInt64(bitPattern: Int64(Int(bitPattern: lower(value)))))
+    }
+
+    public static func lift(_ pointer: UnsafeMutableRawPointer) throws -> RustPodViewModel {
+        return RustPodViewModel(unsafeFromRawPointer: pointer)
+    }
+
+    public static func lower(_ value: RustPodViewModel) -> UnsafeMutableRawPointer {
+        return value.pointer
+    }
+}
+
+
+public func FfiConverterTypeRustPodViewModel_lift(_ pointer: UnsafeMutableRawPointer) throws -> RustPodViewModel {
+    return try FfiConverterTypeRustPodViewModel.lift(pointer)
+}
+
+public func FfiConverterTypeRustPodViewModel_lower(_ value: RustPodViewModel) -> UnsafeMutableRawPointer {
+    return FfiConverterTypeRustPodViewModel.lower(value)
+}
+
 // Encapsulates an executor that can run Rust tasks
 //
 // On Swift, `Task.detached` can handle this we just need to know what priority to send it.
@@ -1078,11 +1288,11 @@ public struct Cluster {
     public var `server`: String?
     public var `proxyUrl`: String?
     public var `nickname`: String?
-    public var `loadStatus`: LoadStatus
+    public var `loadStatus`: SimpleLoadStatus
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(`id`: ClusterId, `server`: String?, `proxyUrl`: String?, `nickname`: String?, `loadStatus`: LoadStatus) {
+    public init(`id`: ClusterId, `server`: String?, `proxyUrl`: String?, `nickname`: String?, `loadStatus`: SimpleLoadStatus) {
         self.`id` = `id`
         self.`server` = `server`
         self.`proxyUrl` = `proxyUrl`
@@ -1129,7 +1339,7 @@ public struct FfiConverterTypeCluster: FfiConverterRustBuffer {
             `server`: FfiConverterOptionString.read(from: &buf), 
             `proxyUrl`: FfiConverterOptionString.read(from: &buf), 
             `nickname`: FfiConverterOptionString.read(from: &buf), 
-            `loadStatus`: FfiConverterTypeLoadStatus.read(from: &buf)
+            `loadStatus`: FfiConverterTypeSimpleLoadStatus.read(from: &buf)
         )
     }
 
@@ -1138,7 +1348,7 @@ public struct FfiConverterTypeCluster: FfiConverterRustBuffer {
         FfiConverterOptionString.write(value.`server`, into: &buf)
         FfiConverterOptionString.write(value.`proxyUrl`, into: &buf)
         FfiConverterOptionString.write(value.`nickname`, into: &buf)
-        FfiConverterTypeLoadStatus.write(value.`loadStatus`, into: &buf)
+        FfiConverterTypeSimpleLoadStatus.write(value.`loadStatus`, into: &buf)
     }
 }
 
@@ -1196,6 +1406,314 @@ public func FfiConverterTypeClusterId_lift(_ buf: RustBuffer) throws -> ClusterI
 
 public func FfiConverterTypeClusterId_lower(_ value: ClusterId) -> RustBuffer {
     return FfiConverterTypeClusterId.lower(value)
+}
+
+
+public struct Container {
+    public var `containerId`: ContainerId
+    public var `name`: String
+    public var `image`: String
+    public var `imageId`: String?
+    public var `lastState`: ContainerState?
+    public var `ready`: Bool
+    public var `restartCount`: Int32
+    public var `started`: Bool
+    public var `state`: ContainerState?
+    public var `ports`: [UInt32]
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`containerId`: ContainerId, `name`: String, `image`: String, `imageId`: String?, `lastState`: ContainerState?, `ready`: Bool, `restartCount`: Int32, `started`: Bool, `state`: ContainerState?, `ports`: [UInt32]) {
+        self.`containerId` = `containerId`
+        self.`name` = `name`
+        self.`image` = `image`
+        self.`imageId` = `imageId`
+        self.`lastState` = `lastState`
+        self.`ready` = `ready`
+        self.`restartCount` = `restartCount`
+        self.`started` = `started`
+        self.`state` = `state`
+        self.`ports` = `ports`
+    }
+}
+
+
+extension Container: Equatable, Hashable {
+    public static func ==(lhs: Container, rhs: Container) -> Bool {
+        if lhs.`containerId` != rhs.`containerId` {
+            return false
+        }
+        if lhs.`name` != rhs.`name` {
+            return false
+        }
+        if lhs.`image` != rhs.`image` {
+            return false
+        }
+        if lhs.`imageId` != rhs.`imageId` {
+            return false
+        }
+        if lhs.`lastState` != rhs.`lastState` {
+            return false
+        }
+        if lhs.`ready` != rhs.`ready` {
+            return false
+        }
+        if lhs.`restartCount` != rhs.`restartCount` {
+            return false
+        }
+        if lhs.`started` != rhs.`started` {
+            return false
+        }
+        if lhs.`state` != rhs.`state` {
+            return false
+        }
+        if lhs.`ports` != rhs.`ports` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`containerId`)
+        hasher.combine(`name`)
+        hasher.combine(`image`)
+        hasher.combine(`imageId`)
+        hasher.combine(`lastState`)
+        hasher.combine(`ready`)
+        hasher.combine(`restartCount`)
+        hasher.combine(`started`)
+        hasher.combine(`state`)
+        hasher.combine(`ports`)
+    }
+}
+
+
+public struct FfiConverterTypeContainer: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Container {
+        return try Container(
+            `containerId`: FfiConverterTypeContainerId.read(from: &buf), 
+            `name`: FfiConverterString.read(from: &buf), 
+            `image`: FfiConverterString.read(from: &buf), 
+            `imageId`: FfiConverterOptionString.read(from: &buf), 
+            `lastState`: FfiConverterOptionTypeContainerState.read(from: &buf), 
+            `ready`: FfiConverterBool.read(from: &buf), 
+            `restartCount`: FfiConverterInt32.read(from: &buf), 
+            `started`: FfiConverterBool.read(from: &buf), 
+            `state`: FfiConverterOptionTypeContainerState.read(from: &buf), 
+            `ports`: FfiConverterSequenceUInt32.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: Container, into buf: inout [UInt8]) {
+        FfiConverterTypeContainerId.write(value.`containerId`, into: &buf)
+        FfiConverterString.write(value.`name`, into: &buf)
+        FfiConverterString.write(value.`image`, into: &buf)
+        FfiConverterOptionString.write(value.`imageId`, into: &buf)
+        FfiConverterOptionTypeContainerState.write(value.`lastState`, into: &buf)
+        FfiConverterBool.write(value.`ready`, into: &buf)
+        FfiConverterInt32.write(value.`restartCount`, into: &buf)
+        FfiConverterBool.write(value.`started`, into: &buf)
+        FfiConverterOptionTypeContainerState.write(value.`state`, into: &buf)
+        FfiConverterSequenceUInt32.write(value.`ports`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeContainer_lift(_ buf: RustBuffer) throws -> Container {
+    return try FfiConverterTypeContainer.lift(buf)
+}
+
+public func FfiConverterTypeContainer_lower(_ value: Container) -> RustBuffer {
+    return FfiConverterTypeContainer.lower(value)
+}
+
+
+public struct ContainerStateRunning {
+    public var `startedAt`: Int64
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`startedAt`: Int64) {
+        self.`startedAt` = `startedAt`
+    }
+}
+
+
+extension ContainerStateRunning: Equatable, Hashable {
+    public static func ==(lhs: ContainerStateRunning, rhs: ContainerStateRunning) -> Bool {
+        if lhs.`startedAt` != rhs.`startedAt` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`startedAt`)
+    }
+}
+
+
+public struct FfiConverterTypeContainerStateRunning: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ContainerStateRunning {
+        return try ContainerStateRunning(
+            `startedAt`: FfiConverterInt64.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: ContainerStateRunning, into buf: inout [UInt8]) {
+        FfiConverterInt64.write(value.`startedAt`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeContainerStateRunning_lift(_ buf: RustBuffer) throws -> ContainerStateRunning {
+    return try FfiConverterTypeContainerStateRunning.lift(buf)
+}
+
+public func FfiConverterTypeContainerStateRunning_lower(_ value: ContainerStateRunning) -> RustBuffer {
+    return FfiConverterTypeContainerStateRunning.lower(value)
+}
+
+
+public struct ContainerStateTerminated {
+    public var `startedAt`: Int64
+    public var `finishedAt`: Int64
+    public var `exitCode`: Int32
+    public var `message`: String?
+    public var `reason`: String?
+    public var `signal`: Int32?
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`startedAt`: Int64, `finishedAt`: Int64, `exitCode`: Int32, `message`: String?, `reason`: String?, `signal`: Int32?) {
+        self.`startedAt` = `startedAt`
+        self.`finishedAt` = `finishedAt`
+        self.`exitCode` = `exitCode`
+        self.`message` = `message`
+        self.`reason` = `reason`
+        self.`signal` = `signal`
+    }
+}
+
+
+extension ContainerStateTerminated: Equatable, Hashable {
+    public static func ==(lhs: ContainerStateTerminated, rhs: ContainerStateTerminated) -> Bool {
+        if lhs.`startedAt` != rhs.`startedAt` {
+            return false
+        }
+        if lhs.`finishedAt` != rhs.`finishedAt` {
+            return false
+        }
+        if lhs.`exitCode` != rhs.`exitCode` {
+            return false
+        }
+        if lhs.`message` != rhs.`message` {
+            return false
+        }
+        if lhs.`reason` != rhs.`reason` {
+            return false
+        }
+        if lhs.`signal` != rhs.`signal` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`startedAt`)
+        hasher.combine(`finishedAt`)
+        hasher.combine(`exitCode`)
+        hasher.combine(`message`)
+        hasher.combine(`reason`)
+        hasher.combine(`signal`)
+    }
+}
+
+
+public struct FfiConverterTypeContainerStateTerminated: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ContainerStateTerminated {
+        return try ContainerStateTerminated(
+            `startedAt`: FfiConverterInt64.read(from: &buf), 
+            `finishedAt`: FfiConverterInt64.read(from: &buf), 
+            `exitCode`: FfiConverterInt32.read(from: &buf), 
+            `message`: FfiConverterOptionString.read(from: &buf), 
+            `reason`: FfiConverterOptionString.read(from: &buf), 
+            `signal`: FfiConverterOptionInt32.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: ContainerStateTerminated, into buf: inout [UInt8]) {
+        FfiConverterInt64.write(value.`startedAt`, into: &buf)
+        FfiConverterInt64.write(value.`finishedAt`, into: &buf)
+        FfiConverterInt32.write(value.`exitCode`, into: &buf)
+        FfiConverterOptionString.write(value.`message`, into: &buf)
+        FfiConverterOptionString.write(value.`reason`, into: &buf)
+        FfiConverterOptionInt32.write(value.`signal`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeContainerStateTerminated_lift(_ buf: RustBuffer) throws -> ContainerStateTerminated {
+    return try FfiConverterTypeContainerStateTerminated.lift(buf)
+}
+
+public func FfiConverterTypeContainerStateTerminated_lower(_ value: ContainerStateTerminated) -> RustBuffer {
+    return FfiConverterTypeContainerStateTerminated.lower(value)
+}
+
+
+public struct ContainerStateWaiting {
+    public var `message`: String?
+    public var `reason`: String?
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`message`: String?, `reason`: String?) {
+        self.`message` = `message`
+        self.`reason` = `reason`
+    }
+}
+
+
+extension ContainerStateWaiting: Equatable, Hashable {
+    public static func ==(lhs: ContainerStateWaiting, rhs: ContainerStateWaiting) -> Bool {
+        if lhs.`message` != rhs.`message` {
+            return false
+        }
+        if lhs.`reason` != rhs.`reason` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`message`)
+        hasher.combine(`reason`)
+    }
+}
+
+
+public struct FfiConverterTypeContainerStateWaiting: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ContainerStateWaiting {
+        return try ContainerStateWaiting(
+            `message`: FfiConverterOptionString.read(from: &buf), 
+            `reason`: FfiConverterOptionString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: ContainerStateWaiting, into buf: inout [UInt8]) {
+        FfiConverterOptionString.write(value.`message`, into: &buf)
+        FfiConverterOptionString.write(value.`reason`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeContainerStateWaiting_lift(_ buf: RustBuffer) throws -> ContainerStateWaiting {
+    return try FfiConverterTypeContainerStateWaiting.lift(buf)
+}
+
+public func FfiConverterTypeContainerStateWaiting_lower(_ value: ContainerStateWaiting) -> RustBuffer {
+    return FfiConverterTypeContainerStateWaiting.lower(value)
 }
 
 
@@ -1523,6 +2041,355 @@ public func FfiConverterTypeNodeId_lower(_ value: NodeId) -> RustBuffer {
 }
 
 
+public struct OwnerReference {
+    public var `apiVersion`: String
+    public var `blockOwnerDeletion`: Bool
+    public var `controller`: Bool
+    public var `kind`: String
+    public var `name`: String
+    public var `uid`: String
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`apiVersion`: String, `blockOwnerDeletion`: Bool, `controller`: Bool, `kind`: String, `name`: String, `uid`: String) {
+        self.`apiVersion` = `apiVersion`
+        self.`blockOwnerDeletion` = `blockOwnerDeletion`
+        self.`controller` = `controller`
+        self.`kind` = `kind`
+        self.`name` = `name`
+        self.`uid` = `uid`
+    }
+}
+
+
+extension OwnerReference: Equatable, Hashable {
+    public static func ==(lhs: OwnerReference, rhs: OwnerReference) -> Bool {
+        if lhs.`apiVersion` != rhs.`apiVersion` {
+            return false
+        }
+        if lhs.`blockOwnerDeletion` != rhs.`blockOwnerDeletion` {
+            return false
+        }
+        if lhs.`controller` != rhs.`controller` {
+            return false
+        }
+        if lhs.`kind` != rhs.`kind` {
+            return false
+        }
+        if lhs.`name` != rhs.`name` {
+            return false
+        }
+        if lhs.`uid` != rhs.`uid` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`apiVersion`)
+        hasher.combine(`blockOwnerDeletion`)
+        hasher.combine(`controller`)
+        hasher.combine(`kind`)
+        hasher.combine(`name`)
+        hasher.combine(`uid`)
+    }
+}
+
+
+public struct FfiConverterTypeOwnerReference: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> OwnerReference {
+        return try OwnerReference(
+            `apiVersion`: FfiConverterString.read(from: &buf), 
+            `blockOwnerDeletion`: FfiConverterBool.read(from: &buf), 
+            `controller`: FfiConverterBool.read(from: &buf), 
+            `kind`: FfiConverterString.read(from: &buf), 
+            `name`: FfiConverterString.read(from: &buf), 
+            `uid`: FfiConverterString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: OwnerReference, into buf: inout [UInt8]) {
+        FfiConverterString.write(value.`apiVersion`, into: &buf)
+        FfiConverterBool.write(value.`blockOwnerDeletion`, into: &buf)
+        FfiConverterBool.write(value.`controller`, into: &buf)
+        FfiConverterString.write(value.`kind`, into: &buf)
+        FfiConverterString.write(value.`name`, into: &buf)
+        FfiConverterString.write(value.`uid`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeOwnerReference_lift(_ buf: RustBuffer) throws -> OwnerReference {
+    return try FfiConverterTypeOwnerReference.lift(buf)
+}
+
+public func FfiConverterTypeOwnerReference_lower(_ value: OwnerReference) -> RustBuffer {
+    return FfiConverterTypeOwnerReference.lower(value)
+}
+
+
+public struct Pod {
+    public var `id`: PodId
+    public var `name`: String
+    public var `namespace`: String
+    public var `createdAt`: Int64?
+    public var `labels`: [String: String]
+    public var `annotations`: [String: String]
+    public var `containers`: [Container]
+    public var `podIp`: String?
+    public var `hostIp`: String?
+    public var `podIps`: [String]
+    public var `qosClass`: String?
+    public var `message`: String?
+    public var `phase`: Phase
+    public var `controlledBy`: [OwnerReference]
+    public var `serviceAccount`: String?
+    public var `conditions`: [PodCondition]
+    public var `tolerations`: [Toleration]
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`id`: PodId, `name`: String, `namespace`: String, `createdAt`: Int64?, `labels`: [String: String], `annotations`: [String: String], `containers`: [Container], `podIp`: String?, `hostIp`: String?, `podIps`: [String], `qosClass`: String?, `message`: String?, `phase`: Phase, `controlledBy`: [OwnerReference], `serviceAccount`: String?, `conditions`: [PodCondition], `tolerations`: [Toleration]) {
+        self.`id` = `id`
+        self.`name` = `name`
+        self.`namespace` = `namespace`
+        self.`createdAt` = `createdAt`
+        self.`labels` = `labels`
+        self.`annotations` = `annotations`
+        self.`containers` = `containers`
+        self.`podIp` = `podIp`
+        self.`hostIp` = `hostIp`
+        self.`podIps` = `podIps`
+        self.`qosClass` = `qosClass`
+        self.`message` = `message`
+        self.`phase` = `phase`
+        self.`controlledBy` = `controlledBy`
+        self.`serviceAccount` = `serviceAccount`
+        self.`conditions` = `conditions`
+        self.`tolerations` = `tolerations`
+    }
+}
+
+
+extension Pod: Equatable, Hashable {
+    public static func ==(lhs: Pod, rhs: Pod) -> Bool {
+        if lhs.`id` != rhs.`id` {
+            return false
+        }
+        if lhs.`name` != rhs.`name` {
+            return false
+        }
+        if lhs.`namespace` != rhs.`namespace` {
+            return false
+        }
+        if lhs.`createdAt` != rhs.`createdAt` {
+            return false
+        }
+        if lhs.`labels` != rhs.`labels` {
+            return false
+        }
+        if lhs.`annotations` != rhs.`annotations` {
+            return false
+        }
+        if lhs.`containers` != rhs.`containers` {
+            return false
+        }
+        if lhs.`podIp` != rhs.`podIp` {
+            return false
+        }
+        if lhs.`hostIp` != rhs.`hostIp` {
+            return false
+        }
+        if lhs.`podIps` != rhs.`podIps` {
+            return false
+        }
+        if lhs.`qosClass` != rhs.`qosClass` {
+            return false
+        }
+        if lhs.`message` != rhs.`message` {
+            return false
+        }
+        if lhs.`phase` != rhs.`phase` {
+            return false
+        }
+        if lhs.`controlledBy` != rhs.`controlledBy` {
+            return false
+        }
+        if lhs.`serviceAccount` != rhs.`serviceAccount` {
+            return false
+        }
+        if lhs.`conditions` != rhs.`conditions` {
+            return false
+        }
+        if lhs.`tolerations` != rhs.`tolerations` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`id`)
+        hasher.combine(`name`)
+        hasher.combine(`namespace`)
+        hasher.combine(`createdAt`)
+        hasher.combine(`labels`)
+        hasher.combine(`annotations`)
+        hasher.combine(`containers`)
+        hasher.combine(`podIp`)
+        hasher.combine(`hostIp`)
+        hasher.combine(`podIps`)
+        hasher.combine(`qosClass`)
+        hasher.combine(`message`)
+        hasher.combine(`phase`)
+        hasher.combine(`controlledBy`)
+        hasher.combine(`serviceAccount`)
+        hasher.combine(`conditions`)
+        hasher.combine(`tolerations`)
+    }
+}
+
+
+public struct FfiConverterTypePod: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Pod {
+        return try Pod(
+            `id`: FfiConverterTypePodId.read(from: &buf), 
+            `name`: FfiConverterString.read(from: &buf), 
+            `namespace`: FfiConverterString.read(from: &buf), 
+            `createdAt`: FfiConverterOptionInt64.read(from: &buf), 
+            `labels`: FfiConverterDictionaryStringString.read(from: &buf), 
+            `annotations`: FfiConverterDictionaryStringString.read(from: &buf), 
+            `containers`: FfiConverterSequenceTypeContainer.read(from: &buf), 
+            `podIp`: FfiConverterOptionString.read(from: &buf), 
+            `hostIp`: FfiConverterOptionString.read(from: &buf), 
+            `podIps`: FfiConverterSequenceString.read(from: &buf), 
+            `qosClass`: FfiConverterOptionString.read(from: &buf), 
+            `message`: FfiConverterOptionString.read(from: &buf), 
+            `phase`: FfiConverterTypePhase.read(from: &buf), 
+            `controlledBy`: FfiConverterSequenceTypeOwnerReference.read(from: &buf), 
+            `serviceAccount`: FfiConverterOptionString.read(from: &buf), 
+            `conditions`: FfiConverterSequenceTypePodCondition.read(from: &buf), 
+            `tolerations`: FfiConverterSequenceTypeToleration.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: Pod, into buf: inout [UInt8]) {
+        FfiConverterTypePodId.write(value.`id`, into: &buf)
+        FfiConverterString.write(value.`name`, into: &buf)
+        FfiConverterString.write(value.`namespace`, into: &buf)
+        FfiConverterOptionInt64.write(value.`createdAt`, into: &buf)
+        FfiConverterDictionaryStringString.write(value.`labels`, into: &buf)
+        FfiConverterDictionaryStringString.write(value.`annotations`, into: &buf)
+        FfiConverterSequenceTypeContainer.write(value.`containers`, into: &buf)
+        FfiConverterOptionString.write(value.`podIp`, into: &buf)
+        FfiConverterOptionString.write(value.`hostIp`, into: &buf)
+        FfiConverterSequenceString.write(value.`podIps`, into: &buf)
+        FfiConverterOptionString.write(value.`qosClass`, into: &buf)
+        FfiConverterOptionString.write(value.`message`, into: &buf)
+        FfiConverterTypePhase.write(value.`phase`, into: &buf)
+        FfiConverterSequenceTypeOwnerReference.write(value.`controlledBy`, into: &buf)
+        FfiConverterOptionString.write(value.`serviceAccount`, into: &buf)
+        FfiConverterSequenceTypePodCondition.write(value.`conditions`, into: &buf)
+        FfiConverterSequenceTypeToleration.write(value.`tolerations`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypePod_lift(_ buf: RustBuffer) throws -> Pod {
+    return try FfiConverterTypePod.lift(buf)
+}
+
+public func FfiConverterTypePod_lower(_ value: Pod) -> RustBuffer {
+    return FfiConverterTypePod.lower(value)
+}
+
+
+public struct PodCondition {
+    public var `lastProbeTime`: Int64?
+    public var `lastTransitionTime`: Int64?
+    public var `message`: String?
+    public var `reason`: String?
+    public var `status`: String
+    public var `type`: String
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`lastProbeTime`: Int64?, `lastTransitionTime`: Int64?, `message`: String?, `reason`: String?, `status`: String, `type`: String) {
+        self.`lastProbeTime` = `lastProbeTime`
+        self.`lastTransitionTime` = `lastTransitionTime`
+        self.`message` = `message`
+        self.`reason` = `reason`
+        self.`status` = `status`
+        self.`type` = `type`
+    }
+}
+
+
+extension PodCondition: Equatable, Hashable {
+    public static func ==(lhs: PodCondition, rhs: PodCondition) -> Bool {
+        if lhs.`lastProbeTime` != rhs.`lastProbeTime` {
+            return false
+        }
+        if lhs.`lastTransitionTime` != rhs.`lastTransitionTime` {
+            return false
+        }
+        if lhs.`message` != rhs.`message` {
+            return false
+        }
+        if lhs.`reason` != rhs.`reason` {
+            return false
+        }
+        if lhs.`status` != rhs.`status` {
+            return false
+        }
+        if lhs.`type` != rhs.`type` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`lastProbeTime`)
+        hasher.combine(`lastTransitionTime`)
+        hasher.combine(`message`)
+        hasher.combine(`reason`)
+        hasher.combine(`status`)
+        hasher.combine(`type`)
+    }
+}
+
+
+public struct FfiConverterTypePodCondition: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> PodCondition {
+        return try PodCondition(
+            `lastProbeTime`: FfiConverterOptionInt64.read(from: &buf), 
+            `lastTransitionTime`: FfiConverterOptionInt64.read(from: &buf), 
+            `message`: FfiConverterOptionString.read(from: &buf), 
+            `reason`: FfiConverterOptionString.read(from: &buf), 
+            `status`: FfiConverterString.read(from: &buf), 
+            `type`: FfiConverterString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: PodCondition, into buf: inout [UInt8]) {
+        FfiConverterOptionInt64.write(value.`lastProbeTime`, into: &buf)
+        FfiConverterOptionInt64.write(value.`lastTransitionTime`, into: &buf)
+        FfiConverterOptionString.write(value.`message`, into: &buf)
+        FfiConverterOptionString.write(value.`reason`, into: &buf)
+        FfiConverterString.write(value.`status`, into: &buf)
+        FfiConverterString.write(value.`type`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypePodCondition_lift(_ buf: RustBuffer) throws -> PodCondition {
+    return try FfiConverterTypePodCondition.lift(buf)
+}
+
+public func FfiConverterTypePodCondition_lower(_ value: PodCondition) -> RustBuffer {
+    return FfiConverterTypePodCondition.lower(value)
+}
+
+
 public struct Tab {
     public var `id`: TabId
     public var `icon`: String
@@ -1718,6 +2585,153 @@ public func FfiConverterTypeTaint_lift(_ buf: RustBuffer) throws -> Taint {
 public func FfiConverterTypeTaint_lower(_ value: Taint) -> RustBuffer {
     return FfiConverterTypeTaint.lower(value)
 }
+
+
+public struct Toleration {
+    public var `effect`: String?
+    public var `key`: String?
+    public var `operator`: String?
+    public var `tolerationSeconds`: Int64?
+    public var `value`: String?
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(`effect`: String?, `key`: String?, `operator`: String?, `tolerationSeconds`: Int64?, `value`: String?) {
+        self.`effect` = `effect`
+        self.`key` = `key`
+        self.`operator` = `operator`
+        self.`tolerationSeconds` = `tolerationSeconds`
+        self.`value` = `value`
+    }
+}
+
+
+extension Toleration: Equatable, Hashable {
+    public static func ==(lhs: Toleration, rhs: Toleration) -> Bool {
+        if lhs.`effect` != rhs.`effect` {
+            return false
+        }
+        if lhs.`key` != rhs.`key` {
+            return false
+        }
+        if lhs.`operator` != rhs.`operator` {
+            return false
+        }
+        if lhs.`tolerationSeconds` != rhs.`tolerationSeconds` {
+            return false
+        }
+        if lhs.`value` != rhs.`value` {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(`effect`)
+        hasher.combine(`key`)
+        hasher.combine(`operator`)
+        hasher.combine(`tolerationSeconds`)
+        hasher.combine(`value`)
+    }
+}
+
+
+public struct FfiConverterTypeToleration: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Toleration {
+        return try Toleration(
+            `effect`: FfiConverterOptionString.read(from: &buf), 
+            `key`: FfiConverterOptionString.read(from: &buf), 
+            `operator`: FfiConverterOptionString.read(from: &buf), 
+            `tolerationSeconds`: FfiConverterOptionInt64.read(from: &buf), 
+            `value`: FfiConverterOptionString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: Toleration, into buf: inout [UInt8]) {
+        FfiConverterOptionString.write(value.`effect`, into: &buf)
+        FfiConverterOptionString.write(value.`key`, into: &buf)
+        FfiConverterOptionString.write(value.`operator`, into: &buf)
+        FfiConverterOptionInt64.write(value.`tolerationSeconds`, into: &buf)
+        FfiConverterOptionString.write(value.`value`, into: &buf)
+    }
+}
+
+
+public func FfiConverterTypeToleration_lift(_ buf: RustBuffer) throws -> Toleration {
+    return try FfiConverterTypeToleration.lift(buf)
+}
+
+public func FfiConverterTypeToleration_lower(_ value: Toleration) -> RustBuffer {
+    return FfiConverterTypeToleration.lower(value)
+}
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+public enum ContainerState {
+    
+    case `running`(`data`: ContainerStateRunning)
+    case `terminated`(`data`: ContainerStateTerminated)
+    case `waiting`(`data`: ContainerStateWaiting)
+}
+
+public struct FfiConverterTypeContainerState: FfiConverterRustBuffer {
+    typealias SwiftType = ContainerState
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ContainerState {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .`running`(
+            `data`: try FfiConverterTypeContainerStateRunning.read(from: &buf)
+        )
+        
+        case 2: return .`terminated`(
+            `data`: try FfiConverterTypeContainerStateTerminated.read(from: &buf)
+        )
+        
+        case 3: return .`waiting`(
+            `data`: try FfiConverterTypeContainerStateWaiting.read(from: &buf)
+        )
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: ContainerState, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case let .`running`(`data`):
+            writeInt(&buf, Int32(1))
+            FfiConverterTypeContainerStateRunning.write(`data`, into: &buf)
+            
+        
+        case let .`terminated`(`data`):
+            writeInt(&buf, Int32(2))
+            FfiConverterTypeContainerStateTerminated.write(`data`, into: &buf)
+            
+        
+        case let .`waiting`(`data`):
+            writeInt(&buf, Int32(3))
+            FfiConverterTypeContainerStateWaiting.write(`data`, into: &buf)
+            
+        }
+    }
+}
+
+
+public func FfiConverterTypeContainerState_lift(_ buf: RustBuffer) throws -> ContainerState {
+    return try FfiConverterTypeContainerState.lift(buf)
+}
+
+public func FfiConverterTypeContainerState_lower(_ value: ContainerState) -> RustBuffer {
+    return FfiConverterTypeContainerState.lower(value)
+}
+
+
+extension ContainerState: Equatable, Hashable {}
+
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
@@ -1996,75 +3010,6 @@ extension KeyAwareEvent: Equatable, Hashable {}
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
-public enum LoadStatus {
-    
-    case `initial`
-    case `loading`
-    case `loaded`
-    case `error`(`error`: String)
-}
-
-public struct FfiConverterTypeLoadStatus: FfiConverterRustBuffer {
-    typealias SwiftType = LoadStatus
-
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> LoadStatus {
-        let variant: Int32 = try readInt(&buf)
-        switch variant {
-        
-        case 1: return .`initial`
-        
-        case 2: return .`loading`
-        
-        case 3: return .`loaded`
-        
-        case 4: return .`error`(
-            `error`: try FfiConverterString.read(from: &buf)
-        )
-        
-        default: throw UniffiInternalError.unexpectedEnumCase
-        }
-    }
-
-    public static func write(_ value: LoadStatus, into buf: inout [UInt8]) {
-        switch value {
-        
-        
-        case .`initial`:
-            writeInt(&buf, Int32(1))
-        
-        
-        case .`loading`:
-            writeInt(&buf, Int32(2))
-        
-        
-        case .`loaded`:
-            writeInt(&buf, Int32(3))
-        
-        
-        case let .`error`(`error`):
-            writeInt(&buf, Int32(4))
-            FfiConverterString.write(`error`, into: &buf)
-            
-        }
-    }
-}
-
-
-public func FfiConverterTypeLoadStatus_lift(_ buf: RustBuffer) throws -> LoadStatus {
-    return try FfiConverterTypeLoadStatus.lift(buf)
-}
-
-public func FfiConverterTypeLoadStatus_lower(_ value: LoadStatus) -> RustBuffer {
-    return FfiConverterTypeLoadStatus.lower(value)
-}
-
-
-extension LoadStatus: Equatable, Hashable {}
-
-
-
-// Note that we don't yet support `indirect` for enums.
-// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum MainViewModelField {
     
     case `currentFocusRegion`(`focusRegion`: FocusRegion)
@@ -2207,9 +3152,9 @@ extension NodeLoadStatus: Equatable, Hashable {}
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 public enum NodeViewModelMessage {
     
-    case `loadingNodes`
-    case `nodesLoaded`(`nodes`: [Node])
-    case `nodeLoadingFailed`(`error`: String)
+    case `loading`
+    case `loaded`(`nodes`: [Node])
+    case `loadingFailed`(`error`: String)
 }
 
 public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
@@ -2219,13 +3164,13 @@ public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
         let variant: Int32 = try readInt(&buf)
         switch variant {
         
-        case 1: return .`loadingNodes`
+        case 1: return .`loading`
         
-        case 2: return .`nodesLoaded`(
+        case 2: return .`loaded`(
             `nodes`: try FfiConverterSequenceTypeNode.read(from: &buf)
         )
         
-        case 3: return .`nodeLoadingFailed`(
+        case 3: return .`loadingFailed`(
             `error`: try FfiConverterString.read(from: &buf)
         )
         
@@ -2237,16 +3182,16 @@ public struct FfiConverterTypeNodeViewModelMessage: FfiConverterRustBuffer {
         switch value {
         
         
-        case .`loadingNodes`:
+        case .`loading`:
             writeInt(&buf, Int32(1))
         
         
-        case let .`nodesLoaded`(`nodes`):
+        case let .`loaded`(`nodes`):
             writeInt(&buf, Int32(2))
             FfiConverterSequenceTypeNode.write(`nodes`, into: &buf)
             
         
-        case let .`nodeLoadingFailed`(`error`):
+        case let .`loadingFailed`(`error`):
             writeInt(&buf, Int32(3))
             FfiConverterString.write(`error`, into: &buf)
             
@@ -2265,6 +3210,213 @@ public func FfiConverterTypeNodeViewModelMessage_lower(_ value: NodeViewModelMes
 
 
 extension NodeViewModelMessage: Equatable, Hashable {}
+
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+public enum Phase {
+    
+    case `pending`
+    case `running`
+    case `failed`
+    case `succeeded`
+    case `unknown`
+}
+
+public struct FfiConverterTypePhase: FfiConverterRustBuffer {
+    typealias SwiftType = Phase
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Phase {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .`pending`
+        
+        case 2: return .`running`
+        
+        case 3: return .`failed`
+        
+        case 4: return .`succeeded`
+        
+        case 5: return .`unknown`
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: Phase, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .`pending`:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .`running`:
+            writeInt(&buf, Int32(2))
+        
+        
+        case .`failed`:
+            writeInt(&buf, Int32(3))
+        
+        
+        case .`succeeded`:
+            writeInt(&buf, Int32(4))
+        
+        
+        case .`unknown`:
+            writeInt(&buf, Int32(5))
+        
+        }
+    }
+}
+
+
+public func FfiConverterTypePhase_lift(_ buf: RustBuffer) throws -> Phase {
+    return try FfiConverterTypePhase.lift(buf)
+}
+
+public func FfiConverterTypePhase_lower(_ value: Phase) -> RustBuffer {
+    return FfiConverterTypePhase.lower(value)
+}
+
+
+extension Phase: Equatable, Hashable {}
+
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+public enum PodViewModelMessage {
+    
+    case `loading`
+    case `loaded`(`pods`: [Pod])
+    case `loadingFailed`(`error`: String)
+}
+
+public struct FfiConverterTypePodViewModelMessage: FfiConverterRustBuffer {
+    typealias SwiftType = PodViewModelMessage
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> PodViewModelMessage {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .`loading`
+        
+        case 2: return .`loaded`(
+            `pods`: try FfiConverterSequenceTypePod.read(from: &buf)
+        )
+        
+        case 3: return .`loadingFailed`(
+            `error`: try FfiConverterString.read(from: &buf)
+        )
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: PodViewModelMessage, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .`loading`:
+            writeInt(&buf, Int32(1))
+        
+        
+        case let .`loaded`(`pods`):
+            writeInt(&buf, Int32(2))
+            FfiConverterSequenceTypePod.write(`pods`, into: &buf)
+            
+        
+        case let .`loadingFailed`(`error`):
+            writeInt(&buf, Int32(3))
+            FfiConverterString.write(`error`, into: &buf)
+            
+        }
+    }
+}
+
+
+public func FfiConverterTypePodViewModelMessage_lift(_ buf: RustBuffer) throws -> PodViewModelMessage {
+    return try FfiConverterTypePodViewModelMessage.lift(buf)
+}
+
+public func FfiConverterTypePodViewModelMessage_lower(_ value: PodViewModelMessage) -> RustBuffer {
+    return FfiConverterTypePodViewModelMessage.lower(value)
+}
+
+
+extension PodViewModelMessage: Equatable, Hashable {}
+
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+public enum SimpleLoadStatus {
+    
+    case `initial`
+    case `loading`
+    case `loaded`
+    case `error`(`error`: String)
+}
+
+public struct FfiConverterTypeSimpleLoadStatus: FfiConverterRustBuffer {
+    typealias SwiftType = SimpleLoadStatus
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SimpleLoadStatus {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .`initial`
+        
+        case 2: return .`loading`
+        
+        case 3: return .`loaded`
+        
+        case 4: return .`error`(
+            `error`: try FfiConverterString.read(from: &buf)
+        )
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: SimpleLoadStatus, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .`initial`:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .`loading`:
+            writeInt(&buf, Int32(2))
+        
+        
+        case .`loaded`:
+            writeInt(&buf, Int32(3))
+        
+        
+        case let .`error`(`error`):
+            writeInt(&buf, Int32(4))
+            FfiConverterString.write(`error`, into: &buf)
+            
+        }
+    }
+}
+
+
+public func FfiConverterTypeSimpleLoadStatus_lift(_ buf: RustBuffer) throws -> SimpleLoadStatus {
+    return try FfiConverterTypeSimpleLoadStatus.lift(buf)
+}
+
+public func FfiConverterTypeSimpleLoadStatus_lower(_ value: SimpleLoadStatus) -> RustBuffer {
+    return FfiConverterTypeSimpleLoadStatus.lower(value)
+}
+
+
+extension SimpleLoadStatus: Equatable, Hashable {}
 
 
 
@@ -3036,6 +4188,134 @@ extension FfiConverterCallbackInterfaceNodeViewModelCallback : FfiConverter {
     }
 }
 
+
+
+// Declaration and FfiConverters for PodViewModelCallback Callback Interface
+
+public protocol PodViewModelCallback : AnyObject {
+    func `callback`(`message`: PodViewModelMessage) 
+    
+}
+
+// The ForeignCallback that is passed to Rust.
+fileprivate let foreignCallbackCallbackInterfacePodViewModelCallback : ForeignCallback =
+    { (handle: UniFFICallbackHandle, method: Int32, argsData: UnsafePointer<UInt8>, argsLen: Int32, out_buf: UnsafeMutablePointer<RustBuffer>) -> Int32 in
+    
+
+    func `invokeCallback`(_ swiftCallbackInterface: PodViewModelCallback, _ argsData: UnsafePointer<UInt8>, _ argsLen: Int32, _ out_buf: UnsafeMutablePointer<RustBuffer>) throws -> Int32 {
+        var reader = createReader(data: Data(bytes: argsData, count: Int(argsLen)))
+        func makeCall() throws -> Int32 {
+            try swiftCallbackInterface.`callback`(
+                    `message`:  try FfiConverterTypePodViewModelMessage.read(from: &reader)
+                    )
+            return UNIFFI_CALLBACK_SUCCESS
+        }
+        return try makeCall()
+    }
+
+
+    switch method {
+        case IDX_CALLBACK_FREE:
+            FfiConverterCallbackInterfacePodViewModelCallback.drop(handle: handle)
+            // Sucessful return
+            // See docs of ForeignCallback in `uniffi_core/src/ffi/foreigncallbacks.rs`
+            return UNIFFI_CALLBACK_SUCCESS
+        case 1:
+            let cb: PodViewModelCallback
+            do {
+                cb = try FfiConverterCallbackInterfacePodViewModelCallback.lift(handle)
+            } catch {
+                out_buf.pointee = FfiConverterString.lower("PodViewModelCallback: Invalid handle")
+                return UNIFFI_CALLBACK_UNEXPECTED_ERROR
+            }
+            do {
+                return try `invokeCallback`(cb, argsData, argsLen, out_buf)
+            } catch let error {
+                out_buf.pointee = FfiConverterString.lower(String(describing: error))
+                return UNIFFI_CALLBACK_UNEXPECTED_ERROR
+            }
+        
+        // This should never happen, because an out of bounds method index won't
+        // ever be used. Once we can catch errors, we should return an InternalError.
+        // https://github.com/mozilla/uniffi-rs/issues/351
+        default:
+            // An unexpected error happened.
+            // See docs of ForeignCallback in `uniffi_core/src/ffi/foreigncallbacks.rs`
+            return UNIFFI_CALLBACK_UNEXPECTED_ERROR
+    }
+}
+
+// FfiConverter protocol for callback interfaces
+fileprivate struct FfiConverterCallbackInterfacePodViewModelCallback {
+    private static let initCallbackOnce: () = {
+        // Swift ensures this initializer code will once run once, even when accessed by multiple threads.
+        try! rustCall { (err: UnsafeMutablePointer<RustCallStatus>) in
+            uniffi_kube_viewer_fn_init_callback_podviewmodelcallback(foreignCallbackCallbackInterfacePodViewModelCallback, err)
+        }
+    }()
+
+    private static func ensureCallbackinitialized() {
+        _ = initCallbackOnce
+    }
+
+    static func drop(handle: UniFFICallbackHandle) {
+        handleMap.remove(handle: handle)
+    }
+
+    private static var handleMap = UniFFICallbackHandleMap<PodViewModelCallback>()
+}
+
+extension FfiConverterCallbackInterfacePodViewModelCallback : FfiConverter {
+    typealias SwiftType = PodViewModelCallback
+    // We can use Handle as the FfiType because it's a typealias to UInt64
+    typealias FfiType = UniFFICallbackHandle
+
+    public static func lift(_ handle: UniFFICallbackHandle) throws -> SwiftType {
+        ensureCallbackinitialized();
+        guard let callback = handleMap.get(handle: handle) else {
+            throw UniffiInternalError.unexpectedStaleHandle
+        }
+        return callback
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        ensureCallbackinitialized();
+        let handle: UniFFICallbackHandle = try readInt(&buf)
+        return try lift(handle)
+    }
+
+    public static func lower(_ v: SwiftType) -> UniFFICallbackHandle {
+        ensureCallbackinitialized();
+        return handleMap.insert(obj: v)
+    }
+
+    public static func write(_ v: SwiftType, into buf: inout [UInt8]) {
+        ensureCallbackinitialized();
+        writeInt(&buf, lower(v))
+    }
+}
+
+fileprivate struct FfiConverterOptionInt32: FfiConverterRustBuffer {
+    typealias SwiftType = Int32?
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        guard let value = value else {
+            writeInt(&buf, Int8(0))
+            return
+        }
+        writeInt(&buf, Int8(1))
+        FfiConverterInt32.write(value, into: &buf)
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        switch try readInt(&buf) as Int8 {
+        case 0: return nil
+        case 1: return try FfiConverterInt32.read(from: &buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
+        }
+    }
+}
+
 fileprivate struct FfiConverterOptionInt64: FfiConverterRustBuffer {
     typealias SwiftType = Int64?
 
@@ -3096,6 +4376,93 @@ fileprivate struct FfiConverterOptionTypeCluster: FfiConverterRustBuffer {
         case 1: return try FfiConverterTypeCluster.read(from: &buf)
         default: throw UniffiInternalError.unexpectedOptionalTag
         }
+    }
+}
+
+fileprivate struct FfiConverterOptionTypeContainerState: FfiConverterRustBuffer {
+    typealias SwiftType = ContainerState?
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        guard let value = value else {
+            writeInt(&buf, Int8(0))
+            return
+        }
+        writeInt(&buf, Int8(1))
+        FfiConverterTypeContainerState.write(value, into: &buf)
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        switch try readInt(&buf) as Int8 {
+        case 0: return nil
+        case 1: return try FfiConverterTypeContainerState.read(from: &buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
+        }
+    }
+}
+
+fileprivate struct FfiConverterSequenceUInt32: FfiConverterRustBuffer {
+    typealias SwiftType = [UInt32]
+
+    public static func write(_ value: [UInt32], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterUInt32.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [UInt32] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [UInt32]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterUInt32.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+fileprivate struct FfiConverterSequenceString: FfiConverterRustBuffer {
+    typealias SwiftType = [String]
+
+    public static func write(_ value: [String], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterString.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [String] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [String]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterString.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+fileprivate struct FfiConverterSequenceTypeContainer: FfiConverterRustBuffer {
+    typealias SwiftType = [Container]
+
+    public static func write(_ value: [Container], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeContainer.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [Container] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [Container]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeContainer.read(from: &buf))
+        }
+        return seq
     }
 }
 
@@ -3165,6 +4532,72 @@ fileprivate struct FfiConverterSequenceTypeNodeCondition: FfiConverterRustBuffer
     }
 }
 
+fileprivate struct FfiConverterSequenceTypeOwnerReference: FfiConverterRustBuffer {
+    typealias SwiftType = [OwnerReference]
+
+    public static func write(_ value: [OwnerReference], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeOwnerReference.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [OwnerReference] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [OwnerReference]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeOwnerReference.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+fileprivate struct FfiConverterSequenceTypePod: FfiConverterRustBuffer {
+    typealias SwiftType = [Pod]
+
+    public static func write(_ value: [Pod], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypePod.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [Pod] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [Pod]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypePod.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+fileprivate struct FfiConverterSequenceTypePodCondition: FfiConverterRustBuffer {
+    typealias SwiftType = [PodCondition]
+
+    public static func write(_ value: [PodCondition], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypePodCondition.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [PodCondition] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [PodCondition]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypePodCondition.read(from: &buf))
+        }
+        return seq
+    }
+}
+
 fileprivate struct FfiConverterSequenceTypeTab: FfiConverterRustBuffer {
     typealias SwiftType = [Tab]
 
@@ -3226,6 +4659,28 @@ fileprivate struct FfiConverterSequenceTypeTaint: FfiConverterRustBuffer {
         seq.reserveCapacity(Int(len))
         for _ in 0 ..< len {
             seq.append(try FfiConverterTypeTaint.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+fileprivate struct FfiConverterSequenceTypeToleration: FfiConverterRustBuffer {
+    typealias SwiftType = [Toleration]
+
+    public static func write(_ value: [Toleration], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeToleration.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [Toleration] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [Toleration]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeToleration.read(from: &buf))
         }
         return seq
     }
@@ -3321,6 +4776,72 @@ fileprivate struct FfiConverterDictionaryTypeTabIdTypeTab: FfiConverterRustBuffe
         }
         return dict
     }
+}
+
+
+/**
+ * Typealias from the type name used in the UDL file to the builtin type.  This
+ * is needed because the UDL type name is used in function/method signatures.
+ */
+public typealias ContainerId = String
+public struct FfiConverterTypeContainerId: FfiConverter {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ContainerId {
+        return try FfiConverterString.read(from: &buf)
+    }
+
+    public static func write(_ value: ContainerId, into buf: inout [UInt8]) {
+        return FfiConverterString.write(value, into: &buf)
+    }
+
+    public static func lift(_ value: RustBuffer) throws -> ContainerId {
+        return try FfiConverterString.lift(value)
+    }
+
+    public static func lower(_ value: ContainerId) -> RustBuffer {
+        return FfiConverterString.lower(value)
+    }
+}
+
+
+public func FfiConverterTypeContainerId_lift(_ value: RustBuffer) throws -> ContainerId {
+    return try FfiConverterTypeContainerId.lift(value)
+}
+
+public func FfiConverterTypeContainerId_lower(_ value: ContainerId) -> RustBuffer {
+    return FfiConverterTypeContainerId.lower(value)
+}
+
+
+/**
+ * Typealias from the type name used in the UDL file to the builtin type.  This
+ * is needed because the UDL type name is used in function/method signatures.
+ */
+public typealias PodId = String
+public struct FfiConverterTypePodId: FfiConverter {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> PodId {
+        return try FfiConverterString.read(from: &buf)
+    }
+
+    public static func write(_ value: PodId, into buf: inout [UInt8]) {
+        return FfiConverterString.write(value, into: &buf)
+    }
+
+    public static func lift(_ value: RustBuffer) throws -> PodId {
+        return try FfiConverterString.lift(value)
+    }
+
+    public static func lower(_ value: PodId) -> RustBuffer {
+        return FfiConverterString.lower(value)
+    }
+}
+
+
+public func FfiConverterTypePodId_lift(_ value: RustBuffer) throws -> PodId {
+    return try FfiConverterTypePodId.lift(value)
+}
+
+public func FfiConverterTypePodId_lower(_ value: PodId) -> RustBuffer {
+    return FfiConverterTypePodId.lower(value)
 }// Callbacks for async functions
 
 // Callback handlers for an async calls.  These are invoked by Rust when the future is ready.  They
@@ -3444,6 +4965,23 @@ fileprivate func uniffiFutureCallbackHandlerTypeRustNodeViewModel(
         continuation.pointee.resume(throwing: error)
     }
 }
+fileprivate func uniffiFutureCallbackHandlerTypeRustPodViewModel(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: UnsafeMutableRawPointer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<RustPodViewModel, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterTypeRustPodViewModel.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
 fileprivate func uniffiFutureCallbackHandlerTypeNode(
     rawContinutation: UnsafeRawPointer,
     returnValue: RustBuffer,
@@ -3457,6 +4995,23 @@ fileprivate func uniffiFutureCallbackHandlerTypeNode(
     do {
         try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
         continuation.pointee.resume(returning: try FfiConverterTypeNode.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerTypePod(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<Pod, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterTypePod.lift(returnValue))
     } catch let error {
         continuation.pointee.resume(throwing: error)
     }
@@ -3525,6 +5080,23 @@ fileprivate func uniffiFutureCallbackHandlerSequenceTypeNode(
     do {
         try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
         continuation.pointee.resume(returning: try FfiConverterSequenceTypeNode.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerSequenceTypePod(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<[Pod], Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterSequenceTypePod.lift(returnValue))
     } catch let error {
         continuation.pointee.resume(throwing: error)
     }
@@ -3623,6 +5195,14 @@ public func `nodePreview`()  -> Node {
     )
 }
 
+public func `podPreview`()  -> Pod {
+    return try!  FfiConverterTypePod.lift(
+        try! rustCall() {
+    uniffi_kube_viewer_fn_func_pod_preview($0)
+}
+    )
+}
+
 private enum InitializationResult {
     case ok
     case contractVersionMismatch
@@ -3639,6 +5219,9 @@ private var initializationResult: InitializationResult {
         return InitializationResult.contractVersionMismatch
     }
     if (uniffi_kube_viewer_checksum_func_node_preview() != 63126) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_func_pod_preview() != 22666) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_focusregionhasher_hash() != 26261) {
@@ -3713,6 +5296,21 @@ private var initializationResult: InitializationResult {
     if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs_map() != 2970) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_add_callback_listener() != 59216) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_fetch_pods() != 57451) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_pods() != 56851) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_start_watcher() != 22929) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_stop_watcher() != 18778) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_kube_viewer_checksum_constructor_focusregionhasher_new() != 32388) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -3728,6 +5326,9 @@ private var initializationResult: InitializationResult {
     if (uniffi_kube_viewer_checksum_constructor_rustmainviewmodel_new() != 52692) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_kube_viewer_checksum_constructor_rustpodviewmodel_new() != 28314) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_kube_viewer_checksum_method_globalviewmodelcallback_callback() != 30455) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -3735,6 +5336,9 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_nodeviewmodelcallback_callback() != 48251) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_method_podviewmodelcallback_callback() != 8953) {
         return InitializationResult.apiChecksumMismatch
     }
 

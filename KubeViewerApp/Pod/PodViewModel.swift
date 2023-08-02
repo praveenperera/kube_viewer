@@ -9,14 +9,38 @@ import Combine
 import Foundation
 import SwiftUI
 
-class PodViewModel: ObservableObject {
+class PodViewModel: ObservableObject, PodViewModelCallback {
     let windowId: UUID
     var data: RustPodViewModel
 
-    @Published var pods: LoadStatus = .initial
+    @Published var pods: LoadStatus<[Pod]> = .initial
 
     init(windowId: UUID, selectedCluster: Cluster?) {
         self.windowId = windowId
-        self.data = RustPodViewModel(windowId: windowId.uuidString)
+        self.data = RustPodViewModel()
+    }
+
+    private func setupCallback() {
+        Task {
+            await self.data.addCallbackListener(responder: self)
+        }
+    }
+
+    func callback(message: PodViewModelMessage) {
+        Task {
+            await MainActor.run {
+                switch message {
+                    case .loading:
+                        self.pods = .loading
+
+                    case let .loadingFailed(error):
+                        self.pods = .error(error: error)
+
+                    case let .loaded(pods: pods):
+                        print("[swift] pods loaded")
+                        self.pods = .loaded(data: pods)
+                }
+            }
+        }
     }
 }

@@ -15,7 +15,7 @@ use crate::{
         pod::{Pod, PodId},
     },
     task::{self, spawn_actor},
-    DataLoadStatus,
+    LoadStatus,
 };
 
 use super::global::GlobalViewModel;
@@ -46,7 +46,7 @@ pub struct RustPodViewModel {
 pub struct PodViewModel {
     addr: WeakAddr<Self>,
     watcher: Addr<Watcher>,
-    pods: DataLoadStatus<HashMap<PodId, Pod>, String>,
+    pods: LoadStatus<HashMap<PodId, Pod>, String>,
     responder: Option<Box<dyn PodViewModelCallback>>,
 }
 
@@ -101,21 +101,21 @@ impl PodViewModel {
             addr: Default::default(),
             watcher: Default::default(),
 
-            pods: DataLoadStatus::Initial,
+            pods: LoadStatus::Initial,
             responder: None,
         }
     }
 
     pub async fn pods(&self) -> ActorResult<Option<HashMap<PodId, Pod>>> {
         match &self.pods {
-            DataLoadStatus::Loaded(pods) => Produces::ok(Some(pods.clone())),
+            LoadStatus::Loaded(pods) => Produces::ok(Some(pods.clone())),
             _ => Produces::ok(None),
         }
     }
 
     pub async fn update_pod(&mut self, pod: Pod) -> Option<Pod> {
         match &mut self.pods {
-            DataLoadStatus::Loaded(pods) => pods.insert(pod.id.clone(), pod),
+            LoadStatus::Loaded(pods) => pods.insert(pod.id.clone(), pod),
             _ => None,
         }
     }
@@ -154,7 +154,7 @@ impl PodViewModel {
         let pods_map = kubernetes::pod::get_all(client).await?;
 
         // save in model
-        self.pods = DataLoadStatus::Loaded(pods_map);
+        self.pods = LoadStatus::Loaded(pods_map);
 
         // notify ui
         self.notify_pods_loaded().await;
@@ -191,7 +191,7 @@ impl PodViewModel {
     }
 
     pub async fn deleted(&mut self, pod: Pod) -> ActorResult<()> {
-        let DataLoadStatus::Loaded(pods) = &mut self.pods else {
+        let LoadStatus::Loaded(pods) = &mut self.pods else {
             return Produces::ok(());
         };
 
@@ -208,7 +208,7 @@ impl PodViewModel {
     }
 
     async fn notify_pods_loaded(&self) {
-        if let DataLoadStatus::Loaded(pods) = &self.pods {
+        if let LoadStatus::Loaded(pods) = &self.pods {
             self.callback(PodViewModelMessage::Loaded {
                 pods: pods.values().cloned().collect(),
             })

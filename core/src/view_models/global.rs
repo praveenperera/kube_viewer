@@ -14,7 +14,7 @@ use crate::{
     cluster::{Cluster, ClusterId, Clusters},
     env::Env,
     kubernetes::{client_store::ClientStore, kube_config::KubeConfigWatcher},
-    task, LoadStatus,
+    task, SimpleLoadStatus,
 };
 
 static INSTANCE: OnceCell<RwLock<GlobalViewModel>> = OnceCell::new();
@@ -24,16 +24,15 @@ impl GlobalViewModel {
         INSTANCE.get_or_init(|| RwLock::new(GlobalViewModel::new()))
     }
 
-    /// Checks if the client is already in the client store and loads it if not.
-    /// TODO: create and send explicit error that can be handled in the UI
     pub async fn check_and_load_client(cluster_id: &ClusterId) -> Result<()> {
-        debug!("loading client for cluster {:?}", cluster_id);
+        debug!("checking and loading client for cluster {:?}", cluster_id);
 
         if !GlobalViewModel::global()
             .read()
             .client_store
             .contains_client(cluster_id)
         {
+            debug!("loading client for cluster {:?}", cluster_id);
             let client_worker = GlobalViewModel::global().read().worker.clone();
             call!(client_worker.load_client(cluster_id.clone())).await?;
         }
@@ -244,8 +243,8 @@ impl Worker {
                         &cluster_id.raw_value, cluster.load_status
                     );
 
-                    if !matches!(cluster.load_status, LoadStatus::Loaded) {
-                        cluster.load_status = LoadStatus::Loaded;
+                    if !matches!(cluster.load_status, SimpleLoadStatus::Loaded) {
+                        cluster.load_status = SimpleLoadStatus::Loaded;
 
                         self.callback(GlobalViewModelMessage::RefreshClusters);
                     }
@@ -269,7 +268,7 @@ impl Worker {
                     .as_mut()
                     .and_then(|clusters| clusters.clusters_map.get_mut(&cluster_id))
                 {
-                    cluster.load_status = LoadStatus::Error {
+                    cluster.load_status = SimpleLoadStatus::Error {
                         error: error.to_string(),
                     };
 

@@ -36,9 +36,9 @@ pub trait NodeViewModelCallback: Send + Sync + 'static {
 
 #[derive(uniffi::Enum)]
 pub enum NodeViewModelMessage {
-    LoadingNodes,
-    NodesLoaded { nodes: Vec<Node> },
-    NodeLoadingFailed { error: String },
+    Loading,
+    Loaded { nodes: Vec<Node> },
+    LoadingFailed { error: String },
 }
 
 #[derive(uniffi::Enum)]
@@ -52,7 +52,7 @@ pub enum NodeLoadStatus {
 impl From<NodeError> for NodeViewModelMessage {
     fn from(error: NodeError) -> Self {
         match error {
-            NodeError::NodeLoadError(e) => NodeViewModelMessage::NodeLoadingFailed {
+            NodeError::NodeLoadError(e) => NodeViewModelMessage::LoadingFailed {
                 error: e.to_string(),
             },
         }
@@ -215,7 +215,7 @@ impl Worker {
             debug!("node updated, notifying listeners");
             nodes.insert(node.id.clone(), node);
 
-            self.callback(NodeViewModelMessage::NodesLoaded {
+            self.callback(NodeViewModelMessage::Loaded {
                 nodes: nodes.values().cloned().collect(),
             })
             .await
@@ -229,7 +229,7 @@ impl Worker {
             debug!("node deleted, notifying listeners");
             nodes.remove(&node.id);
 
-            self.callback(NodeViewModelMessage::NodesLoaded {
+            self.callback(NodeViewModelMessage::Loaded {
                 nodes: nodes.values().cloned().collect(),
             })
             .await
@@ -256,7 +256,7 @@ impl Worker {
         self.state.write().await.nodes = Some(nodes.clone());
 
         // notify frontend, nodes loaded
-        self.callback(NodeViewModelMessage::NodesLoaded {
+        self.callback(NodeViewModelMessage::Loaded {
             nodes: nodes.into_values().collect(),
         })
         .await;
@@ -266,7 +266,7 @@ impl Worker {
 
     async fn notify_and_load_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
         // notify and load
-        self.callback(NodeViewModelMessage::LoadingNodes).await;
+        self.callback(NodeViewModelMessage::Loading).await;
 
         self.load_nodes(&selected_cluster)
             .await
@@ -321,7 +321,7 @@ impl Actor for Worker {
         if let Some(error) = error.downcast::<NodeError>().ok().map(|e| *e) {
             self.callback(error.into()).await
         } else {
-            self.callback(NodeViewModelMessage::NodeLoadingFailed {
+            self.callback(NodeViewModelMessage::LoadingFailed {
                 error: "Unknown error, please see logs".to_string(),
             })
             .await

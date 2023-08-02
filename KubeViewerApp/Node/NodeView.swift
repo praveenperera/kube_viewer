@@ -156,7 +156,7 @@ struct NodeView: View {
         }
     }
 
-    func setLoading(_ loading: NodeLoadStatus) {
+    func setLoading(_ loading: LoadStatus<[Node]>) {
         switch loading {
         case .loaded, .error:
             self.isLoading = false
