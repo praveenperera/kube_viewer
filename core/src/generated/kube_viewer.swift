@@ -1072,6 +1072,14 @@ public class RustPodViewModel: RustPodViewModelProtocol {
 
     
 
+    public static func `preview`()  -> RustPodViewModel {
+        return RustPodViewModel(unsafeFromRawPointer: try! rustCall() {
+    uniffi_kube_viewer_fn_constructor_rustpodviewmodel_preview($0)
+})
+    }
+
+    
+
     
     
 
@@ -5327,6 +5335,9 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_constructor_rustpodviewmodel_new() != 28314) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_constructor_rustpodviewmodel_preview() != 64189) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_globalviewmodelcallback_callback() != 30455) {

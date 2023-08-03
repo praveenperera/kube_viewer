@@ -1,9 +1,11 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use eyre::eyre;
+use fake::{Fake, Faker};
 use kube::Client;
 use log::{debug, error};
 use thiserror::Error;
+use tokio::time;
 use uniffi::Object;
 
 use act_zero::*;
@@ -59,6 +61,13 @@ impl RustPodViewModel {
         })
     }
 
+    #[uniffi::constructor]
+    pub fn preview() -> Arc<Self> {
+        Arc::new(Self {
+            actor: spawn_actor(PodViewModel::preview()),
+        })
+    }
+
     pub fn pods(self: Arc<Self>) -> Vec<Pod> {
         debug!("getting pods blocking");
         let actor = self.actor.clone();
@@ -102,6 +111,20 @@ impl PodViewModel {
             watcher: Default::default(),
 
             pods: LoadStatus::Initial,
+            responder: None,
+        }
+    }
+
+    pub fn preview() -> Self {
+        Self {
+            addr: Default::default(),
+            watcher: Default::default(),
+            pods: LoadStatus::Loaded(
+                (0..16)
+                    .map(|_| Faker.fake::<Pod>())
+                    .map(|pod| (pod.id.clone(), pod))
+                    .collect(),
+            ),
             responder: None,
         }
     }
@@ -163,8 +186,15 @@ impl PodViewModel {
     }
 
     pub async fn start_watcher(&mut self, selected_cluster: ClusterId) {
+        // create watcher actor
         self.watcher = spawn_actor(Watcher::new(selected_cluster, self.addr.clone()));
+        let watcher_addr = self.watcher.downgrade();
+
+        // start watcher
         send!(self.watcher.start_watcher());
+
+        // start refresh on interval
+        send!(self.watcher.refresh_on_interval(watcher_addr));
     }
 
     pub async fn stop_watcher(&mut self) {
@@ -280,5 +310,21 @@ impl Watcher {
         .await?;
 
         Produces::ok(())
+    }
+
+    async fn refresh_on_interval(&mut self, addr: WeakAddr<Self>) {
+        let model_actor = self.model_actor.clone();
+        let selected_cluster = self.selected_cluster.clone();
+
+        addr.send_fut(async move {
+            let mut interval = time::interval(Duration::from_secs(60));
+            interval.tick().await;
+
+            loop {
+                interval.tick().await;
+                debug!("60 seconds past, loading pods");
+                send!(model_actor.load_pods(selected_cluster.clone()));
+            }
+        })
     }
 }

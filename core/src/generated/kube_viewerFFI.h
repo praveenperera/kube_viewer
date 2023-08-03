@@ -144,6 +144,9 @@ void uniffi_kube_viewer_fn_free_rustpodviewmodel(void*_Nonnull ptr, RustCallStat
 void*_Nonnull uniffi_kube_viewer_fn_constructor_rustpodviewmodel_new(RustCallStatus *_Nonnull out_status
     
 );
+void*_Nonnull uniffi_kube_viewer_fn_constructor_rustpodviewmodel_preview(RustCallStatus *_Nonnull out_status
+    
+);
 void uniffi_kube_viewer_fn_method_rustpodviewmodel_add_callback_listener(void*_Nonnull ptr, uint64_t responder, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
 );
 void uniffi_kube_viewer_fn_method_rustpodviewmodel_fetch_pods(void*_Nonnull ptr, RustBuffer selected_cluster, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
@@ -285,6 +288,9 @@ uint16_t uniffi_kube_viewer_checksum_constructor_rustmainviewmodel_new(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_constructor_rustpodviewmodel_new(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_constructor_rustpodviewmodel_preview(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_globalviewmodelcallback_callback(void

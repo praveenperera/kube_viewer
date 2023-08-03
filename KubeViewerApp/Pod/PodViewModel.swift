@@ -15,9 +15,11 @@ class PodViewModel: ObservableObject, PodViewModelCallback {
 
     @Published var pods: LoadStatus<[Pod]> = .initial
 
-    init(windowId: UUID, selectedCluster: Cluster?) {
+    init(windowId: UUID) {
         self.windowId = windowId
         self.data = RustPodViewModel()
+
+        DispatchQueue.main.async { self.setupCallback() }
     }
 
     private func setupCallback() {

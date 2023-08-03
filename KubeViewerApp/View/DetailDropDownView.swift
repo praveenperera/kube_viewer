@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NodeDetailDropDown<Content: View>: View {
+struct DetailDropDown<Content: View>: View {
     var title: String
 
     @Namespace var namespace

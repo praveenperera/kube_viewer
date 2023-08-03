@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc, time::Duration};
+use std::{collections::HashMap, sync::Arc};
 
 use act_zero::*;
 use eyre::{eyre, Result};
@@ -9,7 +9,6 @@ use tokio::sync::RwLock;
 use fake::{Fake, Faker};
 
 use thiserror::Error;
-use tokio::time;
 
 use super::WindowId;
 use crate::{
@@ -115,8 +114,6 @@ impl RustNodeViewModel {
 
         let _ = call!(worker.notify_and_load_nodes(selected_cluster.clone())).await;
         let _ = call!(worker.start_watcher(selected_cluster.clone())).await;
-
-        send!(worker.refresh_on_interval(selected_cluster));
     }
 
     pub async fn stop_watcher(&self) {
@@ -291,19 +288,6 @@ impl Worker {
         });
 
         Produces::ok(())
-    }
-
-    async fn refresh_on_interval(&mut self, selected_cluster: ClusterId) {
-        self.addr.send_fut_with(|addr| async move {
-            let mut interval = time::interval(Duration::from_secs(60));
-            interval.tick().await;
-
-            loop {
-                interval.tick().await;
-                debug!("60 seconds past, loading nodes");
-                send!(addr.load_nodes(selected_cluster.clone()));
-            }
-        })
     }
 }
 
