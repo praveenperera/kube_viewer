@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AgeView: View {
-    let createdAt: Int?
+    let createdAt: Int64?
     let age: String?
 
     var body: some View {
