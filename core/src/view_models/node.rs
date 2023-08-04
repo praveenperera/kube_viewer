@@ -191,10 +191,10 @@ impl Worker {
     }
 
     pub async fn callback(&self, msg: NodeViewModelMessage) {
-        warn!("node view model callback called, before initializaation");
-
         if let Some(responder) = self.state.read().await.responder.as_ref() {
             responder.callback(msg);
+        } else {
+            warn!("node view model callback called, before initialized");
         }
     }
 

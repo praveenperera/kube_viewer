@@ -3,10 +3,10 @@ use std::{collections::HashMap, sync::Arc, time::Duration};
 use eyre::eyre;
 use fake::{Fake, Faker};
 use kube::Client;
-use log::{debug, error};
+use log::{debug, error, warn};
 use parking_lot::RwLock;
 use thiserror::Error;
-use tokio::time;
+use tokio::{task::JoinHandle, time};
 use uniffi::Object;
 
 use act_zero::*;
@@ -70,7 +70,7 @@ impl RustPodViewModel {
     }
 
     pub fn pods(self: Arc<Self>) -> Vec<Pod> {
-        debug!("getting pods blocking");
+        warn!("getting pods blocking");
         let actor = self.actor.read().clone();
 
         task::block_on(async move {
@@ -93,16 +93,19 @@ impl RustPodViewModel {
     }
 
     pub async fn start_watcher(&self, selected_cluster: ClusterId) {
+        debug!("starting pod watcher for cluster: {selected_cluster:?}");
         let actor = self.actor.read().clone();
         let _ = call!(actor.start_watcher(selected_cluster)).await;
     }
 
     pub async fn stop_watcher(&self) {
+        debug!("stopping pod watcher");
         let actor = self.actor.read().clone();
         let _ = call!(actor.stop_watcher()).await;
     }
 
     pub async fn fetch_pods(&self, selected_cluster: ClusterId) {
+        debug!("fetching pods for cluster: {selected_cluster:?}");
         let actor = self.actor.read().clone();
         let _ = call!(actor.notify_and_load_pods(selected_cluster)).await;
     }
@@ -198,17 +201,17 @@ impl PodViewModel {
     pub async fn start_watcher(&mut self, selected_cluster: ClusterId) {
         // create watcher actor
         self.watcher = spawn_actor(Watcher::new(selected_cluster, self.addr.clone()));
-        let watcher_addr = self.watcher.downgrade();
 
         // start watcher
         send!(self.watcher.start_watcher());
 
         // start refresh on interval
-        send!(self.watcher.refresh_on_interval(watcher_addr));
+        send!(self.watcher.refresh_on_interval());
     }
 
-    pub async fn stop_watcher(&mut self) {
-        self.watcher = Default::default();
+    pub async fn stop_watcher(&mut self) -> ActorResult<()> {
+        std::mem::take(&mut self.watcher);
+        Produces::ok(())
     }
 
     pub async fn applied(&mut self, pod: Pod) -> ActorResult<()> {
@@ -294,6 +297,7 @@ impl Actor for Watcher {}
 pub struct Watcher {
     selected_cluster: ClusterId,
     model_actor: WeakAddr<PodViewModel>,
+    tasks: Vec<JoinHandle<()>>,
 }
 
 impl Watcher {
@@ -301,10 +305,11 @@ impl Watcher {
         Self {
             selected_cluster,
             model_actor: addr,
+            tasks: Vec::with_capacity(2),
         }
     }
 
-    async fn start_watcher(&self) -> ActorResult<()> {
+    async fn start_watcher(&mut self) -> ActorResult<()> {
         GlobalViewModel::check_and_load_client(&self.selected_cluster).await?;
 
         let client = GlobalViewModel::global()
@@ -312,21 +317,25 @@ impl Watcher {
             .get_cluster_client(&self.selected_cluster)
             .ok_or_else(|| eyre!("client not found"))?;
 
-        kubernetes::pod::watch(
-            self.model_actor.clone(),
-            self.selected_cluster.clone(),
-            client,
-        )
-        .await?;
+        let model_actor = self.model_actor.clone();
+        let selected_cluster = self.selected_cluster.clone();
+
+        let task = task::spawn(async move {
+            kubernetes::pod::watch(model_actor, selected_cluster, client)
+                .await
+                .expect("pod watcher failed to start");
+        });
+
+        self.tasks.push(task);
 
         Produces::ok(())
     }
 
-    async fn refresh_on_interval(&mut self, addr: WeakAddr<Self>) {
+    async fn refresh_on_interval(&mut self) {
         let model_actor = self.model_actor.clone();
         let selected_cluster = self.selected_cluster.clone();
 
-        addr.send_fut(async move {
+        let task = tokio::spawn(async move {
             let mut interval = time::interval(Duration::from_secs(60));
             interval.tick().await;
 
@@ -335,6 +344,17 @@ impl Watcher {
                 debug!("60 seconds past, loading pods");
                 send!(model_actor.load_pods(selected_cluster.clone()));
             }
-        })
+        });
+
+        self.tasks.push(task);
+    }
+}
+
+impl Drop for Watcher {
+    fn drop(&mut self) {
+        debug!("dropping watcher, aborting all tasks");
+        for task in self.tasks.iter() {
+            task.abort();
+        }
     }
 }
