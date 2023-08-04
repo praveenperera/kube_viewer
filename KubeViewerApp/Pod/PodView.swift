@@ -103,6 +103,10 @@ struct PodView: View {
                     TableColumn("Name", value: \.name)
                     TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator())
                         { AgeView(createdAt: $0.createdAt, age: $0.age()) }
+
+                    TableColumn("Status", value: \.phase, comparator: RawValueComparator()) { pod in
+                        self.DisplayStatus(phase: pod.phase)
+                    }
                 }
                 .onChange(of: self.sortOrder) { sortOrder in
                     self.pods.sort(using: sortOrder)
@@ -148,6 +152,27 @@ struct PodView: View {
             self.isLoading = true
         }
     }
+
+    @ViewBuilder
+    func DisplayStatus(phase: Phase) -> some View {
+        switch phase {
+        case .failed:
+            Text("Failed").foregroundColor(Color.red)
+        case .succeeded:
+            Text("Succeeded").foregroundColor(Color.green)
+                .if(self.colorScheme == .light) { view in
+                    view.brightness(-0.10)
+                }
+        case .pending: Text("Pending")
+        case .running:
+            Text("Running").foregroundColor(Color.green)
+                .if(self.colorScheme == .light) { view in
+                    view.brightness(-0.15)
+                }
+        case .unknown(rawValue: let rawValue):
+            Text(rawValue)
+        }
+    }
 }
 
 struct PodView_Previews: PreviewProvider {
@@ -158,5 +183,18 @@ struct PodView_Previews: PreviewProvider {
 
     static var previews: some View {
         PodView(windowId: windowId, globalModel: globalModel, mainViewModel: mainViewModel, model: model)
+    }
+}
+
+extension Phase: RawValue {
+    func rawValue() -> String {
+        switch self {
+        case .failed: return "Failed"
+        case .succeeded: return "Succeeded"
+        case .pending: return "Pending"
+        case .running: return "Running"
+        case .unknown(rawValue: let rawValue):
+            return rawValue
+        }
     }
 }

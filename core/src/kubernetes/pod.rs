@@ -95,7 +95,9 @@ pub enum Phase {
     Running,
     Failed,
     Succeeded,
-    Unknown,
+    Unknown {
+        raw_value: String,
+    },
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
@@ -313,7 +315,9 @@ impl From<Option<String>> for Phase {
             "running" => Self::Running,
             "failed" => Self::Failed,
             "succeeded" => Self::Succeeded,
-            _ => Self::Unknown,
+            unknown => Self::Unknown {
+                raw_value: unknown.to_string(),
+            },
         }
     }
 }

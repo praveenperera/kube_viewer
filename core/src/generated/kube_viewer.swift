@@ -3229,7 +3229,7 @@ public enum Phase {
     case `running`
     case `failed`
     case `succeeded`
-    case `unknown`
+    case `unknown`(`rawValue`: String)
 }
 
 public struct FfiConverterTypePhase: FfiConverterRustBuffer {
@@ -3247,7 +3247,9 @@ public struct FfiConverterTypePhase: FfiConverterRustBuffer {
         
         case 4: return .`succeeded`
         
-        case 5: return .`unknown`
+        case 5: return .`unknown`(
+            `rawValue`: try FfiConverterString.read(from: &buf)
+        )
         
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -3273,9 +3275,10 @@ public struct FfiConverterTypePhase: FfiConverterRustBuffer {
             writeInt(&buf, Int32(4))
         
         
-        case .`unknown`:
+        case let .`unknown`(`rawValue`):
             writeInt(&buf, Int32(5))
-        
+            FfiConverterString.write(`rawValue`, into: &buf)
+            
         }
     }
 }
