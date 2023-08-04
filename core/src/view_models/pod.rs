@@ -47,7 +47,7 @@ pub struct RustPodViewModel {
 }
 
 pub struct PodViewModel {
-    addr: WeakAddr<Self>,
+    addr: Addr<Self>,
     watcher: Addr<Watcher>,
     pods: LoadStatus<HashMap<PodId, Pod>, String>,
     responder: Option<Box<dyn PodViewModelCallback>>,
@@ -89,25 +89,35 @@ impl RustPodViewModel {
         }
 
         let actor = self.actor.read().clone();
-        let _ = call!(actor.add_callback_listener(responder)).await;
+        call!(actor.add_callback_listener(responder))
+            .await
+            .expect("failed to add callback listener");
     }
 
     pub async fn start_watcher(&self, selected_cluster: ClusterId) {
         debug!("starting pod watcher for cluster: {selected_cluster:?}");
         let actor = self.actor.read().clone();
-        let _ = call!(actor.start_watcher(selected_cluster)).await;
+
+        call!(actor.start_watcher(selected_cluster))
+            .await
+            .expect("failed to start pod watcher");
     }
 
     pub async fn stop_watcher(&self) {
         debug!("stopping pod watcher");
         let actor = self.actor.read().clone();
-        let _ = call!(actor.stop_watcher()).await;
+        call!(actor.stop_watcher())
+            .await
+            .expect("failed to stop pod watcher");
     }
 
     pub async fn fetch_pods(&self, selected_cluster: ClusterId) {
         debug!("fetching pods for cluster: {selected_cluster:?}");
         let actor = self.actor.read().clone();
-        let _ = call!(actor.notify_and_load_pods(selected_cluster)).await;
+
+        if let Err(error) = call!(actor.notify_and_load_pods(selected_cluster)).await {
+            error!("failed to fetch pods: {error}");
+        }
     }
 }
 
@@ -168,6 +178,8 @@ impl PodViewModel {
     }
 
     pub async fn notify_and_load_pods(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
+        debug!("notifying and loading pods");
+
         // notify UI that pods are going to be loaded
         self.notify_pods_loading().await;
 
@@ -215,7 +227,9 @@ impl PodViewModel {
     }
 
     pub async fn applied(&mut self, pod: Pod) -> ActorResult<()> {
-        if let Some(ref pods) = call!(self.addr.pods()).await? {
+        debug!("pod applied: {:?}", pod.id);
+
+        if let Produces::Value(Some(ref pods)) = self.pods().await? {
             if let Some(existing_pod) = pods.get(&pod.id) {
                 if existing_pod == &pod {
                     debug!("same pod already exists, ignoring");
@@ -234,13 +248,18 @@ impl PodViewModel {
     }
 
     pub async fn deleted(&mut self, pod: Pod) -> ActorResult<()> {
+        debug!("pod deleted: {:?}", pod.id);
+
         let LoadStatus::Loaded(pods) = &mut self.pods else {
             return Produces::ok(());
         };
 
+        debug!("removing pod: {:?}", pod.id);
         if pods.remove(&pod.id).is_some() {
             // only notify if pod existed before
             self.notify_pods_loaded().await;
+        } else {
+            debug!("pod not found: {:?}", pod.id);
         }
 
         Produces::ok(())
@@ -252,6 +271,8 @@ impl PodViewModel {
 
     async fn notify_pods_loaded(&self) {
         if let LoadStatus::Loaded(pods) = &self.pods {
+            debug!("notifying pods loaded");
+
             self.callback(PodViewModelMessage::Loaded {
                 pods: pods.values().cloned().collect(),
             })
@@ -273,7 +294,7 @@ impl From<PodError> for PodViewModelMessage {
 #[async_trait::async_trait]
 impl Actor for PodViewModel {
     async fn started(&mut self, addr: Addr<Self>) -> ActorResult<()> {
-        self.addr = addr.downgrade();
+        self.addr = addr;
         Produces::ok(())
     }
 
@@ -296,12 +317,12 @@ impl Actor for PodViewModel {
 impl Actor for Watcher {}
 pub struct Watcher {
     selected_cluster: ClusterId,
-    model_actor: WeakAddr<PodViewModel>,
+    model_actor: Addr<PodViewModel>,
     tasks: Vec<JoinHandle<()>>,
 }
 
 impl Watcher {
-    fn new(selected_cluster: ClusterId, addr: WeakAddr<PodViewModel>) -> Self {
+    fn new(selected_cluster: ClusterId, addr: Addr<PodViewModel>) -> Self {
         Self {
             selected_cluster,
             model_actor: addr,

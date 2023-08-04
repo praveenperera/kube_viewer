@@ -105,11 +105,7 @@ struct PodView: View {
                         { AgeView(createdAt: $0.createdAt, age: $0.age()) }
                 }
                 .onChange(of: self.sortOrder) { sortOrder in
-                    switch sortOrder {
-                    case [KeyPathComparator(\Pod.name)]: ()
-                    case [KeyPathComparator(\Pod.createdAt)]: ()
-                    case let keyPath: self.pods.sort(using: keyPath)
-                    }
+                    self.pods.sort(using: sortOrder)
                 }
                 .toolbar {
                     ToolbarItem(placement: .navigation) {
@@ -145,6 +141,7 @@ struct PodView: View {
             self.isLoading = false
             if case .loaded(let pods) = self.model.pods {
                 self.pods = pods
+                self.pods.sort(using: self.sortOrder)
             }
         case .loading, .initial:
             self.selectedPods = .init()

@@ -22,12 +22,14 @@ class PodViewModel: ObservableObject, PodViewModelCallback {
         DispatchQueue.main.async { self.setupCallback() }
     }
 
+    @MainActor
     private func setupCallback() {
         Task {
             await self.data.addCallbackListener(responder: self)
         }
     }
 
+    @MainActor
     func callback(message: PodViewModelMessage) {
         Task {
             await MainActor.run {

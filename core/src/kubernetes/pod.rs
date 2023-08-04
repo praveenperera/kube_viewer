@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{cluster::ClusterId, view_models::pod::PodViewModel, UniffiCustomTypeConverter};
-use act_zero::{send, WeakAddr};
+use act_zero::{call, Addr};
 use derive_more::From;
 use eyre::Result;
 use fake::{Dummy, Fake, Faker};
@@ -364,7 +364,7 @@ pub async fn get_all(client: Client) -> Result<HashMap<PodId, Pod>> {
 }
 
 pub async fn watch(
-    addr: WeakAddr<PodViewModel>,
+    addr: Addr<PodViewModel>,
     selected_cluster: ClusterId,
     client: Client,
 ) -> Result<()> {
@@ -379,15 +379,15 @@ pub async fn watch(
         match status {
             watcher::Event::Applied(pod) => {
                 debug!("applied event received on cluster {:?}", selected_cluster);
-                send!(addr.applied(pod.into()))
+                call!(addr.applied(pod.into())).await?;
             }
             watcher::Event::Deleted(pod) => {
                 debug!("deleted event received on cluster {:?}", selected_cluster);
-                send!(addr.deleted(pod.into()))
+                call!(addr.deleted(pod.into())).await?;
             }
             watcher::Event::Restarted(_) => {
                 debug!("restarted event received on cluster {:?}", selected_cluster);
-                send!(addr.load_pods(selected_cluster.clone()))
+                let _ = call!(addr.load_pods(selected_cluster.clone())).await;
             }
         }
     }
