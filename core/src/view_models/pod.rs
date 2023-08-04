@@ -4,6 +4,7 @@ use eyre::eyre;
 use fake::{Fake, Faker};
 use kube::Client;
 use log::{debug, error};
+use parking_lot::RwLock;
 use thiserror::Error;
 use tokio::time;
 use uniffi::Object;
@@ -42,7 +43,7 @@ pub enum PodViewModelMessage {
 
 #[derive(Object)]
 pub struct RustPodViewModel {
-    actor: Addr<PodViewModel>,
+    actor: RwLock<Addr<PodViewModel>>,
 }
 
 pub struct PodViewModel {
@@ -57,20 +58,20 @@ impl RustPodViewModel {
     #[uniffi::constructor]
     pub fn new() -> Arc<Self> {
         Arc::new(Self {
-            actor: spawn_actor(PodViewModel::new()),
+            actor: RwLock::new(Default::default()),
         })
     }
 
     #[uniffi::constructor]
     pub fn preview() -> Arc<Self> {
         Arc::new(Self {
-            actor: spawn_actor(PodViewModel::preview()),
+            actor: RwLock::new(Default::default()),
         })
     }
 
     pub fn pods(self: Arc<Self>) -> Vec<Pod> {
         debug!("getting pods blocking");
-        let actor = self.actor.clone();
+        let actor = self.actor.read().clone();
 
         task::block_on(async move {
             match call!(actor.pods()).await {
@@ -82,19 +83,28 @@ impl RustPodViewModel {
 
     pub async fn add_callback_listener(&self, responder: Box<dyn PodViewModelCallback>) {
         debug!("pod view model callback listener added");
-        let _ = call!(self.actor.add_callback_listener(responder)).await;
+        {
+            let mut actor = self.actor.write();
+            *actor = spawn_actor(PodViewModel::new());
+        }
+
+        let actor = self.actor.read().clone();
+        let _ = call!(actor.add_callback_listener(responder)).await;
     }
 
     pub async fn start_watcher(&self, selected_cluster: ClusterId) {
-        let _ = call!(self.actor.start_watcher(selected_cluster)).await;
+        let actor = self.actor.read().clone();
+        let _ = call!(actor.start_watcher(selected_cluster)).await;
     }
 
     pub async fn stop_watcher(&self) {
-        let _ = call!(self.actor.stop_watcher()).await;
+        let actor = self.actor.read().clone();
+        let _ = call!(actor.stop_watcher()).await;
     }
 
     pub async fn fetch_pods(&self, selected_cluster: ClusterId) {
-        let _ = call!(self.actor.notify_and_load_pods(selected_cluster)).await;
+        let actor = self.actor.read().clone();
+        let _ = call!(actor.notify_and_load_pods(selected_cluster)).await;
     }
 }
 

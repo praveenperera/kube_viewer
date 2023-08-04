@@ -46,7 +46,6 @@ struct NodeView: View {
 
         self.model = model ??
             globalModel.models[windowId]?.nodes ??
-
             NodeViewModel(windowId: windowId, selectedCluster: mainViewModel.selectedCluster)
 
         if let viewModels = globalModel.models[windowId],

@@ -44,10 +44,7 @@ struct PodView: View {
         self.globalModel = globalModel
         self.mainViewModel = mainViewModel
 
-        self.model = model ??
-            globalModel.models[windowId]?.pods ??
-
-            PodViewModel(windowId: windowId)
+        self.model = model ?? globalModel.models[windowId]?.pods ?? PodViewModel(windowId: windowId)
 
         if let viewModels = globalModel.models[windowId],
            viewModels.pods == nil
