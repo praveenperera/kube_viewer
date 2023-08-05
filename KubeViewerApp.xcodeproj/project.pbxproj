@@ -11,6 +11,7 @@
 		AC0EA48D2A7C099B001933C6 /* Pod.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0EA48C2A7C099B001933C6 /* Pod.swift */; };
 		AC0EA48F2A7C1BD5001933C6 /* AgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0EA48E2A7C1BD5001933C6 /* AgeView.swift */; };
 		AC0EA4912A7C2C49001933C6 /* PodDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0EA4902A7C2C49001933C6 /* PodDetailView.swift */; };
+		AC0EA4942A7DF1AA001933C6 /* TimestampAndAge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0EA4932A7DF1AA001933C6 /* TimestampAndAge.swift */; };
 		AC1651B829874DB000CBC220 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1651B729874DB000CBC220 /* Theme.swift */; };
 		AC16FF4F29C3FE6C00AAEBD7 /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */; };
 		AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */; };
@@ -75,6 +76,7 @@
 		AC0EA48C2A7C099B001933C6 /* Pod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pod.swift; sourceTree = "<group>"; };
 		AC0EA48E2A7C1BD5001933C6 /* AgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgeView.swift; sourceTree = "<group>"; };
 		AC0EA4902A7C2C49001933C6 /* PodDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodDetailView.swift; sourceTree = "<group>"; };
+		AC0EA4932A7DF1AA001933C6 /* TimestampAndAge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimestampAndAge.swift; sourceTree = "<group>"; };
 		AC1651B729874DB000CBC220 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = core/src/kube_viewer.udl; sourceTree = "<group>"; };
 		AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalViewModel.swift; sourceTree = "<group>"; };
@@ -132,6 +134,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AC0EA4922A7DF19E001933C6 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				AC0EA4932A7DF1AA001933C6 /* TimestampAndAge.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
 		AC8ABA0529A01C6600C7F6D5 /* Sidebar */ = {
 			isa = PBXGroup;
 			children = (
@@ -272,6 +282,7 @@
 		DADF4C7C295E6DB9006CA792 /* KubeViewerApp */ = {
 			isa = PBXGroup;
 			children = (
+				AC0EA4922A7DF19E001933C6 /* Protocols */,
 				ACD5D6A52A7371F2002E2F05 /* Pod */,
 				ACFA988229F8CF30009C2A32 /* Info.plist */,
 				AC95349F29F4B8490082155D /* Window */,
@@ -434,6 +445,7 @@
 				AC8ABA0429A01BF300C7F6D5 /* SidebarButton.swift in Sources */,
 				ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */,
 				ACCE0D4F2A7B0FE70043F41F /* LoadStatus.swift in Sources */,
+				AC0EA4942A7DF1AA001933C6 /* TimestampAndAge.swift in Sources */,
 				ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */,
 				DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */,
 				AC65E77D29A9278600F3A7CE /* StandardFocusRing.swift in Sources */,
