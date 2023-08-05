@@ -373,7 +373,7 @@ impl Watcher {
 
 impl Drop for Watcher {
     fn drop(&mut self) {
-        debug!("dropping watcher, aborting all tasks");
+        debug!("dropping pod watcher, aborting all tasks");
         for task in self.tasks.iter() {
             task.abort();
         }
