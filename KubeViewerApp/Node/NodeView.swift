@@ -106,7 +106,7 @@ struct NodeView: View {
                     TableColumn("Taints", value: \.taints, comparator: CountComparator())
                         { Text(String($0.taints.count)) }
                     TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator())
-                        { AgeView(createdAt: $0.createdAt, age: $0.age()) }
+                        { AgeView(createdAt: $0.createdAt, age: $0.age) }
                     TableColumn("Conditions", value: \.conditions, comparator: ConditionsComparator())
                         { self.ConditionsColumnContent($0) }
                 }

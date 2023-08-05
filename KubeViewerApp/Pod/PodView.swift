@@ -101,9 +101,9 @@ struct PodView: View {
             HStack(alignment: .top, spacing: 0) {
                 Table(pods, selection: self.$selectedPods, sortOrder: self.$sortOrder) {
                     TableColumn("Name", value: \.name)
-                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator())
-                        { AgeView(createdAt: $0.createdAt, age: $0.age()) }
-
+                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) { pod in
+                        AgeView(createdAt: pod.createdAt, age: pod.age)
+                    }
                     TableColumn("Status", value: \.phase, comparator: RawValueComparator()) { pod in
                         self.DisplayStatus(phase: pod.phase)
                     }
