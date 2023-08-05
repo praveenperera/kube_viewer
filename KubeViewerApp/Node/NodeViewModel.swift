@@ -13,7 +13,7 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
     let windowId: UUID
     var data: RustNodeViewModel
 
-    @Published var nodes: NodeLoadStatus = .initial
+    @Published var nodes: LoadStatus<[Node]> = .initial
 
     init(windowId: UUID, selectedCluster: Cluster?) {
         self.windowId = windowId
@@ -21,18 +21,6 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
 
         DispatchQueue.main.async { self.setupCallback() }
     }
-
-    // preview
-    #if DEBUG
-    init(windowId: UUID) {
-        self.windowId = windowId
-        self.data = RustNodeViewModel.preview(windowId: windowId.uuidString)
-
-        self.nodes = .loaded(nodes: [])
-
-        DispatchQueue.main.async { self.setupCallback() }
-    }
-    #endif
 
     private func setupCallback() {
         Task {
@@ -44,17 +32,29 @@ class NodeViewModel: ObservableObject, NodeViewModelCallback {
         Task {
             await MainActor.run {
                 switch message {
-                    case .loadingNodes:
+                    case .loading:
                         self.nodes = .loading
 
-                    case let .nodeLoadingFailed(error):
+                    case let .loadingFailed(error):
                         self.nodes = .error(error: error)
 
-                    case let .nodesLoaded(nodes: nodes):
+                    case let .loaded(nodes: nodes):
                         print("[swift] nodes loaded")
-                        self.nodes = .loaded(nodes: nodes)
+                        self.nodes = .loaded(data: nodes)
                 }
             }
         }
     }
+
+    // preview
+    #if DEBUG
+    init(windowId: UUID) {
+        self.windowId = windowId
+        self.data = RustNodeViewModel.preview(windowId: windowId.uuidString)
+
+        self.nodes = .loaded(data: [])
+
+        DispatchQueue.main.async { self.setupCallback() }
+    }
+    #endif
 }

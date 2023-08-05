@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc, time::Duration};
+use std::{collections::HashMap, sync::Arc};
 
 use act_zero::*;
 use eyre::{eyre, Result};
@@ -9,7 +9,6 @@ use tokio::sync::RwLock;
 use fake::{Fake, Faker};
 
 use thiserror::Error;
-use tokio::time;
 
 use super::WindowId;
 use crate::{
@@ -36,9 +35,9 @@ pub trait NodeViewModelCallback: Send + Sync + 'static {
 
 #[derive(uniffi::Enum)]
 pub enum NodeViewModelMessage {
-    LoadingNodes,
-    NodesLoaded { nodes: Vec<Node> },
-    NodeLoadingFailed { error: String },
+    Loading,
+    Loaded { nodes: Vec<Node> },
+    LoadingFailed { error: String },
 }
 
 #[derive(uniffi::Enum)]
@@ -52,7 +51,7 @@ pub enum NodeLoadStatus {
 impl From<NodeError> for NodeViewModelMessage {
     fn from(error: NodeError) -> Self {
         match error {
-            NodeError::NodeLoadError(e) => NodeViewModelMessage::NodeLoadingFailed {
+            NodeError::NodeLoadError(e) => NodeViewModelMessage::LoadingFailed {
                 error: e.to_string(),
             },
         }
@@ -115,8 +114,6 @@ impl RustNodeViewModel {
 
         let _ = call!(worker.notify_and_load_nodes(selected_cluster.clone())).await;
         let _ = call!(worker.start_watcher(selected_cluster.clone())).await;
-
-        send!(worker.refresh_on_interval(selected_cluster));
     }
 
     pub async fn stop_watcher(&self) {
@@ -196,6 +193,8 @@ impl Worker {
     pub async fn callback(&self, msg: NodeViewModelMessage) {
         if let Some(responder) = self.state.read().await.responder.as_ref() {
             responder.callback(msg);
+        } else {
+            warn!("node view model callback called, before initialized");
         }
     }
 
@@ -213,7 +212,7 @@ impl Worker {
             debug!("node updated, notifying listeners");
             nodes.insert(node.id.clone(), node);
 
-            self.callback(NodeViewModelMessage::NodesLoaded {
+            self.callback(NodeViewModelMessage::Loaded {
                 nodes: nodes.values().cloned().collect(),
             })
             .await
@@ -227,7 +226,7 @@ impl Worker {
             debug!("node deleted, notifying listeners");
             nodes.remove(&node.id);
 
-            self.callback(NodeViewModelMessage::NodesLoaded {
+            self.callback(NodeViewModelMessage::Loaded {
                 nodes: nodes.values().cloned().collect(),
             })
             .await
@@ -240,28 +239,21 @@ impl Worker {
         debug!("loading nodes");
 
         let selected_cluster = selected_cluster.as_ref();
-
-        if !GlobalViewModel::global()
-            .read()
-            .client_store
-            .contains_client(selected_cluster)
-        {
-            self.load_client(selected_cluster).await?;
-        };
+        GlobalViewModel::check_and_load_client(selected_cluster).await?;
 
         let client: Client = GlobalViewModel::global()
             .read()
             .get_cluster_client(selected_cluster)
             .ok_or_else(|| eyre!("client not found"))?;
 
-        let nodes = kubernetes::get_nodes(client.clone())
+        let nodes = kubernetes::node::get_all(client.clone())
             .await
             .map_err(NodeError::NodeLoadError)?;
 
         self.state.write().await.nodes = Some(nodes.clone());
 
         // notify frontend, nodes loaded
-        self.callback(NodeViewModelMessage::NodesLoaded {
+        self.callback(NodeViewModelMessage::Loaded {
             nodes: nodes.into_values().collect(),
         })
         .await;
@@ -269,24 +261,9 @@ impl Worker {
         Produces::ok(())
     }
 
-    async fn load_client(&mut self, selected_cluster: &ClusterId) -> ActorResult<()> {
-        debug!("load_client() called");
-
-        if !GlobalViewModel::global()
-            .read()
-            .client_store
-            .contains_client(selected_cluster)
-        {
-            let client_worker = GlobalViewModel::global().read().worker.clone();
-            call!(client_worker.load_client(selected_cluster.clone())).await?;
-        }
-
-        Produces::ok(())
-    }
-
     async fn notify_and_load_nodes(&mut self, selected_cluster: ClusterId) -> ActorResult<()> {
         // notify and load
-        self.callback(NodeViewModelMessage::LoadingNodes).await;
+        self.callback(NodeViewModelMessage::Loading).await;
 
         self.load_nodes(&selected_cluster)
             .await
@@ -305,25 +282,12 @@ impl Worker {
 
         // start watcher
         self.addr.send_fut_with(|addr| async move {
-            kubernetes::watch_nodes(addr, selected_cluster, client)
+            kubernetes::node::watch(addr, selected_cluster, client)
                 .await
                 .unwrap();
         });
 
         Produces::ok(())
-    }
-
-    async fn refresh_on_interval(&mut self, selected_cluster: ClusterId) {
-        self.addr.send_fut_with(|addr| async move {
-            let mut interval = time::interval(Duration::from_secs(60));
-            interval.tick().await;
-
-            loop {
-                interval.tick().await;
-                debug!("60 seconds past, loading nodes");
-                send!(addr.load_nodes(selected_cluster.clone()));
-            }
-        })
     }
 }
 
@@ -341,7 +305,7 @@ impl Actor for Worker {
         if let Some(error) = error.downcast::<NodeError>().ok().map(|e| *e) {
             self.callback(error.into()).await
         } else {
-            self.callback(NodeViewModelMessage::NodeLoadingFailed {
+            self.callback(NodeViewModelMessage::LoadingFailed {
                 error: "Unknown error, please see logs".to_string(),
             })
             .await

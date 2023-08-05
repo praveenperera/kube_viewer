@@ -7,12 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AC0EA48B2A7BFC0C001933C6 /* PodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0EA48A2A7BFC0C001933C6 /* PodView.swift */; };
+		AC0EA48D2A7C099B001933C6 /* Pod.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0EA48C2A7C099B001933C6 /* Pod.swift */; };
+		AC0EA48F2A7C1BD5001933C6 /* AgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0EA48E2A7C1BD5001933C6 /* AgeView.swift */; };
+		AC0EA4912A7C2C49001933C6 /* PodDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0EA4902A7C2C49001933C6 /* PodDetailView.swift */; };
 		AC1651B829874DB000CBC220 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1651B729874DB000CBC220 /* Theme.swift */; };
 		AC16FF4F29C3FE6C00AAEBD7 /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */; };
 		AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */; };
 		AC186F932A40FD1F00AC20A9 /* NodeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */; };
 		AC29BCDF2A3175B1009CC33C /* SwiftUITooltip in Frameworks */ = {isa = PBXBuildFile; productRef = AC29BCDE2A3175B1009CC33C /* SwiftUITooltip */; };
-		AC3995D22A6879450063A3E7 /* NodeDetailDropDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3995D12A6879450063A3E7 /* NodeDetailDropDownView.swift */; };
+		AC3995D22A6879450063A3E7 /* DetailDropDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3995D12A6879450063A3E7 /* DetailDropDownView.swift */; };
 		AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D66299B325000429CDB /* RustPublished.swift */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
 		AC4CF6F72A698FFC0098E879 /* Pill.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4CF6F62A698FFC0098E879 /* Pill.swift */; };
@@ -35,6 +39,8 @@
 		ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */; };
 		ACC45D532995AE480063B358 /* if.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D522995AE480063B358 /* if.swift */; };
 		ACC45D552995EFA00063B358 /* whenHovered.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC45D542995EFA00063B358 /* whenHovered.swift */; };
+		ACCE0D4F2A7B0FE70043F41F /* LoadStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACCE0D4E2A7B0FE70043F41F /* LoadStatus.swift */; };
+		ACD5D6A82A737255002E2F05 /* PodViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD5D6A72A737255002E2F05 /* PodViewModel.swift */; };
 		ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621E629803DFB00FE2CE2 /* MainView.swift */; };
 		ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621EA2980415E00FE2CE2 /* TabContentView.swift */; };
 		ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD621ED2980569500FE2CE2 /* MainViewModel.swift */; };
@@ -65,11 +71,15 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
+		AC0EA48A2A7BFC0C001933C6 /* PodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodView.swift; sourceTree = "<group>"; };
+		AC0EA48C2A7C099B001933C6 /* Pod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pod.swift; sourceTree = "<group>"; };
+		AC0EA48E2A7C1BD5001933C6 /* AgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgeView.swift; sourceTree = "<group>"; };
+		AC0EA4902A7C2C49001933C6 /* PodDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodDetailView.swift; sourceTree = "<group>"; };
 		AC1651B729874DB000CBC220 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = core/src/kube_viewer.udl; sourceTree = "<group>"; };
 		AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalViewModel.swift; sourceTree = "<group>"; };
 		AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDetailView.swift; sourceTree = "<group>"; };
-		AC3995D12A6879450063A3E7 /* NodeDetailDropDownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDetailDropDownView.swift; sourceTree = "<group>"; };
+		AC3995D12A6879450063A3E7 /* DetailDropDownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailDropDownView.swift; sourceTree = "<group>"; };
 		AC3F4D66299B325000429CDB /* RustPublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustPublished.swift; sourceTree = "<group>"; };
 		AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalBinding.swift; sourceTree = "<group>"; };
 		AC4CF6F62A698FFC0098E879 /* Pill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pill.swift; sourceTree = "<group>"; };
@@ -90,6 +100,8 @@
 		ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideUpDown.swift; sourceTree = "<group>"; };
 		ACC45D522995AE480063B358 /* if.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = if.swift; sourceTree = "<group>"; };
 		ACC45D542995EFA00063B358 /* whenHovered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = whenHovered.swift; sourceTree = "<group>"; };
+		ACCE0D4E2A7B0FE70043F41F /* LoadStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadStatus.swift; sourceTree = "<group>"; };
+		ACD5D6A72A737255002E2F05 /* PodViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodViewModel.swift; sourceTree = "<group>"; };
 		ACD621E629803DFB00FE2CE2 /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		ACD621EA2980415E00FE2CE2 /* TabContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabContentView.swift; sourceTree = "<group>"; };
 		ACD621ED2980569500FE2CE2 /* MainViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
@@ -136,7 +148,6 @@
 				AC9534A029F4BB0F0082155D /* NodeView.swift */,
 				AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */,
 				ACFE71B72A30E8C400A767EE /* Node.swift */,
-				AC3995D12A6879450063A3E7 /* NodeDetailDropDownView.swift */,
 			);
 			path = Node;
 			sourceTree = "<group>";
@@ -152,11 +163,13 @@
 		ACAAA9FD299EA71F00FABEF5 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				AC3995D12A6879450063A3E7 /* DetailDropDownView.swift */,
 				AC65E77C29A9278600F3A7CE /* StandardFocusRing.swift */,
 				AC8ABA0529A01C6600C7F6D5 /* Sidebar */,
 				ACAAA9FE299EA74500FABEF5 /* CollapsibleList.swift */,
 				ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */,
 				AC4CF6F62A698FFC0098E879 /* Pill.swift */,
+				AC0EA48E2A7C1BD5001933C6 /* AgeView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -198,6 +211,17 @@
 				ACBEA25829A00BD300ACB131 /* readSize.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		ACD5D6A52A7371F2002E2F05 /* Pod */ = {
+			isa = PBXGroup;
+			children = (
+				ACD5D6A72A737255002E2F05 /* PodViewModel.swift */,
+				AC0EA48A2A7BFC0C001933C6 /* PodView.swift */,
+				AC0EA48C2A7C099B001933C6 /* Pod.swift */,
+				AC0EA4902A7C2C49001933C6 /* PodDetailView.swift */,
+			);
+			path = Pod;
 			sourceTree = "<group>";
 		};
 		ACD621F02980573E00FE2CE2 /* TabContent */ = {
@@ -248,6 +272,7 @@
 		DADF4C7C295E6DB9006CA792 /* KubeViewerApp */ = {
 			isa = PBXGroup;
 			children = (
+				ACD5D6A52A7371F2002E2F05 /* Pod */,
 				ACFA988229F8CF30009C2A32 /* Info.plist */,
 				AC95349F29F4B8490082155D /* Window */,
 				AC95349C29F4B8100082155D /* Node */,
@@ -264,6 +289,7 @@
 				DADF4C81295E6DBB006CA792 /* Assets.xcassets */,
 				DADF4C86295E6DBB006CA792 /* KubeViewerApp.entitlements */,
 				DADF4C83295E6DBB006CA792 /* Preview Content */,
+				ACCE0D4E2A7B0FE70043F41F /* LoadStatus.swift */,
 			);
 			path = KubeViewerApp;
 			sourceTree = "<group>";
@@ -397,22 +423,28 @@
 				AC186F932A40FD1F00AC20A9 /* NodeDetailView.swift in Sources */,
 				AC9534A129F4BB0F0082155D /* NodeView.swift in Sources */,
 				ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */,
+				AC0EA48F2A7C1BD5001933C6 /* AgeView.swift in Sources */,
 				ACC45D552995EFA00063B358 /* whenHovered.swift in Sources */,
 				AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */,
-				AC3995D22A6879450063A3E7 /* NodeDetailDropDownView.swift in Sources */,
+				AC3995D22A6879450063A3E7 /* DetailDropDownView.swift in Sources */,
 				ACC45D532995AE480063B358 /* if.swift in Sources */,
 				ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */,
 				AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */,
 				ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */,
 				AC8ABA0429A01BF300C7F6D5 /* SidebarButton.swift in Sources */,
 				ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */,
+				ACCE0D4F2A7B0FE70043F41F /* LoadStatus.swift in Sources */,
 				ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */,
 				DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */,
 				AC65E77D29A9278600F3A7CE /* StandardFocusRing.swift in Sources */,
 				AC4CF6F72A698FFC0098E879 /* Pill.swift in Sources */,
 				AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */,
+				AC0EA48D2A7C099B001933C6 /* Pod.swift in Sources */,
+				AC0EA4912A7C2C49001933C6 /* PodDetailView.swift in Sources */,
+				ACD5D6A82A737255002E2F05 /* PodViewModel.swift in Sources */,
 				AC1651B829874DB000CBC220 /* Theme.swift in Sources */,
 				ACB49CB12A32694100488B72 /* GeneralComparators.swift in Sources */,
+				AC0EA48B2A7BFC0C001933C6 /* PodView.swift in Sources */,
 				ACB49CB32A32715200488B72 /* NodeComparators.swift in Sources */,
 				ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */,
 				AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */,

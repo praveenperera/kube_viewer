@@ -46,7 +46,6 @@ struct NodeView: View {
 
         self.model = model ??
             globalModel.models[windowId]?.nodes ??
-
             NodeViewModel(windowId: windowId, selectedCluster: mainViewModel.selectedCluster)
 
         if let viewModels = globalModel.models[windowId],
@@ -107,7 +106,7 @@ struct NodeView: View {
                     TableColumn("Taints", value: \.taints, comparator: CountComparator())
                         { Text(String($0.taints.count)) }
                     TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator())
-                        { AgeView(node: $0) }
+                        { AgeView(createdAt: $0.createdAt, age: $0.age) }
                     TableColumn("Conditions", value: \.conditions, comparator: ConditionsComparator())
                         { self.ConditionsColumnContent($0) }
                 }
@@ -156,7 +155,7 @@ struct NodeView: View {
         }
     }
 
-    func setLoading(_ loading: NodeLoadStatus) {
+    func setLoading(_ loading: LoadStatus<[Node]>) {
         switch loading {
         case .loaded, .error:
             self.isLoading = false
@@ -166,25 +165,6 @@ struct NodeView: View {
         case .loading, .initial:
             self.selectedNodes = .init()
             self.isLoading = true
-        }
-    }
-}
-
-struct AgeView: View {
-    let node: Node
-
-    var body: some View {
-        switch Date().timeIntervalSince1970 - Double(self.node.createdAt ?? 0) {
-        case 0 ... 60:
-            TimelineView(.periodic(from: Date(), by: 1)) { _ in
-                Text(self.node.age() ?? "")
-            }
-        case 60 ... (60 * 60):
-            TimelineView(.periodic(from: Date(), by: 60)) { _ in
-                Text(self.node.age() ?? "")
-            }
-        default:
-            Text(self.node.age() ?? "")
         }
     }
 }

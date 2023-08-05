@@ -67,6 +67,7 @@ typedef void (*UniFfiFutureCallbackUnsafeMutableRawPointer)(const void * _Nonnul
 typedef void (*UniFfiFutureCallbackUnsafeMutableRawPointer)(const void * _Nonnull, void*_Nonnull, RustCallStatus);
 typedef void (*UniFfiFutureCallbackUnsafeMutableRawPointer)(const void * _Nonnull, void*_Nonnull, RustCallStatus);
 typedef void (*UniFfiFutureCallbackUnsafeMutableRawPointer)(const void * _Nonnull, void*_Nonnull, RustCallStatus);
+typedef void (*UniFfiFutureCallbackUnsafeMutableRawPointer)(const void * _Nonnull, void*_Nonnull, RustCallStatus);
 typedef void (*UniFfiFutureCallbackRustBuffer)(const void * _Nonnull, RustBuffer, RustCallStatus);
 
 // Scaffolding functions
@@ -138,13 +139,36 @@ RustBuffer uniffi_kube_viewer_fn_method_rustmainviewmodel_tabs(void*_Nonnull ptr
 );
 RustBuffer uniffi_kube_viewer_fn_method_rustmainviewmodel_tabs_map(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
 );
+void uniffi_kube_viewer_fn_free_rustpodviewmodel(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
+);
+void*_Nonnull uniffi_kube_viewer_fn_constructor_rustpodviewmodel_new(RustCallStatus *_Nonnull out_status
+    
+);
+void*_Nonnull uniffi_kube_viewer_fn_constructor_rustpodviewmodel_preview(RustCallStatus *_Nonnull out_status
+    
+);
+void uniffi_kube_viewer_fn_method_rustpodviewmodel_add_callback_listener(void*_Nonnull ptr, uint64_t responder, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
+);
+void uniffi_kube_viewer_fn_method_rustpodviewmodel_fetch_pods(void*_Nonnull ptr, RustBuffer selected_cluster, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
+);
+RustBuffer uniffi_kube_viewer_fn_method_rustpodviewmodel_pods(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
+);
+void uniffi_kube_viewer_fn_method_rustpodviewmodel_start_watcher(void*_Nonnull ptr, RustBuffer selected_cluster, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
+);
+void uniffi_kube_viewer_fn_method_rustpodviewmodel_stop_watcher(void*_Nonnull ptr, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
+);
 void uniffi_kube_viewer_fn_init_callback_globalviewmodelcallback(ForeignCallback _Nonnull callback_stub, RustCallStatus *_Nonnull out_status
 );
 void uniffi_kube_viewer_fn_init_callback_mainviewmodelupdater(ForeignCallback _Nonnull callback_stub, RustCallStatus *_Nonnull out_status
 );
 void uniffi_kube_viewer_fn_init_callback_nodeviewmodelcallback(ForeignCallback _Nonnull callback_stub, RustCallStatus *_Nonnull out_status
 );
+void uniffi_kube_viewer_fn_init_callback_podviewmodelcallback(ForeignCallback _Nonnull callback_stub, RustCallStatus *_Nonnull out_status
+);
 RustBuffer uniffi_kube_viewer_fn_func_node_preview(RustCallStatus *_Nonnull out_status
+    
+);
+RustBuffer uniffi_kube_viewer_fn_func_pod_preview(RustCallStatus *_Nonnull out_status
     
 );
 RustBuffer ffi_kube_viewer_rustbuffer_alloc(int32_t size, RustCallStatus *_Nonnull out_status
@@ -156,6 +180,9 @@ void ffi_kube_viewer_rustbuffer_free(RustBuffer buf, RustCallStatus *_Nonnull ou
 RustBuffer ffi_kube_viewer_rustbuffer_reserve(RustBuffer buf, int32_t additional, RustCallStatus *_Nonnull out_status
 );
 uint16_t uniffi_kube_viewer_checksum_func_node_preview(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_pod_preview(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_focusregionhasher_hash(void
@@ -230,6 +257,21 @@ uint16_t uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs(void
 uint16_t uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs_map(void
     
 );
+uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_add_callback_listener(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_fetch_pods(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_pods(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_start_watcher(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_stop_watcher(void
+    
+);
 uint16_t uniffi_kube_viewer_checksum_constructor_focusregionhasher_new(void
     
 );
@@ -245,6 +287,12 @@ uint16_t uniffi_kube_viewer_checksum_constructor_rustglobalviewmodel_new(void
 uint16_t uniffi_kube_viewer_checksum_constructor_rustmainviewmodel_new(void
     
 );
+uint16_t uniffi_kube_viewer_checksum_constructor_rustpodviewmodel_new(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_constructor_rustpodviewmodel_preview(void
+    
+);
 uint16_t uniffi_kube_viewer_checksum_method_globalviewmodelcallback_callback(void
     
 );
@@ -252,6 +300,9 @@ uint16_t uniffi_kube_viewer_checksum_method_mainviewmodelupdater_update(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_nodeviewmodelcallback_callback(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_method_podviewmodelcallback_callback(void
     
 );
 void uniffi_foreign_executor_callback_set(UniFfiForeignExecutorCallback _Nonnull callback

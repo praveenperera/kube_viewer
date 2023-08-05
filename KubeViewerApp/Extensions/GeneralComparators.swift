@@ -70,6 +70,18 @@ struct IntComparator<T: BinaryInteger>: SortComparator {
     }
 }
 
+protocol RawValue {
+    func rawValue() -> String
+}
+
+struct RawValueComparator<T: RawValue>: SortComparator {
+    var order: SortOrder = .forward
+
+    func compare(_ lhs: T, _ rhs: T) -> ComparisonResult {
+        lhs.rawValue().localizedCompare(rhs.rawValue())
+    }
+}
+
 extension ComparisonResult {
     var reversed: ComparisonResult {
         switch self {

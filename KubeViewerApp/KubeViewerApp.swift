@@ -10,6 +10,7 @@ import SwiftUI
 struct ViewModels {
     var main: MainViewModel
     var nodes: NodeViewModel?
+    var pods: PodViewModel?
 }
 
 class GlobalModel: ObservableObject {
@@ -23,9 +24,7 @@ class GlobalModel: ObservableObject {
         self.models[windowId]?.main
     }
 
-    func windowOpened(_ windowId: UUID) {
-        
-    }
+    func windowOpened(_ windowId: UUID) {}
 
     func windowClosing(_ windowId: UUID) {
         self.models[windowId]?.main.data.setWindowClosed()

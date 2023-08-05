@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::LoadStatus;
+use crate::SimpleLoadStatus;
 
 #[derive(Debug, Clone)]
 pub struct Clusters {
@@ -91,7 +91,7 @@ pub struct Cluster {
     pub nickname: Option<String>,
 
     // status
-    pub load_status: LoadStatus,
+    pub load_status: SimpleLoadStatus,
 }
 
 impl TryFrom<NamedCluster> for Cluster {
@@ -107,7 +107,7 @@ impl TryFrom<NamedCluster> for Cluster {
             id: named_cluster.name.into(),
             server: cluster.server,
             proxy_url: cluster.proxy_url,
-            load_status: LoadStatus::Initial,
+            load_status: SimpleLoadStatus::Initial,
         })
     }
 }

@@ -24,7 +24,7 @@ struct NodeDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading) {
                         // General
-                        NodeDetailDropDown(title: "General", content: {
+                        DetailDropDown(title: "General", content: {
                             VStack {
                                 HStack {
                                     Text("Node Name").bold()
@@ -69,7 +69,7 @@ struct NodeDetailView: View {
                         })
 
                         // Addresses
-                        NodeDetailDropDown(title: "Addresses") {
+                        DetailDropDown(title: "Addresses") {
                             VStack(alignment: .leading) {
                                 ForEach(node.addresses, id: \.nodeType) { address in
                                     HStack {
@@ -86,7 +86,7 @@ struct NodeDetailView: View {
                         }
 
                         // Labels
-                        NodeDetailDropDown(title: "Labels", isExpanded: false) {
+                        DetailDropDown(title: "Labels", isExpanded: false) {
                             VStack(alignment: .leading) {
                                 ForEach(node.labels.sorted(by: >), id: \.key) { key, value in
                                     Pill {
@@ -98,7 +98,7 @@ struct NodeDetailView: View {
                         }
 
                         // Annotations
-                        NodeDetailDropDown(title: "Annotations", isExpanded: false) {
+                        DetailDropDown(title: "Annotations", isExpanded: false) {
                             VStack(alignment: .leading) {
                                 ForEach(node.annotations.sorted(by: >), id: \.key) { key, value in
                                     Pill {
@@ -110,7 +110,7 @@ struct NodeDetailView: View {
                         }
 
                         // OS Info
-                        NodeDetailDropDown(title: "OS") {
+                        DetailDropDown(title: "OS") {
                             VStack(alignment: .leading) {
                                 if let os = node.os {
                                     HStack {
