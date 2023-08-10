@@ -12,6 +12,6 @@ extension Pod: Identifiable, CreatedAt, AgeTimestamp {
         // replace with rust function when logs are cleared up
         // podRestartCount(pod: self)
 
-        self.containers.map { $0.restartCount }.reduce(0, +)
+        self.containers.map(\.restartCount).reduce(0, +)
     }
 }
