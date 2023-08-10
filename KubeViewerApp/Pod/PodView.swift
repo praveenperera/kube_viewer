@@ -70,15 +70,13 @@ struct PodView: View {
         .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
             if let selectedCluster = newSelectedCluster {
                 Task {
-                    await self.model.data.fetchPods(selectedCluster: selectedCluster.id)
-                    await self.model.data.startWatcher(selectedCluster: selectedCluster.id)
+                    await self.model.getDataAndSetupWatcher(selectedCluster.id)
                 }
             }
         }
         .task {
             if let selectedCluster = self.mainViewModel.selectedCluster {
-                await self.model.data.fetchPods(selectedCluster: selectedCluster.id)
-                await self.model.data.startWatcher(selectedCluster: selectedCluster.id)
+                await self.model.getDataAndSetupWatcher(selectedCluster.id)
             }
         }
         .background(KeyAwareView(onEvent: self.mainViewModel.data.handleKeyInput))

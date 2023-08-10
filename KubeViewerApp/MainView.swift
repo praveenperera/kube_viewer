@@ -78,6 +78,8 @@ struct MainView: View {
             NodeView(windowId: self.windowId, globalModel: self.globalModel, mainViewModel: self.model)
         case TabId.pods:
             PodView(windowId: self.windowId, globalModel: self.globalModel, mainViewModel: self.model)
+        case TabId.deployments:
+            DeploymentView()
         default:
             self.model.tabContentViews[self.model.selectedTab]!
             Text(self.model.windowId.uuidString)

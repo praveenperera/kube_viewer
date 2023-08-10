@@ -81,7 +81,14 @@ impl RustPodViewModel {
         })
     }
 
-    pub async fn add_callback_listener(&self, responder: Box<dyn PodViewModelCallback>) {
+    pub async fn initialize_model_with_responder(&self, responder: Box<dyn PodViewModelCallback>) {
+        // only initialize once
+        let actor = self.actor.read().clone();
+        if call!(actor.is_started()).await.is_ok() {
+            debug!("pod view model already initialized");
+            return;
+        }
+
         debug!("pod view model callback listener added");
         {
             let mut actor = self.actor.write();
@@ -150,6 +157,10 @@ impl PodViewModel {
             ),
             responder: None,
         }
+    }
+
+    pub async fn is_started(&self) -> ActorResult<()> {
+        Produces::ok(())
     }
 
     pub async fn pods(&self) -> ActorResult<Option<HashMap<PodId, Pod>>> {

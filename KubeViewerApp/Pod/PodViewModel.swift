@@ -18,15 +18,13 @@ class PodViewModel: ObservableObject, PodViewModelCallback {
     init(windowId: UUID) {
         self.windowId = windowId
         self.data = RustPodViewModel()
-
-        DispatchQueue.main.async { self.setupCallback() }
     }
 
-    @MainActor
-    private func setupCallback() {
-        Task {
-            await self.data.addCallbackListener(responder: self)
-        }
+    func getDataAndSetupWatcher(_ selectedCluster: ClusterId) async {
+        // idempotent function
+        await self.data.initializeModelWithResponder(responder: self)
+        await self.data.fetchPods(selectedCluster: selectedCluster)
+        await self.data.startWatcher(selectedCluster: selectedCluster)
     }
 
     @MainActor

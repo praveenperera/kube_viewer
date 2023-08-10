@@ -87,7 +87,7 @@ struct NodeView: View {
     @ViewBuilder
     var innerBody: some View {
         switch self.model.nodes {
-        case .loaded: self.DisplayNodes(self.nodes)
+        case .loaded: self.DisplayNodes()
         case .loading, .initial:
             HStack {}
 
@@ -96,10 +96,10 @@ struct NodeView: View {
         }
     }
 
-    func DisplayNodes(_ nodes: [Node]) -> some View {
+    func DisplayNodes() -> some View {
         GeometryReader { geo in
             HStack(alignment: .top, spacing: 0) {
-                Table(nodes, selection: self.$selectedNodes, sortOrder: self.$sortOrder) {
+                Table(self.nodes, selection: self.$selectedNodes, sortOrder: self.$sortOrder) {
                     TableColumn("Name", value: \.name)
                     TableColumn("Version", value: \.kubeletVersion, comparator: OptionalStringComparator())
                         { Text($0.kubeletVersion ?? "") }

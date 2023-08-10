@@ -347,11 +347,20 @@ impl Pod {
     pub fn preview() -> Self {
         Faker.fake()
     }
+
+    pub fn total_restart_count(&self) -> i32 {
+        self.containers.iter().map(|c| c.restart_count).sum()
+    }
 }
 
 #[uniffi::export]
 pub fn pod_preview() -> Pod {
     Pod::preview()
+}
+
+#[uniffi::export]
+pub fn pod_restart_count(pod: Pod) -> i32 {
+    pod.total_restart_count()
 }
 
 pub async fn get_all(client: Client) -> Result<HashMap<PodId, Pod>> {

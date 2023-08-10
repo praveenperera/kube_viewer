@@ -1043,8 +1043,8 @@ public func FfiConverterTypeRustNodeViewModel_lower(_ value: RustNodeViewModel) 
 
 
 public protocol RustPodViewModelProtocol {
-    func `addCallbackListener`(`responder`: PodViewModelCallback) async 
     func `fetchPods`(`selectedCluster`: ClusterId) async 
+    func `initializeModelWithResponder`(`responder`: PodViewModelCallback) async 
     func `pods`()   -> [Pod]
     func `startWatcher`(`selectedCluster`: ClusterId) async 
     func `stopWatcher`() async 
@@ -1083,31 +1083,6 @@ public class RustPodViewModel: RustPodViewModelProtocol {
     
     
 
-    public func `addCallbackListener`(`responder`: PodViewModelCallback) async  {
-        // Suspend the function and call the scaffolding function, passing it a callback handler from
-        // `AsyncTypes.swift`
-        //
-        // Make sure to hold on to a reference to the continuation in the top-level scope so that
-        // it's not freed before the callback is invoked.
-        var continuation: CheckedContinuation<(), Error>? = nil
-        return try!  await withCheckedThrowingContinuation {
-            continuation = $0
-            try! rustCall() {
-                uniffi_kube_viewer_fn_method_rustpodviewmodel_add_callback_listener(
-                    self.pointer,
-                    
-        FfiConverterCallbackInterfacePodViewModelCallback.lower(`responder`),
-                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
-                    uniffiFutureCallbackHandlerVoid,
-                    &continuation,
-                    $0
-                )
-            }
-        }
-    }
-
-    
-
     public func `fetchPods`(`selectedCluster`: ClusterId) async  {
         // Suspend the function and call the scaffolding function, passing it a callback handler from
         // `AsyncTypes.swift`
@@ -1122,6 +1097,31 @@ public class RustPodViewModel: RustPodViewModelProtocol {
                     self.pointer,
                     
         FfiConverterTypeClusterId.lower(`selectedCluster`),
+                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
+                    uniffiFutureCallbackHandlerVoid,
+                    &continuation,
+                    $0
+                )
+            }
+        }
+    }
+
+    
+
+    public func `initializeModelWithResponder`(`responder`: PodViewModelCallback) async  {
+        // Suspend the function and call the scaffolding function, passing it a callback handler from
+        // `AsyncTypes.swift`
+        //
+        // Make sure to hold on to a reference to the continuation in the top-level scope so that
+        // it's not freed before the callback is invoked.
+        var continuation: CheckedContinuation<(), Error>? = nil
+        return try!  await withCheckedThrowingContinuation {
+            continuation = $0
+            try! rustCall() {
+                uniffi_kube_viewer_fn_method_rustpodviewmodel_initialize_model_with_responder(
+                    self.pointer,
+                    
+        FfiConverterCallbackInterfacePodViewModelCallback.lower(`responder`),
                     FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
                     uniffiFutureCallbackHandlerVoid,
                     &continuation,
@@ -4874,6 +4874,23 @@ fileprivate func uniffiFutureCallbackHandlerVoid(
         continuation.pointee.resume(throwing: error)
     }
 }
+fileprivate func uniffiFutureCallbackHandlerInt32(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: Int32,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<Int32, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterInt32.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
 fileprivate func uniffiFutureCallbackHandlerUInt64(
     rawContinutation: UnsafeRawPointer,
     returnValue: UInt64,
@@ -5214,6 +5231,15 @@ public func `podPreview`()  -> Pod {
     )
 }
 
+public func `podRestartCount`(`pod`: Pod)  -> Int32 {
+    return try!  FfiConverterInt32.lift(
+        try! rustCall() {
+    uniffi_kube_viewer_fn_func_pod_restart_count(
+        FfiConverterTypePod.lower(`pod`),$0)
+}
+    )
+}
+
 private enum InitializationResult {
     case ok
     case contractVersionMismatch
@@ -5233,6 +5259,9 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_func_pod_preview() != 22666) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_func_pod_restart_count() != 22946) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_focusregionhasher_hash() != 26261) {
@@ -5307,10 +5336,10 @@ private var initializationResult: InitializationResult {
     if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs_map() != 2970) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_add_callback_listener() != 59216) {
+    if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_fetch_pods() != 57451) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_fetch_pods() != 57451) {
+    if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_initialize_model_with_responder() != 30407) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_pods() != 56851) {
