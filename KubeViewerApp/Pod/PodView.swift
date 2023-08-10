@@ -85,7 +85,7 @@ struct PodView: View {
     @ViewBuilder
     var innerBody: some View {
         switch self.model.pods {
-        case .loaded: self.DisplayPods(self.pods)
+        case .loaded: self.DisplayPods()
         case .loading, .initial:
             HStack {}
 
@@ -94,13 +94,22 @@ struct PodView: View {
         }
     }
 
-    func DisplayPods(_ pods: [Pod]) -> some View {
+    func DisplayPods() -> some View {
         GeometryReader { geo in
             HStack(alignment: .top, spacing: 0) {
-                Table(pods, selection: self.$selectedPods, sortOrder: self.$sortOrder) {
+                Table(self.pods, selection: self.$selectedPods, sortOrder: self.$sortOrder) {
                     TableColumn("Name", value: \.name)
                     TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) { pod in
                         AgeView(createdAt: pod.createdAt, age: pod.age)
+                    }
+                    TableColumn("Containers", value: \.containers, comparator: CountComparator()) { pod in
+                        Text(String(pod.containers.count))
+                    }
+                    TableColumn("Restarts", value: \.containers, comparator: RestartComparator()) { pod in
+                        Text(String(pod.totalRestarts()))
+                    }
+                    TableColumn("QoS", value: \.qosClass, comparator: OptionalStringComparator()) { pod in
+                        Text(pod.qosClass ?? "Unknown")
                     }
                     TableColumn("Status", value: \.phase, comparator: RawValueComparator()) { pod in
                         self.DisplayStatus(phase: pod.phase)
