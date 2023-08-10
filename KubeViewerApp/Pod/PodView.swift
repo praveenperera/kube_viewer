@@ -99,9 +99,7 @@ struct PodView: View {
             HStack(alignment: .top, spacing: 0) {
                 Table(self.pods, selection: self.$selectedPods, sortOrder: self.$sortOrder) {
                     TableColumn("Name", value: \.name)
-                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) { pod in
-                        AgeView(createdAt: pod.createdAt, age: pod.age)
-                    }
+                    TableColumn("Namespace", value: \.namespace)
                     TableColumn("Containers", value: \.containers, comparator: CountComparator()) { pod in
                         Text(String(pod.containers.count))
                     }
@@ -110,6 +108,9 @@ struct PodView: View {
                     }
                     TableColumn("QoS", value: \.qosClass, comparator: OptionalStringComparator()) { pod in
                         Text(pod.qosClass ?? "Unknown")
+                    }
+                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) { pod in
+                        AgeView(createdAt: pod.createdAt, age: pod.age)
                     }
                     TableColumn("Status", value: \.phase, comparator: RawValueComparator()) { pod in
                         self.DisplayStatus(phase: pod.phase)
@@ -150,9 +151,9 @@ struct PodView: View {
         switch loading {
         case .loaded, .error:
             self.isLoading = false
-            if case .loaded(let pods) = self.model.pods {
+            if case .loaded(var pods) = self.model.pods {
+                pods.sort(using: self.sortOrder)
                 self.pods = pods
-                self.pods.sort(using: self.sortOrder)
             }
         case .loading, .initial:
             self.selectedPods = .init()
