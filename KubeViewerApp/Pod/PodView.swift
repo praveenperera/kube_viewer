@@ -101,7 +101,7 @@ struct PodView: View {
                     TableColumn("Name", value: \.name)
                     TableColumn("Namespace", value: \.namespace)
                     TableColumn("Containers", value: \.containers, comparator: CountComparator()) { pod in
-                        Text(String(pod.containers.count))
+                        self.DisplayContainers(containers: pod.containers)
                     }
                     TableColumn("Restarts", value: \.containers, comparator: RestartComparator()) { pod in
                         Text(String(pod.totalRestarts()))
@@ -144,6 +144,29 @@ struct PodView: View {
             .onAppear {
                 self.detailsWidth = geo.size.width / 3.5
             }
+        }
+    }
+
+    func DisplayContainers(containers: [Container]) -> some View {
+        HStack {
+            Spacer()
+            ForEach(containers) { container in
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(self.stateColor(container))
+                    .frame(width: 20)
+            }
+            Spacer()
+        }
+    }
+
+    func stateColor(_ container: Container) -> Color {
+        switch container.state {
+        case .some(.running(data: _)):
+            return Color.green
+        case .some(.terminated(data: _)):
+            return Color.gray
+        case .none, .some(.waiting(data: _)):
+            return Color.orange
         }
     }
 
@@ -191,18 +214,5 @@ struct PodView_Previews: PreviewProvider {
 
     static var previews: some View {
         PodView(windowId: windowId, globalModel: globalModel, mainViewModel: mainViewModel, model: model)
-    }
-}
-
-extension Phase: RawValue {
-    func rawValue() -> String {
-        switch self {
-        case .failed: return "Failed"
-        case .succeeded: return "Succeeded"
-        case .pending: return "Pending"
-        case .running: return "Running"
-        case .unknown(rawValue: let rawValue):
-            return rawValue
-        }
     }
 }

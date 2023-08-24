@@ -1418,7 +1418,7 @@ public func FfiConverterTypeClusterId_lower(_ value: ClusterId) -> RustBuffer {
 
 
 public struct Container {
-    public var `containerId`: ContainerId
+    public var `id`: ContainerId
     public var `name`: String
     public var `image`: String
     public var `imageId`: String?
@@ -1431,8 +1431,8 @@ public struct Container {
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(`containerId`: ContainerId, `name`: String, `image`: String, `imageId`: String?, `lastState`: ContainerState?, `ready`: Bool, `restartCount`: Int32, `started`: Bool, `state`: ContainerState?, `ports`: [UInt32]) {
-        self.`containerId` = `containerId`
+    public init(`id`: ContainerId, `name`: String, `image`: String, `imageId`: String?, `lastState`: ContainerState?, `ready`: Bool, `restartCount`: Int32, `started`: Bool, `state`: ContainerState?, `ports`: [UInt32]) {
+        self.`id` = `id`
         self.`name` = `name`
         self.`image` = `image`
         self.`imageId` = `imageId`
@@ -1448,7 +1448,7 @@ public struct Container {
 
 extension Container: Equatable, Hashable {
     public static func ==(lhs: Container, rhs: Container) -> Bool {
-        if lhs.`containerId` != rhs.`containerId` {
+        if lhs.`id` != rhs.`id` {
             return false
         }
         if lhs.`name` != rhs.`name` {
@@ -1482,7 +1482,7 @@ extension Container: Equatable, Hashable {
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(`containerId`)
+        hasher.combine(`id`)
         hasher.combine(`name`)
         hasher.combine(`image`)
         hasher.combine(`imageId`)
@@ -1499,7 +1499,7 @@ extension Container: Equatable, Hashable {
 public struct FfiConverterTypeContainer: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Container {
         return try Container(
-            `containerId`: FfiConverterTypeContainerId.read(from: &buf), 
+            `id`: FfiConverterTypeContainerId.read(from: &buf), 
             `name`: FfiConverterString.read(from: &buf), 
             `image`: FfiConverterString.read(from: &buf), 
             `imageId`: FfiConverterOptionString.read(from: &buf), 
@@ -1513,7 +1513,7 @@ public struct FfiConverterTypeContainer: FfiConverterRustBuffer {
     }
 
     public static func write(_ value: Container, into buf: inout [UInt8]) {
-        FfiConverterTypeContainerId.write(value.`containerId`, into: &buf)
+        FfiConverterTypeContainerId.write(value.`id`, into: &buf)
         FfiConverterString.write(value.`name`, into: &buf)
         FfiConverterString.write(value.`image`, into: &buf)
         FfiConverterOptionString.write(value.`imageId`, into: &buf)

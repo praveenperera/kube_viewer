@@ -61,7 +61,7 @@ pub struct Pod {
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct Container {
-    container_id: ContainerId,
+    id: ContainerId,
     name: String,
     image: String,
     image_id: Option<String>,
@@ -230,7 +230,7 @@ impl Container {
         let status = statuses.get(&container_id);
 
         Self {
-            container_id,
+            id: container_id,
             name: container.name,
             image: container.image.unwrap_or_default(),
             image_id: status.map(|s| s.image_id.clone()),
