@@ -40,6 +40,8 @@
 		ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */; };
 		ACB49CB12A32694100488B72 /* GeneralComparators.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB49CB02A32694100488B72 /* GeneralComparators.swift */; };
 		ACB49CB32A32715200488B72 /* NodeComparators.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB49CB22A32715200488B72 /* NodeComparators.swift */; };
+		ACB9336F2A992E3D00039659 /* ContainerStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB9336E2A992E3D00039659 /* ContainerStatusView.swift */; };
+		ACB933712A992E6400039659 /* ContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB933702A992E6400039659 /* ContainerView.swift */; };
 		ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */; };
 		ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA25829A00BD300ACB131 /* readSize.swift */; };
 		ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */; };
@@ -108,6 +110,8 @@
 		ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Searchbar.swift; sourceTree = "<group>"; };
 		ACB49CB02A32694100488B72 /* GeneralComparators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralComparators.swift; sourceTree = "<group>"; };
 		ACB49CB22A32715200488B72 /* NodeComparators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeComparators.swift; sourceTree = "<group>"; };
+		ACB9336E2A992E3D00039659 /* ContainerStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerStatusView.swift; sourceTree = "<group>"; };
+		ACB933702A992E6400039659 /* ContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerView.swift; sourceTree = "<group>"; };
 		ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarDisclosureGroupStyle.swift; sourceTree = "<group>"; };
 		ACBEA25829A00BD300ACB131 /* readSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = readSize.swift; sourceTree = "<group>"; };
 		ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideUpDown.swift; sourceTree = "<group>"; };
@@ -205,6 +209,15 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		ACB933722A992EF600039659 /* Container */ = {
+			isa = PBXGroup;
+			children = (
+				ACB933702A992E6400039659 /* ContainerView.swift */,
+				ACB9336E2A992E3D00039659 /* ContainerStatusView.swift */,
+			);
+			path = Container;
+			sourceTree = "<group>";
+		};
 		ACBEA255299FEBC400ACB131 /* Styles */ = {
 			isa = PBXGroup;
 			children = (
@@ -249,6 +262,7 @@
 		ACD5D6A52A7371F2002E2F05 /* Pod */ = {
 			isa = PBXGroup;
 			children = (
+				ACB933722A992EF600039659 /* Container */,
 				ACD5D6A72A737255002E2F05 /* PodViewModel.swift */,
 				AC0EA48A2A7BFC0C001933C6 /* PodView.swift */,
 				AC0EA48C2A7C099B001933C6 /* Pod.swift */,
@@ -465,10 +479,12 @@
 				ACC45D532995AE480063B358 /* if.swift in Sources */,
 				ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */,
 				AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */,
+				ACB9336F2A992E3D00039659 /* ContainerStatusView.swift in Sources */,
 				ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */,
 				AC8ABA0429A01BF300C7F6D5 /* SidebarButton.swift in Sources */,
 				ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */,
 				ACCE0D4F2A7B0FE70043F41F /* LoadStatus.swift in Sources */,
+				ACB933712A992E6400039659 /* ContainerView.swift in Sources */,
 				AC0EA4942A7DF1AA001933C6 /* TimestampAndAge.swift in Sources */,
 				ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */,
 				DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */,

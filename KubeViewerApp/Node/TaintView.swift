@@ -21,8 +21,8 @@ struct TaintView: View {
                             Text(taint.key).padding()
                         } else {
                             Text("\(taint.key)=\(taint.effect)")
-                                .padding(.horizontal, 15)
-                                .padding(.vertical, 10)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
                         }
                     }
                 }

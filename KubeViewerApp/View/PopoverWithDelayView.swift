@@ -11,14 +11,14 @@ struct PopoverWithDelayView<Content: View, Popover: View>: View {
     @State private var hoverTask: Task<Void, Error>?
     @State private var isHovering: Bool = false
 
-    @ViewBuilder let content: Content
-    @ViewBuilder let popover: Popover
     let delay: Double
+    let content: Content
+    let popover: Popover
 
     init(content: () -> Content, popover: () -> Popover, delay: Double? = nil) {
         self.content = content()
         self.popover = popover()
-        self.delay = delay ?? 600
+        self.delay = delay ?? 800
 
         self.hoverTask = nil
         self.isHovering = false
@@ -29,13 +29,13 @@ struct PopoverWithDelayView<Content: View, Popover: View>: View {
             .onHover { hovering in
                 withAnimation {
                     if hovering {
-                        if let hoverTask = hoverTask { hoverTask.cancel() }
+                        hoverTask?.cancel()
                         hoverTask = Task {
                             try await Task.sleep(ms: delay)
                             isHovering = true
                         }
                     } else {
-                        if let hoverTask = hoverTask { hoverTask.cancel() }
+                        hoverTask?.cancel()
                         isHovering = hovering
                     }
                 }

@@ -26,7 +26,7 @@ struct PodDetailView: View {
                         // end VStack
                         .frame(maxWidth: self.detailsWidth)
                         .cornerRadius(4)
-                        .padding(.horizontal, 10)
+                        .padding(.horizontal, 12)
                         .padding(.bottom, 20)
                 }
 

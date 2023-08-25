@@ -13,7 +13,7 @@ struct NameView: View {
 
     init(name: String, delay: Double? = nil) {
         self.name = name
-        self.delay = delay ?? 800
+        self.delay = delay ?? 700
     }
 
     var body: some View {
@@ -22,7 +22,7 @@ struct NameView: View {
         }, popover: {
             Text(name)
                 .padding(.vertical, 10)
-                .padding(.horizontal, 15)
+                .padding(.horizontal, 16)
         }, delay: delay)
     }
 }

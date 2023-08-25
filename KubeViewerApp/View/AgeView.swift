@@ -15,13 +15,16 @@ struct AgeView: View {
         if let timestamp = createdAt,
            let utc = unixToUtcString(unix: timestamp)
         {
-            PopoverWithDelayView(content: {
-                RelativeTimeView
-            }, popover: {
-                Text(utc)
-                    .padding(.horizontal, 15)
-                    .padding(.vertical, 10)
-            })
+            PopoverWithDelayView(
+                content: {
+                    RelativeTimeView
+                },
+                popover: {
+                    Text(utc)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                }
+            )
         } else {
             RelativeTimeView
         }

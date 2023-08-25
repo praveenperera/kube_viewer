@@ -108,7 +108,7 @@ struct MainView: View {
                                     }
                                 }
                             }
-                            .padding(.leading, 5)
+                            .padding(.leading, 6)
                         } label: {
                             SidebarTitle(name: tabGroup.name)
                         }
@@ -156,7 +156,7 @@ struct MainView: View {
                     Label(self.model.selectedCluster?.name() ?? "Select a cluster ...", systemImage: "chevron.down")
                 }
             )
-            .padding(.horizontal, 15)
+            .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .overlay {
                 if self.model.currentFocusRegion == .clusterSelection {
@@ -164,7 +164,7 @@ struct MainView: View {
                 }
             }
             .menuStyle(CustomMenuStyle())
-        }.padding(.bottom, 7)
+        }.padding(.bottom, 8)
     }
 }
 
