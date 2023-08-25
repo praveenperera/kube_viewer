@@ -98,7 +98,9 @@ struct PodView: View {
         GeometryReader { geo in
             HStack(alignment: .top, spacing: 0) {
                 Table(self.pods, selection: self.$selectedPods, sortOrder: self.$sortOrder) {
-                    TableColumn("Name", value: \.name)
+                    TableColumn("Name", value: \.name) {
+                        NameView(name: $0.name)
+                    }
                     TableColumn("Namespace", value: \.namespace)
                     TableColumn("Containers", value: \.containers, comparator: CountComparator()) { pod in
                         self.DisplayContainers(containers: pod.containers)
@@ -111,7 +113,6 @@ struct PodView: View {
                     }
                     TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) {
                         AgeView(createdAt: $0.createdAt, age: $0.age)
-                            .help($0.createdAtTimestamp() ?? "Created at not available")
                     }
                     TableColumn("Status", value: \.phase, comparator: RawValueComparator()) { pod in
                         self.DisplayStatus(phase: pod.phase)

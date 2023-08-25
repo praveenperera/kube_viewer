@@ -19,7 +19,7 @@ struct PodDetailView: View {
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
-        if case .some(let pod) = self.selectedPod {
+        if case .some = self.selectedPod {
             ZStack(alignment: .leading) {
                 ScrollView {
                     VStack(alignment: .leading) {}

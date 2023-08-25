@@ -100,14 +100,15 @@ struct NodeView: View {
         GeometryReader { geo in
             HStack(alignment: .top, spacing: 0) {
                 Table(self.nodes, selection: self.$selectedNodes, sortOrder: self.$sortOrder) {
-                    TableColumn("Name", value: \.name)
+                    TableColumn("Name", value: \.name) {
+                        NameView(name: $0.name)
+                    }
                     TableColumn("Version", value: \.kubeletVersion, comparator: OptionalStringComparator())
                         { Text($0.kubeletVersion ?? "") }
                     TableColumn("Taints", value: \.taints, comparator: CountComparator())
-                        { Text(String($0.taints.count)) }
+                        { TaintView(taints: $0.taints) }
                     TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) {
                         AgeView(createdAt: $0.createdAt, age: $0.age)
-                            .help($0.createdAtTimestamp() ?? "Created at not available")
                     }
                     TableColumn("Conditions", value: \.conditions, comparator: ConditionsComparator())
                         { self.ConditionsColumnContent($0) }

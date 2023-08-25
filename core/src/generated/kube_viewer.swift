@@ -5078,6 +5078,23 @@ fileprivate func uniffiFutureCallbackHandlerTypeTabId(
         continuation.pointee.resume(throwing: error)
     }
 }
+fileprivate func uniffiFutureCallbackHandlerOptionString(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<String?, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterOptionString.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
 fileprivate func uniffiFutureCallbackHandlerOptionTypeCluster(
     rawContinutation: UnsafeRawPointer,
     returnValue: RustBuffer,
@@ -5240,6 +5257,15 @@ public func `podRestartCount`(`pod`: Pod)  -> Int32 {
     )
 }
 
+public func `unixToUtcString`(`unix`: Int64)  -> String? {
+    return try!  FfiConverterOptionString.lift(
+        try! rustCall() {
+    uniffi_kube_viewer_fn_func_unix_to_utc_string(
+        FfiConverterInt64.lower(`unix`),$0)
+}
+    )
+}
+
 private enum InitializationResult {
     case ok
     case contractVersionMismatch
@@ -5262,6 +5288,9 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_func_pod_restart_count() != 22946) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_func_unix_to_utc_string() != 6226) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_focusregionhasher_hash() != 26261) {

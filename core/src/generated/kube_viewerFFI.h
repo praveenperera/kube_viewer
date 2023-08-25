@@ -174,6 +174,8 @@ RustBuffer uniffi_kube_viewer_fn_func_pod_preview(RustCallStatus *_Nonnull out_s
 );
 int32_t uniffi_kube_viewer_fn_func_pod_restart_count(RustBuffer pod, RustCallStatus *_Nonnull out_status
 );
+RustBuffer uniffi_kube_viewer_fn_func_unix_to_utc_string(int64_t unix, RustCallStatus *_Nonnull out_status
+);
 RustBuffer ffi_kube_viewer_rustbuffer_alloc(int32_t size, RustCallStatus *_Nonnull out_status
 );
 RustBuffer ffi_kube_viewer_rustbuffer_from_bytes(ForeignBytes bytes, RustCallStatus *_Nonnull out_status
@@ -189,6 +191,9 @@ uint16_t uniffi_kube_viewer_checksum_func_pod_preview(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_func_pod_restart_count(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_unix_to_utc_string(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_focusregionhasher_hash(void

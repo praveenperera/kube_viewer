@@ -353,16 +353,6 @@ impl Pod {
     }
 }
 
-#[uniffi::export]
-pub fn pod_preview() -> Pod {
-    Pod::preview()
-}
-
-#[uniffi::export]
-pub fn pod_restart_count(pod: Pod) -> i32 {
-    pod.total_restart_count()
-}
-
 pub async fn get_all(client: Client) -> Result<HashMap<PodId, Pod>> {
     let pods_api: Api<K8sPod> = Api::all(client);
     let pods = pods_api.list(&Default::default()).await?;
