@@ -109,8 +109,9 @@ struct PodView: View {
                     TableColumn("QoS", value: \.qosClass, comparator: OptionalStringComparator()) { pod in
                         Text(pod.qosClass ?? "Unknown")
                     }
-                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) { pod in
-                        AgeView(createdAt: pod.createdAt, age: pod.age)
+                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) {
+                        AgeView(createdAt: $0.createdAt, age: $0.age)
+                            .help($0.createdAtTimestamp() ?? "Created at not available")
                     }
                     TableColumn("Status", value: \.phase, comparator: RawValueComparator()) { pod in
                         self.DisplayStatus(phase: pod.phase)

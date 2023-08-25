@@ -105,8 +105,10 @@ struct NodeView: View {
                         { Text($0.kubeletVersion ?? "") }
                     TableColumn("Taints", value: \.taints, comparator: CountComparator())
                         { Text(String($0.taints.count)) }
-                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator())
-                        { AgeView(createdAt: $0.createdAt, age: $0.age) }
+                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) {
+                        AgeView(createdAt: $0.createdAt, age: $0.age)
+                            .help($0.createdAtTimestamp() ?? "Created at not available")
+                    }
                     TableColumn("Conditions", value: \.conditions, comparator: ConditionsComparator())
                         { self.ConditionsColumnContent($0) }
                 }
