@@ -22,14 +22,56 @@ struct ContainerStatusView: View {
     }
 
     var body: some View {
-        RoundedRectangle(cornerRadius: 4)
-            .fill(stateColor)
-            .frame(width: 16)
+        switch container.state {
+        case .none:
+            RoundedRectangle(cornerRadius: 4)
+                .fill(stateColor)
+                .frame(width: 16)
+
+        case let .some(containerState):
+            PopoverWithDelayView(
+                content: {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(stateColor)
+                        .frame(width: 16)
+                },
+                popover: {
+                    containerStatePopover(state: containerState)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                },
+                delay: 100
+            )
+        }
+    }
+
+    @ViewBuilder
+    func containerStatePopover(state: ContainerState) -> some View {
+        switch state {
+        case let .running(data: running):
+            renderRunning(running)
+        case let .terminated(data: terminated):
+            renderTerminated(terminated)
+        case let .waiting(data: waiting):
+            renderWaiting(waiting)
+        }
+    }
+
+    func renderRunning(_ data: ContainerStateRunning) -> some View {
+        Text("Running")
+    }
+
+    func renderTerminated(_ data: ContainerStateTerminated) -> some View {
+        Text("Terminated")
+    }
+
+    func renderWaiting(_ data: ContainerStateWaiting) -> some View {
+        Text("Waiting")
     }
 }
 
 struct ContainerStatusView_Previews: PreviewProvider {
     static var previews: some View {
-        ContainerStatusView()
+        ContainerStatusView(container: containerPreview())
     }
 }

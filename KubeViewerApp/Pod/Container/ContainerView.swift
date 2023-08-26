@@ -21,6 +21,8 @@ struct ContainerView: View {
 
 struct ContainerView_Previews: PreviewProvider {
     static var previews: some View {
-        ContainerView()
+        HStack {
+            ContainerView(containers: containersPreview())
+        }
     }
 }

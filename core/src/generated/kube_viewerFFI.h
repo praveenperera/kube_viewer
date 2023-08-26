@@ -166,6 +166,12 @@ void uniffi_kube_viewer_fn_init_callback_nodeviewmodelcallback(ForeignCallback _
 );
 void uniffi_kube_viewer_fn_init_callback_podviewmodelcallback(ForeignCallback _Nonnull callback_stub, RustCallStatus *_Nonnull out_status
 );
+RustBuffer uniffi_kube_viewer_fn_func_container_preview(RustCallStatus *_Nonnull out_status
+    
+);
+RustBuffer uniffi_kube_viewer_fn_func_containers_preview(RustCallStatus *_Nonnull out_status
+    
+);
 RustBuffer uniffi_kube_viewer_fn_func_node_preview(RustCallStatus *_Nonnull out_status
     
 );
@@ -183,6 +189,12 @@ RustBuffer ffi_kube_viewer_rustbuffer_from_bytes(ForeignBytes bytes, RustCallSta
 void ffi_kube_viewer_rustbuffer_free(RustBuffer buf, RustCallStatus *_Nonnull out_status
 );
 RustBuffer ffi_kube_viewer_rustbuffer_reserve(RustBuffer buf, int32_t additional, RustCallStatus *_Nonnull out_status
+);
+uint16_t uniffi_kube_viewer_checksum_func_container_preview(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_containers_preview(void
+    
 );
 uint16_t uniffi_kube_viewer_checksum_func_node_preview(void
     

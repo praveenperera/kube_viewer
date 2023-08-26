@@ -5010,6 +5010,23 @@ fileprivate func uniffiFutureCallbackHandlerTypeRustPodViewModel(
         continuation.pointee.resume(throwing: error)
     }
 }
+fileprivate func uniffiFutureCallbackHandlerTypeContainer(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<Container, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterTypeContainer.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
 fileprivate func uniffiFutureCallbackHandlerTypeNode(
     rawContinutation: UnsafeRawPointer,
     returnValue: RustBuffer,
@@ -5108,6 +5125,23 @@ fileprivate func uniffiFutureCallbackHandlerOptionTypeCluster(
     do {
         try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
         continuation.pointee.resume(returning: try FfiConverterOptionTypeCluster.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
+fileprivate func uniffiFutureCallbackHandlerSequenceTypeContainer(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<[Container], Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterSequenceTypeContainer.lift(returnValue))
     } catch let error {
         continuation.pointee.resume(throwing: error)
     }
@@ -5232,6 +5266,22 @@ fileprivate func uniffiFutureCallbackHandlerDictionaryTypeTabIdTypeTab(
     }
 }
 
+public func `containerPreview`()  -> Container {
+    return try!  FfiConverterTypeContainer.lift(
+        try! rustCall() {
+    uniffi_kube_viewer_fn_func_container_preview($0)
+}
+    )
+}
+
+public func `containersPreview`()  -> [Container] {
+    return try!  FfiConverterSequenceTypeContainer.lift(
+        try! rustCall() {
+    uniffi_kube_viewer_fn_func_containers_preview($0)
+}
+    )
+}
+
 public func `nodePreview`()  -> Node {
     return try!  FfiConverterTypeNode.lift(
         try! rustCall() {
@@ -5280,6 +5330,12 @@ private var initializationResult: InitializationResult {
     let scaffolding_contract_version = ffi_kube_viewer_uniffi_contract_version()
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
+    }
+    if (uniffi_kube_viewer_checksum_func_container_preview() != 7093) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_func_containers_preview() != 51117) {
+        return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_func_node_preview() != 63126) {
         return InitializationResult.apiChecksumMismatch
