@@ -97,7 +97,7 @@ struct PodView: View {
     func DisplayPods() -> some View {
         GeometryReader { geo in
             HStack(alignment: .top, spacing: 0) {
-                Table(self.pods, selection: self.$selectedPods, sortOrder: self.$sortOrder) {
+                Table(of: Pod.self, selection: self.$selectedPods, sortOrder: self.$sortOrder) {
                     TableColumn("Name", value: \.name) {
                         NameView(name: $0.name)
                     }
@@ -116,6 +116,20 @@ struct PodView: View {
                     }
                     TableColumn("Status", value: \.phase, comparator: RawValueComparator()) { pod in
                         self.DisplayStatus(phase: pod.phase)
+                    }
+                } rows: {
+                    ForEach(self.pods) { pod in
+                        TableRow(pod)
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    print("delete", pod.id, self.selectedPods)
+                                    if self.podIsSelected && self.selectedPods.count == 1 {
+                                        self.selectedPods = [pod.id]
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash.fill")
+                                }
+                            }
                     }
                 }
                 .onChange(of: self.sortOrder) { sortOrder in
