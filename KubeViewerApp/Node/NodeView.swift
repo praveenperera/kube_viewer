@@ -127,9 +127,7 @@ struct NodeView: View {
                         }
                     }
                 }
-                .if(self.nodeIsSelected) { view in
-                    view.frame(minWidth: 0, maxWidth: max(200, geo.size.width - self.detailsWidth))
-                }
+                .frame(minWidth: self.nodeIsSelected ? 0 : nil, maxWidth: self.nodeIsSelected ? max(200, geo.size.width - self.detailsWidth) : .infinity)
 
                 NodeDetailView(geo: geo,
                                selectedNode: self.selectedNode,

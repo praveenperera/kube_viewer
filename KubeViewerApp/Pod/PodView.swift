@@ -128,9 +128,7 @@ struct PodView: View {
                         }
                     }
                 }
-                .if(self.podIsSelected) { view in
-                    view.frame(minWidth: 0, maxWidth: max(200, geo.size.width - self.detailsWidth))
-                }
+                .frame(minWidth: self.podIsSelected ? 0 : nil, maxWidth: self.podIsSelected ? max(200, geo.size.width - self.detailsWidth) : .infinity)
 
                 PodDetailView(geo: geo,
                               selectedPod: self.selectedPod,
@@ -157,8 +155,11 @@ struct PodView: View {
                 pods.sort(using: self.sortOrder)
                 self.pods = pods
             }
-        case .loading, .initial:
+        case .initial:
             self.selectedPods = .init()
+            self.isLoading = true
+
+        case .loading:
             self.isLoading = true
         }
     }
