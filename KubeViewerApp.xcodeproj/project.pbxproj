@@ -16,11 +16,13 @@
 		AC16FF4F29C3FE6C00AAEBD7 /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */; };
 		AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */; };
 		AC186F932A40FD1F00AC20A9 /* NodeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */; };
+		AC2E0EFC2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC2E0EFB2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift */; };
 		AC3995D22A6879450063A3E7 /* DetailDropDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3995D12A6879450063A3E7 /* DetailDropDownView.swift */; };
 		AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D66299B325000429CDB /* RustPublished.swift */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
 		AC4CF6F72A698FFC0098E879 /* Pill.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4CF6F62A698FFC0098E879 /* Pill.swift */; };
 		AC4ED31E2A859B98000BB612 /* PodComparators.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4ED31D2A859B98000BB612 /* PodComparators.swift */; };
+		AC542E222A9FE96600CFB02E /* PodPhaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC542E212A9FE96600CFB02E /* PodPhaseView.swift */; };
 		AC59E5CB2A98FBBF005458C5 /* TaintView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC59E5CA2A98FBBF005458C5 /* TaintView.swift */; };
 		AC59E5CD2A99066C005458C5 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC59E5CC2A99066C005458C5 /* Task.swift */; };
 		AC59E5CF2A9908D5005458C5 /* PopoverWithDelayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC59E5CE2A9908D5005458C5 /* PopoverWithDelayView.swift */; };
@@ -88,11 +90,13 @@
 		AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = core/src/kube_viewer.udl; sourceTree = "<group>"; };
 		AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalViewModel.swift; sourceTree = "<group>"; };
 		AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDetailView.swift; sourceTree = "<group>"; };
+		AC2E0EFB2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodDeleteConfirmMessageView.swift; sourceTree = "<group>"; };
 		AC3995D12A6879450063A3E7 /* DetailDropDownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailDropDownView.swift; sourceTree = "<group>"; };
 		AC3F4D66299B325000429CDB /* RustPublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustPublished.swift; sourceTree = "<group>"; };
 		AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalBinding.swift; sourceTree = "<group>"; };
 		AC4CF6F62A698FFC0098E879 /* Pill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pill.swift; sourceTree = "<group>"; };
 		AC4ED31D2A859B98000BB612 /* PodComparators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodComparators.swift; sourceTree = "<group>"; };
+		AC542E212A9FE96600CFB02E /* PodPhaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodPhaseView.swift; sourceTree = "<group>"; };
 		AC59E5CA2A98FBBF005458C5 /* TaintView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaintView.swift; sourceTree = "<group>"; };
 		AC59E5CC2A99066C005458C5 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		AC59E5CE2A9908D5005458C5 /* PopoverWithDelayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverWithDelayView.swift; sourceTree = "<group>"; };
@@ -267,6 +271,8 @@
 				AC0EA48A2A7BFC0C001933C6 /* PodView.swift */,
 				AC0EA48C2A7C099B001933C6 /* Pod.swift */,
 				AC0EA4902A7C2C49001933C6 /* PodDetailView.swift */,
+				AC542E212A9FE96600CFB02E /* PodPhaseView.swift */,
+				AC2E0EFB2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift */,
 			);
 			path = Pod;
 			sourceTree = "<group>";
@@ -490,6 +496,7 @@
 				DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */,
 				AC65E77D29A9278600F3A7CE /* StandardFocusRing.swift in Sources */,
 				AC4CF6F72A698FFC0098E879 /* Pill.swift in Sources */,
+				AC542E222A9FE96600CFB02E /* PodPhaseView.swift in Sources */,
 				AC59E5D12A990BE7005458C5 /* NameView.swift in Sources */,
 				AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */,
 				AC0EA48D2A7C099B001933C6 /* Pod.swift in Sources */,
@@ -502,6 +509,7 @@
 				ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */,
 				AC4ED31E2A859B98000BB612 /* PodComparators.swift in Sources */,
 				AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */,
+				AC2E0EFC2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift in Sources */,
 				ACD621F2298057D400FE2CE2 /* TabViewModel.swift in Sources */,
 				AC71A3182A83F7270064481F /* DeploymentView.swift in Sources */,
 				ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */,

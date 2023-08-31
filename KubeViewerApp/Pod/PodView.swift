@@ -25,6 +25,9 @@ struct PodView: View {
     @State var detailsResized: Bool = false
     @State var isDetailsHover = false
 
+    @State var isConfirmingDeletePod: Bool = false
+    @State var podIdsToDelete: Set<Pod.ID> = []
+
     var podIsSelected: Bool {
         self.selectedPods.count == 1
     }
@@ -58,7 +61,7 @@ struct PodView: View {
             self.innerBody
                 .onChange(of: self.model.pods, perform: self.setLoading)
         }
-        .frame(minWidth: 100)
+        .frame(minWidth: 150)
         .toast(isPresenting: self.$isLoading) {
             AlertToast(displayMode: .alert, type: .loading, title: "Loading")
         }
@@ -115,19 +118,21 @@ struct PodView: View {
                         AgeView(createdAt: $0.createdAt, age: $0.age)
                     }
                     TableColumn("Status", value: \.phase, comparator: RawValueComparator()) { pod in
-                        self.DisplayStatus(phase: pod.phase)
+                        PodPhaseView(phase: pod.phase, isSelected: self.selectedPods.contains(pod.id))
                     }
                 } rows: {
                     ForEach(self.pods) { pod in
                         TableRow(pod)
                             .contextMenu {
                                 Button(role: .destructive) {
-                                    print("delete", pod.id, self.selectedPods)
-                                    if self.podIsSelected && self.selectedPods.count == 1 {
-                                        self.selectedPods = [pod.id]
+                                    self.isConfirmingDeletePod = true
+                                    if self.selectedPods.contains(pod.id) {
+                                        self.podIdsToDelete = self.selectedPods
+                                    } else {
+                                        self.podIdsToDelete = [pod.id]
                                     }
                                 } label: {
-                                    Label("Delete", systemImage: "trash.fill")
+                                    Text("Delete")
                                 }
                             }
                     }
@@ -142,7 +147,6 @@ struct PodView: View {
                         }
                     }
                 }
-                .frame(minWidth: self.podIsSelected ? 0 : nil, maxWidth: self.podIsSelected ? max(200, geo.size.width - self.detailsWidth) : .infinity)
 
                 PodDetailView(geo: geo,
                               selectedPod: self.selectedPod,
@@ -157,6 +161,24 @@ struct PodView: View {
             }
             .onAppear {
                 self.detailsWidth = geo.size.width / 3.5
+            }
+            .confirmationDialog(
+                self.podIdsToDelete.count > 1 ? "Are you sure you want to delete these \(self.podIdsToDelete.count) pods?" : "Are you sure you want to delete this pod?",
+                isPresented: self.$isConfirmingDeletePod, presenting: self.podIdsToDelete
+            ) { _ in
+                Button(role: .destructive) {
+                    // Handle import action.
+                } label: {
+                    Text("Delete")
+                }
+
+                Button("Cancel", role: .cancel) {
+                    self.podIdsToDelete = []
+                }
+            } message: { _ in
+                VStack {
+                    PodDeleteConfirmMessage(podIds: self.podIdsToDelete)
+                }
             }
         }
     }
@@ -175,27 +197,6 @@ struct PodView: View {
 
         case .loading:
             self.isLoading = true
-        }
-    }
-
-    @ViewBuilder
-    func DisplayStatus(phase: Phase) -> some View {
-        switch phase {
-        case .failed:
-            Text("Failed").foregroundColor(Color.red)
-        case .succeeded:
-            Text("Succeeded").foregroundColor(Color.green)
-                .if(self.colorScheme == .light) { view in
-                    view.brightness(-0.10)
-                }
-        case .pending: Text("Pending")
-        case .running:
-            Text("Running").foregroundColor(Color.green)
-                .if(self.colorScheme == .light) { view in
-                    view.brightness(-0.15)
-                }
-        case .unknown(rawValue: let rawValue):
-            Text(rawValue)
         }
     }
 }
