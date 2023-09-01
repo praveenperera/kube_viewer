@@ -3,7 +3,6 @@
 //  KubeViewerApp
 //
 //  Created by Praveen Perera on 2023-07-27.
-//
 
 import Combine
 import Foundation
@@ -14,6 +13,9 @@ class PodViewModel: ObservableObject, PodViewModelCallback {
     var data: RustPodViewModel
 
     @Published var pods: LoadStatus<[Pod]> = .initial
+
+    @Published var toastWarning: String? = nil
+    @Published var toastError: String? = nil
 
     init(windowId: UUID) {
         self.windowId = windowId
@@ -41,6 +43,12 @@ class PodViewModel: ObservableObject, PodViewModelCallback {
                     case let .loaded(pods: pods):
                         print("[swift] pods loaded")
                         self.pods = .loaded(data: pods)
+
+                    case let .toastWarningMessage(message: message):
+                        self.toastWarning = message
+
+                    case let .toastErrorMessage(message: message):
+                        self.toastError = message
                 }
             }
         }

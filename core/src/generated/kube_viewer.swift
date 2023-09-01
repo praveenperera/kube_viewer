@@ -3331,6 +3331,8 @@ public enum PodViewModelMessage {
     case `loading`
     case `loaded`(`pods`: [Pod])
     case `loadingFailed`(`error`: String)
+    case `toastWarningMessage`(`message`: String)
+    case `toastErrorMessage`(`message`: String)
 }
 
 public struct FfiConverterTypePodViewModelMessage: FfiConverterRustBuffer {
@@ -3348,6 +3350,14 @@ public struct FfiConverterTypePodViewModelMessage: FfiConverterRustBuffer {
         
         case 3: return .`loadingFailed`(
             `error`: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 4: return .`toastWarningMessage`(
+            `message`: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 5: return .`toastErrorMessage`(
+            `message`: try FfiConverterString.read(from: &buf)
         )
         
         default: throw UniffiInternalError.unexpectedEnumCase
@@ -3370,6 +3380,16 @@ public struct FfiConverterTypePodViewModelMessage: FfiConverterRustBuffer {
         case let .`loadingFailed`(`error`):
             writeInt(&buf, Int32(3))
             FfiConverterString.write(`error`, into: &buf)
+            
+        
+        case let .`toastWarningMessage`(`message`):
+            writeInt(&buf, Int32(4))
+            FfiConverterString.write(`message`, into: &buf)
+            
+        
+        case let .`toastErrorMessage`(`message`):
+            writeInt(&buf, Int32(5))
+            FfiConverterString.write(`message`, into: &buf)
             
         }
     }

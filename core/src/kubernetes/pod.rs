@@ -381,7 +381,8 @@ pub async fn get_all(client: Client) -> Result<HashMap<PodId, Pod>> {
 }
 
 pub async fn delete(client: Client, pod: &Pod) -> Result<Either<K8sPod, Status>, kube::Error> {
-    let pods_api: Api<K8sPod> = Api::namespaced(client, &pod.namespace);
+    // let pods_api: Api<K8sPod> = Api::namespaced(client, &pod.namespace);
+    let pods_api: Api<K8sPod> = Api::namespaced(client, "default");
 
     pods_api
         .delete(pod.id.as_ref(), &DeleteParams::default())

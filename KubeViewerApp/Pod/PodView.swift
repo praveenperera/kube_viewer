@@ -28,6 +28,9 @@ struct PodView: View {
     @State var isConfirmingDeletePod: Bool = false
     @State var podIdsToDelete: Set<Pod.ID> = []
 
+    @State var toastWarningIsShowing: Bool = false
+    @State var toastErrorIsShowing: Bool = false
+
     var podIsSelected: Bool {
         self.selectedPods.count == 1
     }
@@ -65,6 +68,31 @@ struct PodView: View {
         .toast(isPresenting: self.$isLoading) {
             AlertToast(displayMode: .alert, type: .loading, title: "Loading")
         }
+        .toast(isPresenting: self.$toastErrorIsShowing, duration: 10,
+               alert: {
+                   AlertToast(displayMode: .hud, type: .error(Color.red), title: self.model.toastError ?? "Unknown erorr")
+               },
+               onTap: {
+                   self.toastErrorIsShowing = false
+                   self.model.toastError = nil
+               },
+               completion: {
+                   self.toastErrorIsShowing = false
+                   self.model.toastError = nil
+               })
+        .toast(isPresenting: self.$toastWarningIsShowing,
+               alert: {
+                   AlertToast(displayMode: .hud, type: .systemImage("exclamationmark.triangle.fill", Color.yellow),
+                              title: self.model.toastError ?? "Unknown erorr")
+               },
+               onTap: {
+                   self.toastWarningIsShowing = false
+                   self.model.toastWarning = nil
+               },
+               completion: {
+                   self.toastWarningIsShowing = false
+                   self.model.toastWarning = nil
+               })
         .onDisappear {
             Task {
                 await self.model.data.stopWatcher()
@@ -76,6 +104,12 @@ struct PodView: View {
                     await self.model.getDataAndSetupWatcher(selectedCluster.id)
                 }
             }
+        }
+        .onChange(of: self.model.toastError) { toastError in
+            self.toastErrorIsShowing = toastError != nil
+        }
+        .onChange(of: self.model.toastWarning) { toastWarning in
+            self.toastWarningIsShowing = toastWarning != nil
         }
         .task {
             if let selectedCluster = self.mainViewModel.selectedCluster {

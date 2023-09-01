@@ -15,7 +15,6 @@ struct MainView: View {
     @State private var windowIsLoaded: Bool = false
     @State private var hoverRow: UUID?
     @State private var expanded: Bool = true
-    @State private var search: String = ""
     @State private var window: NSWindow?
 
     private func sortedClusterIds() -> [ClusterId] {
@@ -91,13 +90,13 @@ struct MainView: View {
         VStack {
             ScrollViewReader { proxy in
                 ScrollView {
-                    SearchBar(text: self.$search)
+                    SearchBar(text: self.$model.search)
                         .padding(.top, 15)
                         .padding(.vertical, 10)
                         .padding(.horizontal, 12)
                         .id(FocusRegion.sidebarSearch)
 
-                    ForEach(self.model.data.tabGroupsFiltered(search: self.search)) { tabGroup in
+                    ForEach(self.model.filteredTabGroups) { tabGroup in
                         DisclosureGroup(isExpanded: self.$model.tabGroupExpansions[tabGroup.id] ?? true) {
                             VStack {
                                 if self.windowIsLoaded {
