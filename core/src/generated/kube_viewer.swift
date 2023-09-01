@@ -1043,6 +1043,7 @@ public func FfiConverterTypeRustNodeViewModel_lower(_ value: RustNodeViewModel) 
 
 
 public protocol RustPodViewModelProtocol {
+    func `deletePod`(`selectedCluster`: ClusterId, `podId`: PodId) async 
     func `fetchPods`(`selectedCluster`: ClusterId) async 
     func `initializeModelWithResponder`(`responder`: PodViewModelCallback) async 
     func `pods`()   -> [Pod]
@@ -1081,6 +1082,32 @@ public class RustPodViewModel: RustPodViewModelProtocol {
     
 
     
+    
+
+    public func `deletePod`(`selectedCluster`: ClusterId, `podId`: PodId) async  {
+        // Suspend the function and call the scaffolding function, passing it a callback handler from
+        // `AsyncTypes.swift`
+        //
+        // Make sure to hold on to a reference to the continuation in the top-level scope so that
+        // it's not freed before the callback is invoked.
+        var continuation: CheckedContinuation<(), Error>? = nil
+        return try!  await withCheckedThrowingContinuation {
+            continuation = $0
+            try! rustCall() {
+                uniffi_kube_viewer_fn_method_rustpodviewmodel_delete_pod(
+                    self.pointer,
+                    
+        FfiConverterTypeClusterId.lower(`selectedCluster`),
+        FfiConverterTypePodId.lower(`podId`),
+                    FfiConverterForeignExecutor.lower(UniFfiForeignExecutor()),
+                    uniffiFutureCallbackHandlerVoid,
+                    &continuation,
+                    $0
+                )
+            }
+        }
+    }
+
     
 
     public func `fetchPods`(`selectedCluster`: ClusterId) async  {
@@ -4874,23 +4901,6 @@ fileprivate func uniffiFutureCallbackHandlerVoid(
         continuation.pointee.resume(throwing: error)
     }
 }
-fileprivate func uniffiFutureCallbackHandlerInt32(
-    rawContinutation: UnsafeRawPointer,
-    returnValue: Int32,
-    callStatus: RustCallStatus) {
-
-    let continuation = rawContinutation.bindMemory(
-        to: CheckedContinuation<Int32, Error>.self,
-        capacity: 1
-    )
-
-    do {
-        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
-        continuation.pointee.resume(returning: try FfiConverterInt32.lift(returnValue))
-    } catch let error {
-        continuation.pointee.resume(throwing: error)
-    }
-}
 fileprivate func uniffiFutureCallbackHandlerUInt64(
     rawContinutation: UnsafeRawPointer,
     returnValue: UInt64,
@@ -5129,23 +5139,6 @@ fileprivate func uniffiFutureCallbackHandlerOptionTypeCluster(
         continuation.pointee.resume(throwing: error)
     }
 }
-fileprivate func uniffiFutureCallbackHandlerSequenceTypeContainer(
-    rawContinutation: UnsafeRawPointer,
-    returnValue: RustBuffer,
-    callStatus: RustCallStatus) {
-
-    let continuation = rawContinutation.bindMemory(
-        to: CheckedContinuation<[Container], Error>.self,
-        capacity: 1
-    )
-
-    do {
-        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
-        continuation.pointee.resume(returning: try FfiConverterSequenceTypeContainer.lift(returnValue))
-    } catch let error {
-        continuation.pointee.resume(throwing: error)
-    }
-}
 fileprivate func uniffiFutureCallbackHandlerSequenceTypeNode(
     rawContinutation: UnsafeRawPointer,
     returnValue: RustBuffer,
@@ -5274,8 +5267,8 @@ public func `containerPreview`()  -> Container {
     )
 }
 
-public func `containersPreview`()  -> [Container] {
-    return try!  FfiConverterSequenceTypeContainer.lift(
+public func `containersPreview`()  -> Container {
+    return try!  FfiConverterTypeContainer.lift(
         try! rustCall() {
     uniffi_kube_viewer_fn_func_containers_preview($0)
 }
@@ -5294,15 +5287,6 @@ public func `podPreview`()  -> Pod {
     return try!  FfiConverterTypePod.lift(
         try! rustCall() {
     uniffi_kube_viewer_fn_func_pod_preview($0)
-}
-    )
-}
-
-public func `podRestartCount`(`pod`: Pod)  -> Int32 {
-    return try!  FfiConverterInt32.lift(
-        try! rustCall() {
-    uniffi_kube_viewer_fn_func_pod_restart_count(
-        FfiConverterTypePod.lower(`pod`),$0)
 }
     )
 }
@@ -5334,16 +5318,13 @@ private var initializationResult: InitializationResult {
     if (uniffi_kube_viewer_checksum_func_container_preview() != 7093) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_kube_viewer_checksum_func_containers_preview() != 51117) {
+    if (uniffi_kube_viewer_checksum_func_containers_preview() != 58238) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_func_node_preview() != 63126) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_func_pod_preview() != 22666) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_kube_viewer_checksum_func_pod_restart_count() != 22946) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_func_unix_to_utc_string() != 6226) {
@@ -5419,6 +5400,9 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs_map() != 2970) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_delete_pod() != 1122) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_fetch_pods() != 57451) {

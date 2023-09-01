@@ -27,6 +27,12 @@ use super::global::GlobalViewModel;
 pub enum PodError {
     #[error(transparent)]
     PodLoadError(eyre::Report),
+
+    #[error("pod {0} not found for delete")]
+    PodNotFoundForDelete(PodId),
+
+    #[error("Unable to delete pod {0}: {1}")]
+    PodDeleteError(PodId, kube::Error),
 }
 
 #[uniffi::export(callback_interface)]
@@ -39,6 +45,9 @@ pub enum PodViewModelMessage {
     Loading,
     Loaded { pods: Vec<Pod> },
     LoadingFailed { error: String },
+
+    ToastWarningMessage { message: String },
+    ToastErrorMessage { message: String },
 }
 
 #[derive(Object)]
@@ -79,6 +88,11 @@ impl RustPodViewModel {
                 _ => vec![],
             }
         })
+    }
+
+    pub async fn delete_pod(self: Arc<Self>, selected_cluster: ClusterId, pod_id: PodId) {
+        let actor = self.actor.read().clone();
+        let _ = call!(actor.delete_pod(selected_cluster, pod_id)).await;
     }
 
     pub async fn initialize_model_with_responder(&self, responder: Box<dyn PodViewModelCallback>) {
@@ -177,6 +191,34 @@ impl PodViewModel {
         }
     }
 
+    pub async fn delete_pod(
+        &mut self,
+        selected_cluster: ClusterId,
+        pod_id: PodId,
+    ) -> ActorResult<()> {
+        debug!("deleting pod: {:?}", pod_id);
+
+        let LoadStatus::Loaded(pods) = &self.pods else {
+            return Produces::ok(());
+        };
+
+        let pod = pods
+            .get(&pod_id)
+            .cloned()
+            .ok_or_else(|| PodError::PodNotFoundForDelete(pod_id.clone()))?;
+
+        let client = GlobalViewModel::global()
+            .read()
+            .get_cluster_client(&selected_cluster)
+            .ok_or_else(|| eyre!("client not found"))?;
+
+        kubernetes::pod::delete(client, &pod)
+            .await
+            .map_err(|e| PodError::PodDeleteError(pod_id, e))?;
+
+        Produces::ok(())
+    }
+
     pub async fn add_callback_listener(&mut self, responder: Box<dyn PodViewModelCallback>) {
         self.responder = Some(responder);
     }
@@ -259,7 +301,7 @@ impl PodViewModel {
     }
 
     pub async fn deleted(&mut self, pod: Pod) -> ActorResult<()> {
-        debug!("pod deleted: {:?}", pod.id);
+        debug!("deleted: {:?}", pod.id);
 
         let LoadStatus::Loaded(pods) = &mut self.pods else {
             return Produces::ok(());
@@ -294,9 +336,20 @@ impl PodViewModel {
 
 impl From<PodError> for PodViewModelMessage {
     fn from(error: PodError) -> Self {
+        use PodError as E;
+        use PodViewModelMessage as Msg;
+
         match error {
-            PodError::PodLoadError(e) => PodViewModelMessage::LoadingFailed {
+            E::PodLoadError(e) => Msg::LoadingFailed {
                 error: e.to_string(),
+            },
+
+            E::PodNotFoundForDelete(pod_id) => Msg::ToastWarningMessage {
+                message: format!("Pod with id ({pod_id}) not found, unable to delete"),
+            },
+
+            E::PodDeleteError(pod_id, error) => Msg::ToastErrorMessage {
+                message: format!("Unable to delete pod with id ({pod_id}), error: {error:?}"),
             },
         }
     }

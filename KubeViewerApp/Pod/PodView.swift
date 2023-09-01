@@ -167,7 +167,14 @@ struct PodView: View {
                 isPresented: self.$isConfirmingDeletePod, presenting: self.podIdsToDelete
             ) { _ in
                 Button(role: .destructive) {
-                    // Handle import action.
+                    if let selectedCluster = self.mainViewModel.selectedCluster,
+                       let podId = self.podIdsToDelete.first
+                    {
+                        Task {
+                            print("[swift] Deleting pod", podId)
+                            await self.model.data.deletePod(selectedCluster: selectedCluster.id, podId: podId)
+                        }
+                    }
                 } label: {
                     Text("Delete")
                 }

@@ -1254,6 +1254,7 @@ dependencies = [
  "chrono",
  "crossbeam",
  "derive_more",
+ "either",
  "env_logger",
  "etcetera",
  "eyre",

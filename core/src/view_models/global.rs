@@ -110,6 +110,7 @@ fn init_logging() {
 
     let mut builder = Builder::new();
     builder
+        .parse_env("RUST_LOG")
         .filter_module("kube_viewer::timestamps", LevelFilter::Info)
         .filter_module("kube_viewer::kubernetes::pod_uniffi", LevelFilter::Info);
 

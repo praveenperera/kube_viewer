@@ -2,12 +2,13 @@ use std::collections::HashMap;
 
 use crate::{cluster::ClusterId, view_models::pod::PodViewModel, UniffiCustomTypeConverter};
 use act_zero::{call, Addr};
-use derive_more::From;
+use derive_more::{AsRef, Display, From};
+use either::Either;
 use eyre::Result;
 use fake::{Dummy, Fake, Faker};
 use futures::{StreamExt, TryStreamExt};
 use k8s_openapi::api::core::v1::Pod as K8sPod;
-use kube::{Api, Client};
+use kube::{api::DeleteParams, core::Status, Api, Client};
 use log::debug;
 use rand::{distributions::Alphanumeric, Rng};
 use serde::{Deserialize, Serialize};
@@ -23,7 +24,20 @@ use super::{core::OwnerReference, core::Toleration};
 #[derive(uniffi::CustomType)]
 #[uniffi(newtype=String)]
 #[derive(
-    Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, From, Hash, Serialize, Deserialize, Dummy,
+    Debug,
+    Clone,
+    Default,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    From,
+    Hash,
+    Serialize,
+    Deserialize,
+    Dummy,
+    Display,
+    AsRef,
 )]
 pub struct PodId(String);
 
@@ -364,6 +378,14 @@ pub async fn get_all(client: Client) -> Result<HashMap<PodId, Pod>> {
         .collect();
 
     Ok(pods_hash_map)
+}
+
+pub async fn delete(client: Client, pod: &Pod) -> Result<Either<K8sPod, Status>, kube::Error> {
+    let pods_api: Api<K8sPod> = Api::namespaced(client, &pod.namespace);
+
+    pods_api
+        .delete(pod.id.as_ref(), &DeleteParams::default())
+        .await
 }
 
 pub async fn watch(

@@ -9,7 +9,7 @@ import Foundation
 
 extension Pod: Identifiable, CreatedAt, AgeTimestamp {
     func totalRestarts() -> Int32 {
-        podRestartCount(pod: self)
+        self.containers.map { c in c.restartCount }.reduce(0, +)
     }
 }
 
