@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContainerStatePopoverView: View {
+    let name: String
     let state: ContainerState
 
     var body: some View {
@@ -24,6 +25,13 @@ struct ContainerStatePopoverView: View {
     func renderRunning(_ data: ContainerStateRunning) -> some View {
         VStack {
             Text("Running").padding(.bottom, 6).bold()
+
+            HStack {
+                Text("Name: ").bold()
+                Text(name)
+                Spacer()
+            }.padding(.bottom, 2)
+
             HStack {
                 Text("Started At: ").bold()
                 Text(unixToUtcString(unix: data.startedAt) ?? "")
@@ -35,6 +43,12 @@ struct ContainerStatePopoverView: View {
     func renderTerminated(_ data: ContainerStateTerminated) -> some View {
         VStack {
             Text("Terminated").padding(.bottom, 6).bold()
+
+            HStack {
+                Text("Name: ").bold()
+                Text(name)
+                Spacer()
+            }.padding(.bottom, 2)
 
             HStack {
                 Text("Started At: ").bold()
@@ -75,6 +89,13 @@ struct ContainerStatePopoverView: View {
     func renderWaiting(_ data: ContainerStateWaiting) -> some View {
         VStack {
             Text("Waiting").padding(.bottom, 6).bold()
+
+            HStack {
+                Text("Name: ").bold()
+                Text(name)
+                Spacer()
+            }.padding(.bottom, 2)
+
             if let reason = data.reason {
                 HStack {
                     Text("Reason: ").bold()
@@ -95,13 +116,16 @@ struct ContainerStatePopoverView: View {
 
 struct ContainerStatePopoverView_Previews: PreviewProvider {
     static var previews: some View {
-        ContainerStatePopoverView(state: podContainerStateRunning()).previewDisplayName("Running")
+        ContainerStatePopoverView(name: "long-container-name", state: podContainerStateRunning())
+            .previewDisplayName("Running")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-        ContainerStatePopoverView(state: podContainerStateTerminated()).previewDisplayName("Terminated")
+        ContainerStatePopoverView(name: "long-container-name", state: podContainerStateTerminated())
+            .previewDisplayName("Terminated")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-        ContainerStatePopoverView(state: podContainerStateWaiting()).previewDisplayName("Waiting")
+        ContainerStatePopoverView(name: "long-container-name", state: podContainerStateWaiting())
+            .previewDisplayName("Waiting")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

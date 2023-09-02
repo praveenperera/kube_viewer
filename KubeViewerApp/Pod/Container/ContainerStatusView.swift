@@ -23,11 +23,6 @@ struct ContainerStatusView: View {
 
     var body: some View {
         switch container.state {
-        case .none:
-            RoundedRectangle(cornerRadius: 4)
-                .fill(stateColor)
-                .frame(width: 16)
-
         case let .some(containerState):
             PopoverWithDelayView(
                 content: {
@@ -36,12 +31,15 @@ struct ContainerStatusView: View {
                         .frame(width: 16)
                 },
                 popover: {
-                    ContainerStatePopoverView(state: containerState)
+                    ContainerStatePopoverView(name: container.name, state: containerState)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
                 },
                 delay: 100
             )
+
+        case .none:
+            EmptyView()
         }
     }
 }
