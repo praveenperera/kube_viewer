@@ -5091,6 +5091,23 @@ fileprivate func uniffiFutureCallbackHandlerTypePod(
         continuation.pointee.resume(throwing: error)
     }
 }
+fileprivate func uniffiFutureCallbackHandlerTypeContainerState(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<ContainerState, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterTypeContainerState.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
 fileprivate func uniffiFutureCallbackHandlerTypeFocusRegion(
     rawContinutation: UnsafeRawPointer,
     returnValue: RustBuffer,
@@ -5303,6 +5320,30 @@ public func `nodePreview`()  -> Node {
     )
 }
 
+public func `podContainerStateRunning`()  -> ContainerState {
+    return try!  FfiConverterTypeContainerState.lift(
+        try! rustCall() {
+    uniffi_kube_viewer_fn_func_pod_container_state_running($0)
+}
+    )
+}
+
+public func `podContainerStateTerminated`()  -> ContainerState {
+    return try!  FfiConverterTypeContainerState.lift(
+        try! rustCall() {
+    uniffi_kube_viewer_fn_func_pod_container_state_terminated($0)
+}
+    )
+}
+
+public func `podContainerStateWaiting`()  -> ContainerState {
+    return try!  FfiConverterTypeContainerState.lift(
+        try! rustCall() {
+    uniffi_kube_viewer_fn_func_pod_container_state_waiting($0)
+}
+    )
+}
+
 public func `podPreview`()  -> Pod {
     return try!  FfiConverterTypePod.lift(
         try! rustCall() {
@@ -5342,6 +5383,15 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_func_node_preview() != 63126) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_func_pod_container_state_running() != 20914) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_func_pod_container_state_terminated() != 30541) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_func_pod_container_state_waiting() != 8164) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_func_pod_preview() != 22666) {

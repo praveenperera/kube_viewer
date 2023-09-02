@@ -70,7 +70,11 @@ struct PodView: View {
         }
         .toast(isPresenting: self.$toastErrorIsShowing, duration: 10,
                alert: {
-                   AlertToast(displayMode: .hud, type: .error(Color.red), title: self.model.toastError ?? "Unknown erorr")
+                   AlertToast(
+                       displayMode: .hud,
+                       type: .error(Color.red),
+                       title: self.model.toastError ?? "Unknown erorr"
+                   )
                },
                onTap: {
                    self.toastErrorIsShowing = false
@@ -82,8 +86,11 @@ struct PodView: View {
                })
         .toast(isPresenting: self.$toastWarningIsShowing,
                alert: {
-                   AlertToast(displayMode: .hud, type: .systemImage("exclamationmark.triangle.fill", Color.yellow),
-                              title: self.model.toastError ?? "Unknown erorr")
+                   AlertToast(
+                       displayMode: .hud,
+                       type: .systemImage("exclamationmark.triangle.fill", Color.yellow),
+                       title: self.model.toastError ?? "Unknown erorr"
+                   )
                },
                onTap: {
                    self.toastWarningIsShowing = false

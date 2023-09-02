@@ -176,6 +176,15 @@ RustBuffer uniffi_kube_viewer_fn_func_containers_preview(RustCallStatus *_Nonnul
 RustBuffer uniffi_kube_viewer_fn_func_node_preview(RustCallStatus *_Nonnull out_status
     
 );
+RustBuffer uniffi_kube_viewer_fn_func_pod_container_state_running(RustCallStatus *_Nonnull out_status
+    
+);
+RustBuffer uniffi_kube_viewer_fn_func_pod_container_state_terminated(RustCallStatus *_Nonnull out_status
+    
+);
+RustBuffer uniffi_kube_viewer_fn_func_pod_container_state_waiting(RustCallStatus *_Nonnull out_status
+    
+);
 RustBuffer uniffi_kube_viewer_fn_func_pod_preview(RustCallStatus *_Nonnull out_status
     
 );
@@ -196,6 +205,15 @@ uint16_t uniffi_kube_viewer_checksum_func_containers_preview(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_func_node_preview(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_pod_container_state_running(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_pod_container_state_terminated(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_pod_container_state_waiting(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_func_pod_preview(void

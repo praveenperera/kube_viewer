@@ -116,23 +116,23 @@ pub enum Phase {
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct ContainerStateRunning {
-    started_at: i64,
+    pub started_at: i64,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct ContainerStateTerminated {
-    started_at: i64,
-    finished_at: i64,
-    exit_code: i32,
-    message: Option<String>,
-    reason: Option<String>,
-    signal: Option<i32>,
+    pub started_at: i64,
+    pub finished_at: i64,
+    pub exit_code: i32,
+    pub message: Option<String>,
+    pub reason: Option<String>,
+    pub signal: Option<i32>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct ContainerStateWaiting {
-    message: Option<String>,
-    reason: Option<String>,
+    pub message: Option<String>,
+    pub reason: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]

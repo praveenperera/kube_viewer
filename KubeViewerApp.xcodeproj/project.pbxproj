@@ -17,6 +17,7 @@
 		AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */; };
 		AC186F932A40FD1F00AC20A9 /* NodeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */; };
 		AC2E0EFC2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC2E0EFB2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift */; };
+		AC2E0EFE2AA2821A00ED92C3 /* ContainerStatePopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC2E0EFD2AA2821A00ED92C3 /* ContainerStatePopoverView.swift */; };
 		AC3995D22A6879450063A3E7 /* DetailDropDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3995D12A6879450063A3E7 /* DetailDropDownView.swift */; };
 		AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D66299B325000429CDB /* RustPublished.swift */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
@@ -91,6 +92,7 @@
 		AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalViewModel.swift; sourceTree = "<group>"; };
 		AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDetailView.swift; sourceTree = "<group>"; };
 		AC2E0EFB2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodDeleteConfirmMessageView.swift; sourceTree = "<group>"; };
+		AC2E0EFD2AA2821A00ED92C3 /* ContainerStatePopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerStatePopoverView.swift; sourceTree = "<group>"; };
 		AC3995D12A6879450063A3E7 /* DetailDropDownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailDropDownView.swift; sourceTree = "<group>"; };
 		AC3F4D66299B325000429CDB /* RustPublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustPublished.swift; sourceTree = "<group>"; };
 		AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalBinding.swift; sourceTree = "<group>"; };
@@ -218,6 +220,7 @@
 			children = (
 				ACB933702A992E6400039659 /* ContainerView.swift */,
 				ACB9336E2A992E3D00039659 /* ContainerStatusView.swift */,
+				AC2E0EFD2AA2821A00ED92C3 /* ContainerStatePopoverView.swift */,
 			);
 			path = Container;
 			sourceTree = "<group>";
@@ -474,6 +477,7 @@
 				ACFE71B82A30E8C400A767EE /* Node.swift in Sources */,
 				AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */,
 				AC186F932A40FD1F00AC20A9 /* NodeDetailView.swift in Sources */,
+				AC2E0EFE2AA2821A00ED92C3 /* ContainerStatePopoverView.swift in Sources */,
 				AC59E5CF2A9908D5005458C5 /* PopoverWithDelayView.swift in Sources */,
 				AC9534A129F4BB0F0082155D /* NodeView.swift in Sources */,
 				ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */,

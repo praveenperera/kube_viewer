@@ -36,37 +36,13 @@ struct ContainerStatusView: View {
                         .frame(width: 16)
                 },
                 popover: {
-                    containerStatePopover(state: containerState)
+                    ContainerStatePopoverView(state: containerState)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
                 },
                 delay: 100
             )
         }
-    }
-
-    @ViewBuilder
-    func containerStatePopover(state: ContainerState) -> some View {
-        switch state {
-        case let .running(data: running):
-            renderRunning(running)
-        case let .terminated(data: terminated):
-            renderTerminated(terminated)
-        case let .waiting(data: waiting):
-            renderWaiting(waiting)
-        }
-    }
-
-    func renderRunning(_ data: ContainerStateRunning) -> some View {
-        Text("Running")
-    }
-
-    func renderTerminated(_ data: ContainerStateTerminated) -> some View {
-        Text("Terminated")
-    }
-
-    func renderWaiting(_ data: ContainerStateWaiting) -> some View {
-        Text("Waiting")
     }
 }
 
