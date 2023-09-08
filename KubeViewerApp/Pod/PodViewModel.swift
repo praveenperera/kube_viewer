@@ -23,10 +23,21 @@ class PodViewModel: ObservableObject, PodViewModelCallback {
     }
 
     func getDataAndSetupWatcher(_ selectedCluster: ClusterId) async {
-        // idempotent function
         await self.data.initializeModelWithResponder(responder: self)
         await self.data.fetchPods(selectedCluster: selectedCluster)
         await self.data.startWatcher(selectedCluster: selectedCluster)
+    }
+
+    func deletePods(selectedCluster: ClusterId, podIds: Set<Pod.ID>) async {
+        if podIds.isEmpty {
+            return
+        }
+
+        if podIds.count == 1 {
+            return await self.data.deletePod(selectedCluster: selectedCluster, podId: podIds.first!)
+        }
+
+        await self.data.deletePods(selectedCluster: selectedCluster, podIds: Array(podIds))
     }
 
     @MainActor

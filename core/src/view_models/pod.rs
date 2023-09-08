@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc, time::Duration};
+use std::{borrow::Cow, collections::HashMap, sync::Arc, time::Duration};
 
 use k8s_openapi::api::core::v1::Pod as K8sPod;
 
@@ -213,16 +213,18 @@ impl PodViewModel {
     pub async fn delete_pod(
         &mut self,
         selected_cluster: ClusterId,
-        pod_id: PodId,
+        pod_id: impl Into<Cow<'_, PodId>>,
     ) -> ActorResult<()> {
-        debug!("deleting pod: {:?}", pod_id);
+        let pod_id: Cow<'_, PodId> = pod_id.into();
+        let pod_id = pod_id.as_ref();
 
+        debug!("deleting pod: {:?}", pod_id);
         let LoadStatus::Loaded(pods) = &self.pods else {
-            return Produces::ok(());
+            return Err(eyre::eyre!("pods not loaded").into());
         };
 
         let pod = pods
-            .get(&pod_id)
+            .get(pod_id)
             .cloned()
             .ok_or_else(|| PodError::PodNotFoundForDelete(pod_id.clone()))?;
 
@@ -241,6 +243,14 @@ impl PodViewModel {
         selected_cluster: ClusterId,
         pod_ids: Vec<PodId>,
     ) -> ActorResult<()> {
+        if pod_ids.is_empty() {
+            return Produces::ok(());
+        }
+
+        if pod_ids.len() == 1 {
+            return self.delete_pod(selected_cluster, &pod_ids[0]).await;
+        }
+
         debug!("deleting pods: {:?}", pod_ids);
         let LoadStatus::Loaded(pods) = &self.pods else {
             return Err(eyre::eyre!("pods not loaded").into());

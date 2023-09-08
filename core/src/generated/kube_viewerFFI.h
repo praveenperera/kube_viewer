@@ -32,7 +32,7 @@ typedef struct RustBuffer
 typedef int32_t (*ForeignCallback)(uint64_t, int32_t, const uint8_t *_Nonnull, int32_t, RustBuffer *_Nonnull);
 
 // Task defined in Rust that Swift executes
-typedef void (*UniFfiRustTaskCallback)(const void * _Nullable);
+typedef void (*UniFfiRustTaskCallback)(const void * _Nullable, int8_t);
 
 // Callback to execute Rust tasks using a Swift Task
 //
@@ -41,7 +41,7 @@ typedef void (*UniFfiRustTaskCallback)(const void * _Nullable);
 //   delay: Delay in MS
 //   task: UniFfiRustTaskCallback to call
 //   task_data: data to pass the task callback
-typedef void (*UniFfiForeignExecutorCallback)(size_t, uint32_t, UniFfiRustTaskCallback _Nullable, const void * _Nullable);
+typedef int8_t (*UniFfiForeignExecutorCallback)(size_t, uint32_t, UniFfiRustTaskCallback _Nullable, const void * _Nullable);
 
 typedef struct ForeignBytes
 {
@@ -148,6 +148,8 @@ void*_Nonnull uniffi_kube_viewer_fn_constructor_rustpodviewmodel_preview(RustCal
     
 );
 void uniffi_kube_viewer_fn_method_rustpodviewmodel_delete_pod(void*_Nonnull ptr, RustBuffer selected_cluster, RustBuffer pod_id, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
+);
+void uniffi_kube_viewer_fn_method_rustpodviewmodel_delete_pods(void*_Nonnull ptr, RustBuffer selected_cluster, RustBuffer pod_ids, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
 );
 void uniffi_kube_viewer_fn_method_rustpodviewmodel_fetch_pods(void*_Nonnull ptr, RustBuffer selected_cluster, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
 );
@@ -297,6 +299,9 @@ uint16_t uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs_map(void
 uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_delete_pod(void
     
 );
+uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_delete_pods(void
+    
+);
 uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_fetch_pods(void
     
 );
@@ -345,7 +350,7 @@ uint16_t uniffi_kube_viewer_checksum_method_nodeviewmodelcallback_callback(void
 uint16_t uniffi_kube_viewer_checksum_method_podviewmodelcallback_callback(void
     
 );
-void uniffi_foreign_executor_callback_set(UniFfiForeignExecutorCallback _Nonnull callback
+void ffi_kube_viewer_foreign_executor_callback_set(UniFfiForeignExecutorCallback _Nonnull callback
 );
 uint32_t ffi_kube_viewer_uniffi_contract_version(void
     

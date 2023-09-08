@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 use crate::{cluster::ClusterId, view_models::pod::PodViewModel};
 use act_zero::{call, Addr};
@@ -45,6 +45,18 @@ uniffi::custom_newtype!(PodId, String);
     AsRef,
 )]
 pub struct PodId(String);
+
+impl From<PodId> for Cow<'_, PodId> {
+    fn from(pod_id: PodId) -> Self {
+        Cow::Owned(pod_id)
+    }
+}
+
+impl<'a> From<&'a PodId> for Cow<'a, PodId> {
+    fn from(pod_id: &'a PodId) -> Self {
+        Cow::Borrowed(pod_id)
+    }
+}
 
 uniffi::custom_newtype!(ContainerId, String);
 #[derive(
