@@ -1,8 +1,12 @@
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
+use k8s_openapi::api::core::v1::Pod as K8sPod;
+
+use either::Either;
 use eyre::eyre;
 use fake::{Fake, Faker};
-use kube::Client;
+use futures::{stream::FuturesUnordered, StreamExt};
+use kube::{core::Status, Client};
 use log::{debug, error, warn};
 use parking_lot::RwLock;
 use thiserror::Error;
@@ -33,6 +37,16 @@ pub enum PodError {
 
     #[error("Unable to delete pod {0}: {1}")]
     PodDeleteError(PodId, kube::Error),
+}
+
+impl From<kubernetes::pod::Error> for PodError {
+    fn from(error: kubernetes::pod::Error) -> Self {
+        match error {
+            kubernetes::pod::Error::DeleteError(pod_id, error) => {
+                PodError::PodDeleteError(pod_id, error)
+            }
+        }
+    }
 }
 
 #[uniffi::export(callback_interface)]
@@ -93,6 +107,11 @@ impl RustPodViewModel {
     pub async fn delete_pod(self: Arc<Self>, selected_cluster: ClusterId, pod_id: PodId) {
         let actor = self.actor.read().clone();
         let _ = call!(actor.delete_pod(selected_cluster, pod_id)).await;
+    }
+
+    pub async fn delete_pods(self: Arc<Self>, selected_cluster: ClusterId, pod_ids: Vec<PodId>) {
+        let actor = self.actor.read().clone();
+        let _ = call!(actor.delete_pods(selected_cluster, pod_ids)).await;
     }
 
     pub async fn initialize_model_with_responder(&self, responder: Box<dyn PodViewModelCallback>) {
@@ -212,9 +231,61 @@ impl PodViewModel {
             .get_cluster_client(&selected_cluster)
             .ok_or_else(|| eyre!("client not found"))?;
 
-        kubernetes::pod::delete(client, &pod)
+        kubernetes::pod::delete(client, &pod).await?;
+
+        Produces::ok(())
+    }
+
+    pub async fn delete_pods(
+        &mut self,
+        selected_cluster: ClusterId,
+        pod_ids: Vec<PodId>,
+    ) -> ActorResult<()> {
+        debug!("deleting pods: {:?}", pod_ids);
+        let LoadStatus::Loaded(pods) = &self.pods else {
+            return Err(eyre::eyre!("pods not loaded").into());
+        };
+
+        let grouped: HashMap<String, Vec<PodId>> = pod_ids
+            .into_iter()
+            .filter_map(|pod_id| {
+                let namespace = pods.get(&pod_id).as_ref()?.namespace.clone();
+                Some((namespace, pod_id))
+            })
+            .fold(HashMap::new(), |mut acc, (namespace, pod_id)| {
+                acc.entry(namespace).or_insert_with(Vec::new).push(pod_id);
+                acc
+            });
+
+        let client = GlobalViewModel::global()
+            .read()
+            .get_cluster_client(&selected_cluster)
+            .ok_or_else(|| eyre!("client not found"))?;
+
+        let results: Vec<Result<Either<K8sPod, Status>, kubernetes::pod::Error>> = grouped
+            .into_iter()
+            .map(|(namespace, pod_ids)| {
+                let client = client.clone();
+                tokio::spawn(async move {
+                    kubernetes::pod::delete_list_in_namespace(client, &namespace, pod_ids).await
+                })
+            })
+            .collect::<FuturesUnordered<_>>()
+            .collect::<Vec<_>>()
             .await
-            .map_err(|e| PodError::PodDeleteError(pod_id, e))?;
+            .into_iter()
+            .filter_map(Result::ok)
+            .flatten()
+            .collect();
+
+        // send any errors as messages to the front end
+        for result in results {
+            if let Err(kubernetes::pod::Error::DeleteError(pod_id, error)) = result {
+                error!("failed to delete pod ({pod_id}): {error:?}");
+                self.callback(PodError::PodDeleteError(pod_id, error).into())
+                    .await
+            }
+        }
 
         Produces::ok(())
     }
