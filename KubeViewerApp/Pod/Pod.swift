@@ -11,6 +11,14 @@ extension Pod: Identifiable, CreatedAt, AgeTimestamp {
     func totalRestarts() -> Int32 {
         self.containers.map { c in c.restartCount }.reduce(0, +)
     }
+
+    var logCmd: String {
+        podLogCmd(namespace: self.namespace, podId: self.id)
+    }
+
+    var containerExecCmd: String {
+        podExecCmd(namespace: self.namespace, podId: self.id)
+    }
 }
 
 extension Phase: RawValue {

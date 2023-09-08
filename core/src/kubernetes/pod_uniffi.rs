@@ -57,3 +57,13 @@ pub fn pod_container_state_terminated() -> ContainerState {
         },
     }
 }
+
+#[uniffi::export]
+pub fn pod_log_cmd(namespace: String, pod_id: String) -> String {
+    format!("kubectl logs {pod_id} -f -n {namespace}")
+}
+
+#[uniffi::export]
+pub fn pod_exec_cmd(namespace: String, pod_id: String) -> String {
+    format!("kubectl exec -it -n {namespace} {pod_id} -- bash || sh")
+}

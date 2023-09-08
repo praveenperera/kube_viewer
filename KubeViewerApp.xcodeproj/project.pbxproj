@@ -32,6 +32,7 @@
 		AC65E77829A7DE3F00F3A7CE /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = AC65E77729A7DE3F00F3A7CE /* KeyboardShortcuts */; };
 		AC65E77D29A9278600F3A7CE /* StandardFocusRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC65E77C29A9278600F3A7CE /* StandardFocusRing.swift */; };
 		AC71A3182A83F7270064481F /* DeploymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC71A3172A83F7270064481F /* DeploymentView.swift */; };
+		AC88F81C2AABC8A000F910A2 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC88F81B2AABC8A000F910A2 /* Clipboard.swift */; };
 		AC8ABA0429A01BF300C7F6D5 /* SidebarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */; };
 		AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */; };
 		AC95349E29F4B8200082155D /* NodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC95349D29F4B8200082155D /* NodeViewModel.swift */; };
@@ -106,6 +107,7 @@
 		AC65E77429A7DCC200F3A7CE /* KeyAware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyAware.swift; sourceTree = "<group>"; };
 		AC65E77C29A9278600F3A7CE /* StandardFocusRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardFocusRing.swift; sourceTree = "<group>"; };
 		AC71A3172A83F7270064481F /* DeploymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentView.swift; sourceTree = "<group>"; };
+		AC88F81B2AABC8A000F910A2 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
 		AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarButton.swift; sourceTree = "<group>"; };
 		AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTitle.swift; sourceTree = "<group>"; };
 		AC95349D29F4B8200082155D /* NodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModel.swift; sourceTree = "<group>"; };
@@ -252,6 +254,7 @@
 				ACB49CB22A32715200488B72 /* NodeComparators.swift */,
 				AC4ED31D2A859B98000BB612 /* PodComparators.swift */,
 				AC59E5CC2A99066C005458C5 /* Task.swift */,
+				AC88F81B2AABC8A000F910A2 /* Clipboard.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -505,6 +508,7 @@
 				AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */,
 				AC0EA48D2A7C099B001933C6 /* Pod.swift in Sources */,
 				AC0EA4912A7C2C49001933C6 /* PodDetailView.swift in Sources */,
+				AC88F81C2AABC8A000F910A2 /* Clipboard.swift in Sources */,
 				ACD5D6A82A737255002E2F05 /* PodViewModel.swift in Sources */,
 				AC1651B829874DB000CBC220 /* Theme.swift in Sources */,
 				ACB49CB12A32694100488B72 /* GeneralComparators.swift in Sources */,

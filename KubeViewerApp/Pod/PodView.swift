@@ -175,6 +175,39 @@ struct PodView: View {
                                 } label: {
                                     Text("Delete")
                                 }
+
+                                Divider()
+
+                                if self.selectedPods.count == 1 {
+                                    Button {
+                                        Clipboard.general.copyText(pod.id)
+                                    } label: {
+                                        Text("Copy Pod Name")
+                                    }
+
+                                    Divider()
+
+                                    Button {
+                                        Clipboard.general.copyText(pod.logCmd)
+                                    } label: {
+                                        Text("Copy Logs Command")
+                                    }
+
+                                    Button {
+                                        Clipboard.general.copyText(pod.containerExecCmd)
+                                    } label: {
+                                        Text("Copy Exec Command")
+                                    }
+                                }
+
+                                if self.selectedPods.count > 1 {
+                                    Button {
+                                        self.selectedPods.insert(pod.id)
+                                        Clipboard.general.copyText(self.selectedPods.joined(separator: ", "))
+                                    } label: {
+                                        Text("Copy Pod Names")
+                                    }
+                                }
                             }
                     }
                 }
@@ -218,7 +251,6 @@ struct PodView: View {
                 } label: {
                     Text("Delete")
                 }
-
                 Button("Cancel", role: .cancel) {
                     self.podIdsToDelete = []
                 }

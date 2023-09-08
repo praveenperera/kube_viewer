@@ -12,21 +12,25 @@ struct TaintView: View {
     @State private var isHovering: Bool = false
 
     var body: some View {
-        Text(String(taints.count))
-            .onHover { hovering in isHovering = hovering }
-            .popover(isPresented: $isHovering) {
-                ForEach(taints, id: \.hashValue) { taint in
-                    VStack {
-                        if taint.effect.isEmpty {
-                            Text(taint.key).padding()
-                        } else {
-                            Text("\(taint.key)=\(taint.effect)")
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
+        if taints.isEmpty {
+            Text("0")
+        } else {
+            Text(String(taints.count))
+                .onHover { hovering in isHovering = hovering }
+                .popover(isPresented: $isHovering) {
+                    ForEach(taints, id: \.hashValue) { taint in
+                        VStack {
+                            if taint.effect.isEmpty {
+                                Text(taint.key).padding()
+                            } else {
+                                Text("\(taint.key)=\(taint.effect)")
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 12)
+                            }
                         }
                     }
                 }
-            }
+        }
     }
 }
 

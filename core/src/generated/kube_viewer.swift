@@ -5012,6 +5012,23 @@ fileprivate func uniffiFutureCallbackHandlerBool(
         continuation.pointee.resume(throwing: error)
     }
 }
+fileprivate func uniffiFutureCallbackHandlerString(
+    rawContinutation: UnsafeRawPointer,
+    returnValue: RustBuffer,
+    callStatus: RustCallStatus) {
+
+    let continuation = rawContinutation.bindMemory(
+        to: CheckedContinuation<String, Error>.self,
+        capacity: 1
+    )
+
+    do {
+        try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: nil)
+        continuation.pointee.resume(returning: try FfiConverterString.lift(returnValue))
+    } catch let error {
+        continuation.pointee.resume(throwing: error)
+    }
+}
 fileprivate func uniffiFutureCallbackHandlerTypeFocusRegionHasher(
     rawContinutation: UnsafeRawPointer,
     returnValue: UnsafeMutableRawPointer,
@@ -5401,6 +5418,26 @@ public func podContainerStateWaiting()  -> ContainerState {
     )
 }
 
+public func podExecCmd(namespace: String, podId: String)  -> String {
+    return try!  FfiConverterString.lift(
+        try! rustCall() {
+    uniffi_kube_viewer_fn_func_pod_exec_cmd(
+        FfiConverterString.lower(namespace),
+        FfiConverterString.lower(podId),$0)
+}
+    )
+}
+
+public func podLogCmd(namespace: String, podId: String)  -> String {
+    return try!  FfiConverterString.lift(
+        try! rustCall() {
+    uniffi_kube_viewer_fn_func_pod_log_cmd(
+        FfiConverterString.lower(namespace),
+        FfiConverterString.lower(podId),$0)
+}
+    )
+}
+
 public func podPreview()  -> Pod {
     return try!  FfiConverterTypePod.lift(
         try! rustCall() {
@@ -5449,6 +5486,12 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_func_pod_container_state_waiting() != 8164) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_func_pod_exec_cmd() != 38122) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_func_pod_log_cmd() != 16844) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_func_pod_preview() != 22666) {
