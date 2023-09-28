@@ -11,8 +11,9 @@ import SwiftUI
 struct PodView: View {
     let windowId: UUID
     @Environment(\.colorScheme) var colorScheme
-    @Bindable var globalModel: GlobalModel
+    @ObservedObject var globalModel: GlobalModel
     @ObservedObject var mainViewModel: MainViewModel
+
     var model: PodViewModel
 
     @State private var isLoading: Bool = false
@@ -30,6 +31,8 @@ struct PodView: View {
 
     @State private var toastWarningIsShowing: Bool = false
     @State private var toastErrorIsShowing: Bool = false
+
+    @State private var searchText = ""
 
     var podIsSelected: Bool {
         self.selectedPods.count == 1
@@ -218,9 +221,25 @@ struct PodView: View {
                     ToolbarItem(placement: .navigation) {
                         VStack {
                             Text("Pods").font(.headline)
+                            Text("^[\(self.pods.count) pod](inflect: true)")
+                                .font(.caption)
+                                .foregroundColor(Color.gray)
                         }
                     }
+
+                    ToolbarItem(placement: .secondaryAction) {
+                        Text("")
+                    }
+
+                    ToolbarItem(placement: .status) {
+                        Text("")
+                    }
+
+                    ToolbarItem(placement: .primaryAction) {
+                        Text("")
+                    }
                 }
+                .searchable(text: self.$searchText)
 
                 PodDetailView(geo: geo,
                               selectedPod: self.selectedPod,
