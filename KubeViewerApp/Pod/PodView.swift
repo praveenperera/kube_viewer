@@ -11,25 +11,25 @@ import SwiftUI
 struct PodView: View {
     let windowId: UUID
     @Environment(\.colorScheme) var colorScheme
-    @ObservedObject var globalModel: GlobalModel
+    @Bindable var globalModel: GlobalModel
     @ObservedObject var mainViewModel: MainViewModel
-    @ObservedObject var model: PodViewModel
+    var model: PodViewModel
 
-    @State var isLoading: Bool = false
-    @State var pods: [Pod] = []
+    @State private var isLoading: Bool = false
+    @State private var pods: [Pod] = []
 
     @State private var sortOrder = [KeyPathComparator(\Pod.name)]
     @State private var selectedPods = Set<Pod.ID>()
 
-    @State var detailsWidth: CGFloat = 300
-    @State var detailsResized: Bool = false
-    @State var isDetailsHover = false
+    @State private var detailsWidth: CGFloat = 300
+    @State private var detailsResized: Bool = false
+    @State private var isDetailsHover = false
 
-    @State var isConfirmingDeletePod: Bool = false
-    @State var podIdsToDelete: Set<Pod.ID> = []
+    @State private var isConfirmingDeletePod: Bool = false
+    @State private var podIdsToDelete: Set<Pod.ID> = []
 
-    @State var toastWarningIsShowing: Bool = false
-    @State var toastErrorIsShowing: Bool = false
+    @State private var toastWarningIsShowing: Bool = false
+    @State private var toastErrorIsShowing: Bool = false
 
     var podIsSelected: Bool {
         self.selectedPods.count == 1

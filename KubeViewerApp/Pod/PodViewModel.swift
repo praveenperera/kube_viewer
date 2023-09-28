@@ -8,14 +8,14 @@ import Combine
 import Foundation
 import SwiftUI
 
-class PodViewModel: ObservableObject, PodViewModelCallback {
+@Observable class PodViewModel: PodViewModelCallback {
     let windowId: UUID
-    var data: RustPodViewModel
+    let data: RustPodViewModel
 
-    @Published var pods: LoadStatus<[Pod]> = .initial
+    var pods: LoadStatus<[Pod]> = .initial
 
-    @Published var toastWarning: String? = nil
-    @Published var toastError: String? = nil
+    var toastWarning: String? = nil
+    var toastError: String? = nil
 
     init(windowId: UUID) {
         self.windowId = windowId
