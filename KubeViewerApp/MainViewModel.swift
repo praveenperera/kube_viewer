@@ -10,11 +10,11 @@ import Foundation
 import SwiftUI
 
 class MainViewModel: ObservableObject {
-    var windowId: UUID
-    var listener: Listener?
-    var data: RustMainViewModel
-    var tabs: [Tab]
-    var tabsMap: [TabId: Tab]
+    let windowId: UUID
+    private var listener: Listener?
+    let data: RustMainViewModel
+    let tabs: [Tab]
+    let tabsMap: [TabId: Tab]
 
     @Published var selectedMainTab: NSWindow?
     @Published var tabContentViews: [TabId: TabContentView]
@@ -32,6 +32,7 @@ class MainViewModel: ObservableObject {
         self.tabs = self.data.tabs()
         self.tabsMap = self.data.tabsMap()
         self.search = ""
+        self.listener = nil
 
         self.tabContentViews = self.tabsMap.mapValues { tab in TabContentView(text: tab.name) }
         self.tabViewModels = self.tabsMap.mapValues { _ in TabViewModel() }
