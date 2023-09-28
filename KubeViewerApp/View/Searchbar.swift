@@ -74,12 +74,12 @@ struct SearchBar: View {
                         }
                     }
                 }
-                .onChange(of: mainViewModel.currentFocusRegion) { newFocus in
+                .onChange(of: mainViewModel.currentFocusRegion) { newFocus, _ in
                     if newFocus == .sidebarSearch {
                         isFocused = true
                     }
                 }
-                .onChange(of: isFocused) { newFocus in
+                .onChange(of: isFocused) { newFocus, _ in
                     if newFocus && mainViewModel.currentFocusRegion != .sidebarSearch {
                         mainViewModel.currentFocusRegion = .sidebarSearch
                     }

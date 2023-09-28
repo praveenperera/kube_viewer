@@ -58,7 +58,7 @@ struct NodeView: View {
     var body: some View {
         VStack {
             self.innerBody
-                .onChange(of: self.model.nodes, perform: self.setLoading)
+                .onChange(of: self.model.nodes, self.setLoading)
         }
         .frame(minWidth: 100)
         .toast(isPresenting: self.$isLoading) {
@@ -69,7 +69,7 @@ struct NodeView: View {
                 await self.model.data.stopWatcher()
             }
         }
-        .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
+        .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster, _ in
             if let selectedCluster = newSelectedCluster {
                 Task {
                     await self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
@@ -113,7 +113,7 @@ struct NodeView: View {
                     TableColumn("Conditions", value: \.conditions, comparator: ConditionsComparator())
                         { self.ConditionsColumnContent($0) }
                 }
-                .onChange(of: self.sortOrder) { sortOrder in
+                .onChange(of: self.sortOrder) { sortOrder, _ in
                     switch sortOrder {
                     case [KeyPathComparator(\Node.name)]: ()
                     case [KeyPathComparator(\Node.createdAt)]: ()
@@ -135,7 +135,7 @@ struct NodeView: View {
                                detailsResized: self.$detailsResized,
                                isDetailsHover: self.$isDetailsHover)
             }
-            .onChange(of: geo.size) { _ in
+            .onChange(of: geo.size) { _, _ in
                 if !self.detailsResized {
                     self.detailsWidth = geo.size.width / 3.5
                 }
@@ -156,7 +156,7 @@ struct NodeView: View {
         }
     }
 
-    func setLoading(_ loading: LoadStatus<[Node]>) {
+    func setLoading(_ loading: LoadStatus<[Node]>, _ _old: LoadStatus<[Node]>) {
         switch loading {
         case .loaded, .error:
             self.isLoading = false

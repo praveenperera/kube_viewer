@@ -63,7 +63,7 @@ struct MainView: View {
                 }
             }
         }
-        .onChange(of: self.window) { newWindow in
+        .onChange(of: self.window, initial: true) { _, newWindow in
             if newWindow != nil {
                 self.windowIsLoaded = true
             }

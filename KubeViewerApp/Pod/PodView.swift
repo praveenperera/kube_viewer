@@ -65,7 +65,7 @@ struct PodView: View {
     var body: some View {
         VStack {
             self.innerBody
-                .onChange(of: self.model.pods, perform: self.setLoading)
+                .onChange(of: self.model.pods, self.setLoading)
         }
         .frame(minWidth: 150)
         .toast(isPresenting: self.$isLoading) {
@@ -108,17 +108,17 @@ struct PodView: View {
                 await self.model.data.stopWatcher()
             }
         }
-        .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
+        .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster, _ in
             if let selectedCluster = newSelectedCluster {
                 Task {
                     await self.model.getDataAndSetupWatcher(selectedCluster.id)
                 }
             }
         }
-        .onChange(of: self.model.toastError) { toastError in
+        .onChange(of: self.model.toastError) { toastError, _ in
             self.toastErrorIsShowing = toastError != nil
         }
-        .onChange(of: self.model.toastWarning) { toastWarning in
+        .onChange(of: self.model.toastWarning) { toastWarning, _ in
             self.toastWarningIsShowing = toastWarning != nil
         }
         .task {
@@ -214,7 +214,7 @@ struct PodView: View {
                             }
                     }
                 }
-                .onChange(of: self.sortOrder) { sortOrder in
+                .onChange(of: self.sortOrder) { sortOrder, _ in
                     self.pods.sort(using: sortOrder)
                 }
                 .toolbar {
@@ -247,7 +247,7 @@ struct PodView: View {
                               detailsResized: self.$detailsResized,
                               isDetailsHover: self.$isDetailsHover)
             }
-            .onChange(of: geo.size) { _ in
+            .onChange(of: geo.size) { _, _ in
                 if !self.detailsResized {
                     self.detailsWidth = geo.size.width / 3.5
                 }
@@ -281,7 +281,7 @@ struct PodView: View {
         }
     }
 
-    func setLoading(_ loading: LoadStatus<[Pod]>) {
+    func setLoading(_ loading: LoadStatus<[Pod]>, _ _old: LoadStatus<[Pod]>) {
         switch loading {
         case .loaded, .error:
             self.isLoading = false
