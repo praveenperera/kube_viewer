@@ -10,7 +10,7 @@ struct MainView: View {
     let windowId: UUID
     @ObservedObject var globalModel: GlobalModel
     @ObservedObject var model: MainViewModel
-    @StateObject var globalViewModel: GlobalViewModel = .init()
+    @State var globalViewModel: GlobalViewModel = .init()
 
     @State private var windowIsLoaded: Bool = false
     @State private var hoverRow: UUID?
