@@ -214,6 +214,9 @@ struct PodView: View {
                             }
                     }
                 }
+                .onChange(of: self.pods) {
+                    self.pods.sort(using: self.sortOrder)
+                }
                 .onChange(of: self.sortOrder) { sortOrder, _ in
                     self.pods.sort(using: sortOrder)
                 }
@@ -247,7 +250,7 @@ struct PodView: View {
                               detailsResized: self.$detailsResized,
                               isDetailsHover: self.$isDetailsHover)
             }
-            .onChange(of: geo.size) { _, _ in
+            .onChange(of: geo.size) {
                 if !self.detailsResized {
                     self.detailsWidth = geo.size.width / 3.5
                 }
