@@ -224,9 +224,18 @@ struct PodView: View {
                     ToolbarItem(placement: .navigation) {
                         VStack {
                             Text("Pods").font(.headline)
-                            Text("^[\(self.pods.count) pod](inflect: true)")
-                                .font(.caption)
-                                .foregroundColor(Color.gray)
+
+                            if self.selectedPods.count <= 1 {
+                                Text("^[\(self.pods.count) pod](inflect: true)")
+                                    .font(.caption)
+                                    .foregroundColor(Color.gray)
+                            }
+
+                            if self.selectedPods.count > 1 {
+                                Text("^[\(self.selectedPods.count) pod](inflect: true) selected")
+                                    .font(.caption)
+                                    .foregroundColor(Color.gray)
+                            }
                         }
                     }
 
