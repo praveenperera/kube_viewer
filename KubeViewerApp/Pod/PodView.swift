@@ -251,7 +251,7 @@ struct PodView: View {
                               isDetailsHover: self.$isDetailsHover)
             }
             .onChange(of: self.searchText) {
-                self.model.setSearch(search: self.searchText)
+                self.model.data.setSearch(search: self.searchText)
             }
             .onChange(of: geo.size) {
                 if !self.detailsResized {

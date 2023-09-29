@@ -202,30 +202,46 @@ impl PodViewModel {
 
     pub async fn set_search(&mut self, search: String) {
         self.search = search;
+        self.notify_pods_loaded().await;
     }
 
     pub async fn is_started(&self) -> ActorResult<()> {
         Produces::ok(())
     }
 
-    pub async fn pods(&self) -> ActorResult<Option<HashMap<PodId, Pod>>> {
+    fn filtered_pods_iter(&self) -> Option<impl Iterator<Item = (&PodId, &Pod)>> {
         match &self.pods {
             LoadStatus::Loaded(pods) => {
-                if self.search.is_empty() {
-                    return Produces::ok(Some(pods.clone()));
-                }
+                let pods = pods.iter().filter(|(_, pod)| {
+                    if self.search.is_empty() {
+                        return true;
+                    }
 
-                let pods: HashMap<PodId, Pod> = pods
-                    .iter()
-                    .filter(|(_, pod)| {
-                        pod.id.as_ref().contains(&self.search) || pod.name.contains(&self.search)
-                    })
-                    .map(|(k, v)| (k.clone(), v.clone()))
-                    .collect();
+                    pod.id.as_ref().contains(&self.search) || pod.name.contains(&self.search)
+                });
 
+                Some(pods)
+            }
+            _ => None,
+        }
+    }
+
+    pub fn pods_filtered_vec(&self) -> Option<Vec<Pod>> {
+        let pods: Vec<_> = self
+            .filtered_pods_iter()?
+            .map(|(_, pod)| pod.clone())
+            .collect::<Vec<_>>();
+
+        Some(pods)
+    }
+
+    pub async fn pods(&self) -> ActorResult<Option<HashMap<PodId, Pod>>> {
+        match self.filtered_pods_iter() {
+            Some(pods_iter) => {
+                let pods = pods_iter.map(|(k, v)| (k.clone(), v.clone())).collect();
                 Produces::ok(Some(pods))
             }
-            _ => Produces::ok(None),
+            None => Produces::ok(None),
         }
     }
 
@@ -430,13 +446,10 @@ impl PodViewModel {
     }
 
     async fn notify_pods_loaded(&self) {
-        if let LoadStatus::Loaded(pods) = &self.pods {
+        if let Some(pods) = self.pods_filtered_vec() {
             debug!("notifying pods loaded");
 
-            self.callback(PodViewModelMessage::Loaded {
-                pods: pods.values().cloned().collect(),
-            })
-            .await
+            self.callback(PodViewModelMessage::Loaded { pods }).await
         }
     }
 }
