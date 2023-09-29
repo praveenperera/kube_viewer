@@ -157,6 +157,8 @@ void uniffi_kube_viewer_fn_method_rustpodviewmodel_initialize_model_with_respond
 );
 RustBuffer uniffi_kube_viewer_fn_method_rustpodviewmodel_pods(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
 );
+void uniffi_kube_viewer_fn_method_rustpodviewmodel_set_search(void*_Nonnull ptr, RustBuffer search, RustCallStatus *_Nonnull out_status
+);
 void uniffi_kube_viewer_fn_method_rustpodviewmodel_start_watcher(void*_Nonnull ptr, RustBuffer selected_cluster, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
 );
 void uniffi_kube_viewer_fn_method_rustpodviewmodel_stop_watcher(void*_Nonnull ptr, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
@@ -319,6 +321,9 @@ uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_initialize_model_wi
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_pods(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_set_search(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_start_watcher(void

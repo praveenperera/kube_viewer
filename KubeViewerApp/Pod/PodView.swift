@@ -250,6 +250,9 @@ struct PodView: View {
                               detailsResized: self.$detailsResized,
                               isDetailsHover: self.$isDetailsHover)
             }
+            .onChange(of: self.searchText) {
+                self.model.setSearch(search: self.searchText)
+            }
             .onChange(of: geo.size) {
                 if !self.detailsResized {
                     self.detailsWidth = geo.size.width / 3.5
@@ -302,13 +305,16 @@ struct PodView: View {
     }
 }
 
-struct PodView_Previews: PreviewProvider {
-    static var windowId = UUID()
-    static var globalModel = GlobalModel()
-    static var mainViewModel = MainViewModel(windowId: windowId)
-    static var model: PodViewModel = .init(windowId: windowId)
+#Preview("PodView") {
+    let windowId = UUID()
+    let globalModel = GlobalModel()
+    let mainViewModel = MainViewModel(windowId: windowId)
+    let model: PodViewModel = .init(windowId: windowId)
 
-    static var previews: some View {
+    let view = HStack {
         PodView(windowId: windowId, globalModel: globalModel, mainViewModel: mainViewModel, model: model)
     }
+    .frame(width: 1000, height: 1000)
+
+    return view
 }

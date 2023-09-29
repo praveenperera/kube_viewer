@@ -21,6 +21,7 @@
 		AC3995D22A6879450063A3E7 /* DetailDropDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3995D12A6879450063A3E7 /* DetailDropDownView.swift */; };
 		AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D66299B325000429CDB /* RustPublished.swift */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
+		AC44BC452AC750FF000B3264 /* NamespacePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC44BC442AC750FF000B3264 /* NamespacePicker.swift */; };
 		AC4CF6F72A698FFC0098E879 /* Pill.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4CF6F62A698FFC0098E879 /* Pill.swift */; };
 		AC4ED31E2A859B98000BB612 /* PodComparators.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4ED31D2A859B98000BB612 /* PodComparators.swift */; };
 		AC542E222A9FE96600CFB02E /* PodPhaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC542E212A9FE96600CFB02E /* PodPhaseView.swift */; };
@@ -97,6 +98,7 @@
 		AC3995D12A6879450063A3E7 /* DetailDropDownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailDropDownView.swift; sourceTree = "<group>"; };
 		AC3F4D66299B325000429CDB /* RustPublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustPublished.swift; sourceTree = "<group>"; };
 		AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalBinding.swift; sourceTree = "<group>"; };
+		AC44BC442AC750FF000B3264 /* NamespacePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NamespacePicker.swift; sourceTree = "<group>"; };
 		AC4CF6F62A698FFC0098E879 /* Pill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pill.swift; sourceTree = "<group>"; };
 		AC4ED31D2A859B98000BB612 /* PodComparators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodComparators.swift; sourceTree = "<group>"; };
 		AC542E212A9FE96600CFB02E /* PodPhaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodPhaseView.swift; sourceTree = "<group>"; };
@@ -213,6 +215,7 @@
 				AC0EA48E2A7C1BD5001933C6 /* AgeView.swift */,
 				AC59E5CE2A9908D5005458C5 /* PopoverWithDelayView.swift */,
 				AC59E5D02A990BE7005458C5 /* NameView.swift */,
+				AC44BC442AC750FF000B3264 /* NamespacePicker.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -479,6 +482,7 @@
 				AC95349E29F4B8200082155D /* NodeViewModel.swift in Sources */,
 				ACFE71B82A30E8C400A767EE /* Node.swift in Sources */,
 				AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */,
+				AC44BC452AC750FF000B3264 /* NamespacePicker.swift in Sources */,
 				AC186F932A40FD1F00AC20A9 /* NodeDetailView.swift in Sources */,
 				AC2E0EFE2AA2821A00ED92C3 /* ContainerStatePopoverView.swift in Sources */,
 				AC59E5CF2A9908D5005458C5 /* PopoverWithDelayView.swift in Sources */,

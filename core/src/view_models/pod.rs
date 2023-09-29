@@ -71,6 +71,7 @@ pub struct RustPodViewModel {
 
 pub struct PodViewModel {
     addr: Addr<Self>,
+    search: String,
     watcher: Addr<Watcher>,
     pods: LoadStatus<HashMap<PodId, Pod>, String>,
     responder: Option<Box<dyn PodViewModelCallback>>,
@@ -102,6 +103,11 @@ impl RustPodViewModel {
                 _ => vec![],
             }
         })
+    }
+
+    pub fn set_search(self: Arc<Self>, search: String) {
+        let actor = self.actor.read().clone();
+        send!(actor.set_search(search));
     }
 
     pub async fn delete_pod(self: Arc<Self>, selected_cluster: ClusterId, pod_id: PodId) {
@@ -173,6 +179,7 @@ impl PodViewModel {
             addr: Default::default(),
             watcher: Default::default(),
 
+            search: String::new(),
             pods: LoadStatus::Initial,
             responder: None,
         }
@@ -182,6 +189,7 @@ impl PodViewModel {
         Self {
             addr: Default::default(),
             watcher: Default::default(),
+            search: String::new(),
             pods: LoadStatus::Loaded(
                 (0..16)
                     .map(|_| Faker.fake::<Pod>())
@@ -192,13 +200,31 @@ impl PodViewModel {
         }
     }
 
+    pub async fn set_search(&mut self, search: String) {
+        self.search = search;
+    }
+
     pub async fn is_started(&self) -> ActorResult<()> {
         Produces::ok(())
     }
 
     pub async fn pods(&self) -> ActorResult<Option<HashMap<PodId, Pod>>> {
         match &self.pods {
-            LoadStatus::Loaded(pods) => Produces::ok(Some(pods.clone())),
+            LoadStatus::Loaded(pods) => {
+                if self.search.is_empty() {
+                    return Produces::ok(Some(pods.clone()));
+                }
+
+                let pods: HashMap<PodId, Pod> = pods
+                    .iter()
+                    .filter(|(_, pod)| {
+                        pod.id.as_ref().contains(&self.search) || pod.name.contains(&self.search)
+                    })
+                    .map(|(k, v)| (k.clone(), v.clone()))
+                    .collect();
+
+                Produces::ok(Some(pods))
+            }
             _ => Produces::ok(None),
         }
     }

@@ -1048,6 +1048,7 @@ public protocol RustPodViewModelProtocol {
     func fetchPods(selectedCluster: ClusterId) async 
     func initializeModelWithResponder(responder: PodViewModelCallback) async 
     func pods()   -> [Pod]
+    func setSearch(search: String)  
     func startWatcher(selectedCluster: ClusterId) async 
     func stopWatcher() async 
     
@@ -1196,6 +1197,16 @@ public class RustPodViewModel: RustPodViewModelProtocol {
     )
 }
         )
+    }
+
+    public func setSearch(search: String)  {
+        try! 
+    rustCall() {
+    
+    uniffi_kube_viewer_fn_method_rustpodviewmodel_set_search(self.pointer, 
+        FfiConverterString.lower(search),$0
+    )
+}
     }
 
     public func startWatcher(selectedCluster: ClusterId) async  {
@@ -5585,6 +5596,9 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_pods() != 56851) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_set_search() != 37239) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_kube_viewer_checksum_method_rustpodviewmodel_start_watcher() != 22929) {
