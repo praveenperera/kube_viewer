@@ -10,12 +10,11 @@ struct MainView: View {
     let windowId: UUID
     @ObservedObject var globalModel: GlobalModel
     @ObservedObject var model: MainViewModel
-    @StateObject var globalViewModel: GlobalViewModel = .init()
+    @State var globalViewModel: GlobalViewModel = .init()
 
     @State private var windowIsLoaded: Bool = false
     @State private var hoverRow: UUID?
     @State private var expanded: Bool = true
-    @State private var search: String = ""
     @State private var window: NSWindow?
 
     private func sortedClusterIds() -> [ClusterId] {
@@ -64,7 +63,7 @@ struct MainView: View {
                 }
             }
         }
-        .onChange(of: self.window) { newWindow in
+        .onChange(of: self.window, initial: true) { _, newWindow in
             if newWindow != nil {
                 self.windowIsLoaded = true
             }
@@ -78,6 +77,8 @@ struct MainView: View {
             NodeView(windowId: self.windowId, globalModel: self.globalModel, mainViewModel: self.model)
         case TabId.pods:
             PodView(windowId: self.windowId, globalModel: self.globalModel, mainViewModel: self.model)
+        case TabId.deployments:
+            DeploymentView()
         default:
             self.model.tabContentViews[self.model.selectedTab]!
             Text(self.model.windowId.uuidString)
@@ -89,13 +90,13 @@ struct MainView: View {
         VStack {
             ScrollViewReader { proxy in
                 ScrollView {
-                    SearchBar(text: self.$search)
+                    SearchBar(text: self.$model.search)
                         .padding(.top, 15)
                         .padding(.vertical, 10)
                         .padding(.horizontal, 12)
                         .id(FocusRegion.sidebarSearch)
 
-                    ForEach(self.model.data.tabGroupsFiltered(search: self.search)) { tabGroup in
+                    ForEach(self.model.filteredTabGroups) { tabGroup in
                         DisclosureGroup(isExpanded: self.$model.tabGroupExpansions[tabGroup.id] ?? true) {
                             VStack {
                                 if self.windowIsLoaded {
@@ -106,7 +107,7 @@ struct MainView: View {
                                     }
                                 }
                             }
-                            .padding(.leading, 5)
+                            .padding(.leading, 6)
                         } label: {
                             SidebarTitle(name: tabGroup.name)
                         }
@@ -154,7 +155,7 @@ struct MainView: View {
                     Label(self.model.selectedCluster?.name() ?? "Select a cluster ...", systemImage: "chevron.down")
                 }
             )
-            .padding(.horizontal, 15)
+            .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .overlay {
                 if self.model.currentFocusRegion == .clusterSelection {
@@ -162,7 +163,7 @@ struct MainView: View {
                 }
             }
             .menuStyle(CustomMenuStyle())
-        }.padding(.bottom, 7)
+        }.padding(.bottom, 8)
     }
 }
 

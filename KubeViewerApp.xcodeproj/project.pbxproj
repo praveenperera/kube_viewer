@@ -16,14 +16,24 @@
 		AC16FF4F29C3FE6C00AAEBD7 /* kube_viewer.udl in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */; };
 		AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */; };
 		AC186F932A40FD1F00AC20A9 /* NodeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */; };
-		AC29BCDF2A3175B1009CC33C /* SwiftUITooltip in Frameworks */ = {isa = PBXBuildFile; productRef = AC29BCDE2A3175B1009CC33C /* SwiftUITooltip */; };
+		AC2E0EFC2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC2E0EFB2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift */; };
+		AC2E0EFE2AA2821A00ED92C3 /* ContainerStatePopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC2E0EFD2AA2821A00ED92C3 /* ContainerStatePopoverView.swift */; };
 		AC3995D22A6879450063A3E7 /* DetailDropDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3995D12A6879450063A3E7 /* DetailDropDownView.swift */; };
 		AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D66299B325000429CDB /* RustPublished.swift */; };
 		AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */; };
+		AC44BC452AC750FF000B3264 /* NamespacePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC44BC442AC750FF000B3264 /* NamespacePicker.swift */; };
 		AC4CF6F72A698FFC0098E879 /* Pill.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4CF6F62A698FFC0098E879 /* Pill.swift */; };
+		AC4ED31E2A859B98000BB612 /* PodComparators.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4ED31D2A859B98000BB612 /* PodComparators.swift */; };
+		AC542E222A9FE96600CFB02E /* PodPhaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC542E212A9FE96600CFB02E /* PodPhaseView.swift */; };
+		AC59E5CB2A98FBBF005458C5 /* TaintView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC59E5CA2A98FBBF005458C5 /* TaintView.swift */; };
+		AC59E5CD2A99066C005458C5 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC59E5CC2A99066C005458C5 /* Task.swift */; };
+		AC59E5CF2A9908D5005458C5 /* PopoverWithDelayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC59E5CE2A9908D5005458C5 /* PopoverWithDelayView.swift */; };
+		AC59E5D12A990BE7005458C5 /* NameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC59E5D02A990BE7005458C5 /* NameView.swift */; };
 		AC65E77529A7DCC200F3A7CE /* KeyAware.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC65E77429A7DCC200F3A7CE /* KeyAware.swift */; };
 		AC65E77829A7DE3F00F3A7CE /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = AC65E77729A7DE3F00F3A7CE /* KeyboardShortcuts */; };
 		AC65E77D29A9278600F3A7CE /* StandardFocusRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC65E77C29A9278600F3A7CE /* StandardFocusRing.swift */; };
+		AC71A3182A83F7270064481F /* DeploymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC71A3172A83F7270064481F /* DeploymentView.swift */; };
+		AC88F81C2AABC8A000F910A2 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC88F81B2AABC8A000F910A2 /* Clipboard.swift */; };
 		AC8ABA0429A01BF300C7F6D5 /* SidebarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */; };
 		AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */; };
 		AC95349E29F4B8200082155D /* NodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC95349D29F4B8200082155D /* NodeViewModel.swift */; };
@@ -35,6 +45,8 @@
 		ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */; };
 		ACB49CB12A32694100488B72 /* GeneralComparators.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB49CB02A32694100488B72 /* GeneralComparators.swift */; };
 		ACB49CB32A32715200488B72 /* NodeComparators.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB49CB22A32715200488B72 /* NodeComparators.swift */; };
+		ACB9336F2A992E3D00039659 /* ContainerStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB9336E2A992E3D00039659 /* ContainerStatusView.swift */; };
+		ACB933712A992E6400039659 /* ContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB933702A992E6400039659 /* ContainerView.swift */; };
 		ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */; };
 		ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA25829A00BD300ACB131 /* readSize.swift */; };
 		ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */; };
@@ -81,12 +93,23 @@
 		AC16FF4E29C3FE6C00AAEBD7 /* kube_viewer.udl */ = {isa = PBXFileReference; lastKnownFileType = text; name = kube_viewer.udl; path = core/src/kube_viewer.udl; sourceTree = "<group>"; };
 		AC16FF5029C3FE9D00AAEBD7 /* GlobalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalViewModel.swift; sourceTree = "<group>"; };
 		AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDetailView.swift; sourceTree = "<group>"; };
+		AC2E0EFB2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodDeleteConfirmMessageView.swift; sourceTree = "<group>"; };
+		AC2E0EFD2AA2821A00ED92C3 /* ContainerStatePopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerStatePopoverView.swift; sourceTree = "<group>"; };
 		AC3995D12A6879450063A3E7 /* DetailDropDownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailDropDownView.swift; sourceTree = "<group>"; };
 		AC3F4D66299B325000429CDB /* RustPublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustPublished.swift; sourceTree = "<group>"; };
 		AC3F4D6C299C981D00429CDB /* OptionalBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalBinding.swift; sourceTree = "<group>"; };
+		AC44BC442AC750FF000B3264 /* NamespacePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NamespacePicker.swift; sourceTree = "<group>"; };
 		AC4CF6F62A698FFC0098E879 /* Pill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pill.swift; sourceTree = "<group>"; };
+		AC4ED31D2A859B98000BB612 /* PodComparators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodComparators.swift; sourceTree = "<group>"; };
+		AC542E212A9FE96600CFB02E /* PodPhaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodPhaseView.swift; sourceTree = "<group>"; };
+		AC59E5CA2A98FBBF005458C5 /* TaintView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaintView.swift; sourceTree = "<group>"; };
+		AC59E5CC2A99066C005458C5 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		AC59E5CE2A9908D5005458C5 /* PopoverWithDelayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverWithDelayView.swift; sourceTree = "<group>"; };
+		AC59E5D02A990BE7005458C5 /* NameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameView.swift; sourceTree = "<group>"; };
 		AC65E77429A7DCC200F3A7CE /* KeyAware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyAware.swift; sourceTree = "<group>"; };
 		AC65E77C29A9278600F3A7CE /* StandardFocusRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardFocusRing.swift; sourceTree = "<group>"; };
+		AC71A3172A83F7270064481F /* DeploymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentView.swift; sourceTree = "<group>"; };
+		AC88F81B2AABC8A000F910A2 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
 		AC8ABA0329A01BF300C7F6D5 /* SidebarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarButton.swift; sourceTree = "<group>"; };
 		AC8ABA0629A01C9700C7F6D5 /* SidebarTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTitle.swift; sourceTree = "<group>"; };
 		AC95349D29F4B8200082155D /* NodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModel.swift; sourceTree = "<group>"; };
@@ -97,6 +120,8 @@
 		ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Searchbar.swift; sourceTree = "<group>"; };
 		ACB49CB02A32694100488B72 /* GeneralComparators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralComparators.swift; sourceTree = "<group>"; };
 		ACB49CB22A32715200488B72 /* NodeComparators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeComparators.swift; sourceTree = "<group>"; };
+		ACB9336E2A992E3D00039659 /* ContainerStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerStatusView.swift; sourceTree = "<group>"; };
+		ACB933702A992E6400039659 /* ContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerView.swift; sourceTree = "<group>"; };
 		ACBEA256299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarDisclosureGroupStyle.swift; sourceTree = "<group>"; };
 		ACBEA25829A00BD300ACB131 /* readSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = readSize.swift; sourceTree = "<group>"; };
 		ACBEA25B29A00D4F00ACB131 /* SlideUpDown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideUpDown.swift; sourceTree = "<group>"; };
@@ -110,7 +135,7 @@
 		ACD621F1298057D400FE2CE2 /* TabViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabViewModel.swift; sourceTree = "<group>"; };
 		ACE6DFFA299C11520094C1DC /* KubeViewerApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KubeViewerApp-Bridging-Header.h"; sourceTree = "<group>"; };
 		ACE6DFFF299C17FC0094C1DC /* xc-universal-binary.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "xc-universal-binary.sh"; sourceTree = "<group>"; };
-		ACFA988229F8CF30009C2A32 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		ACFA988229F8CF30009C2A32 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ACFE71B72A30E8C400A767EE /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		DADF4C7A295E6DB9006CA792 /* KubeViewerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KubeViewerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DADF4C7D295E6DB9006CA792 /* KubeViewerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KubeViewerApp.swift; sourceTree = "<group>"; };
@@ -124,7 +149,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AC29BCDF2A3175B1009CC33C /* SwiftUITooltip in Frameworks */,
 				AC9B6E6B2A1AB763007BD015 /* AlertToast in Frameworks */,
 				ACA9DD8E29F07F0700164615 /* libkube_viewer.a in Frameworks */,
 				AC65E77829A7DE3F00F3A7CE /* KeyboardShortcuts in Frameworks */,
@@ -140,6 +164,14 @@
 				AC0EA4932A7DF1AA001933C6 /* TimestampAndAge.swift */,
 			);
 			path = Protocols;
+			sourceTree = "<group>";
+		};
+		AC71A3162A83F70F0064481F /* Deployment */ = {
+			isa = PBXGroup;
+			children = (
+				AC71A3172A83F7270064481F /* DeploymentView.swift */,
+			);
+			path = Deployment;
 			sourceTree = "<group>";
 		};
 		AC8ABA0529A01C6600C7F6D5 /* Sidebar */ = {
@@ -158,6 +190,7 @@
 				AC9534A029F4BB0F0082155D /* NodeView.swift */,
 				AC186F922A40FD1F00AC20A9 /* NodeDetailView.swift */,
 				ACFE71B72A30E8C400A767EE /* Node.swift */,
+				AC59E5CA2A98FBBF005458C5 /* TaintView.swift */,
 			);
 			path = Node;
 			sourceTree = "<group>";
@@ -180,8 +213,21 @@
 				ACAAAA00299ECADA00FABEF5 /* Searchbar.swift */,
 				AC4CF6F62A698FFC0098E879 /* Pill.swift */,
 				AC0EA48E2A7C1BD5001933C6 /* AgeView.swift */,
+				AC59E5CE2A9908D5005458C5 /* PopoverWithDelayView.swift */,
+				AC59E5D02A990BE7005458C5 /* NameView.swift */,
+				AC44BC442AC750FF000B3264 /* NamespacePicker.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		ACB933722A992EF600039659 /* Container */ = {
+			isa = PBXGroup;
+			children = (
+				ACB933702A992E6400039659 /* ContainerView.swift */,
+				ACB9336E2A992E3D00039659 /* ContainerStatusView.swift */,
+				AC2E0EFD2AA2821A00ED92C3 /* ContainerStatePopoverView.swift */,
+			);
+			path = Container;
 			sourceTree = "<group>";
 		};
 		ACBEA255299FEBC400ACB131 /* Styles */ = {
@@ -209,6 +255,9 @@
 				AC65E77429A7DCC200F3A7CE /* KeyAware.swift */,
 				ACB49CB02A32694100488B72 /* GeneralComparators.swift */,
 				ACB49CB22A32715200488B72 /* NodeComparators.swift */,
+				AC4ED31D2A859B98000BB612 /* PodComparators.swift */,
+				AC59E5CC2A99066C005458C5 /* Task.swift */,
+				AC88F81B2AABC8A000F910A2 /* Clipboard.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -226,10 +275,13 @@
 		ACD5D6A52A7371F2002E2F05 /* Pod */ = {
 			isa = PBXGroup;
 			children = (
+				ACB933722A992EF600039659 /* Container */,
 				ACD5D6A72A737255002E2F05 /* PodViewModel.swift */,
 				AC0EA48A2A7BFC0C001933C6 /* PodView.swift */,
 				AC0EA48C2A7C099B001933C6 /* Pod.swift */,
 				AC0EA4902A7C2C49001933C6 /* PodDetailView.swift */,
+				AC542E212A9FE96600CFB02E /* PodPhaseView.swift */,
+				AC2E0EFB2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift */,
 			);
 			path = Pod;
 			sourceTree = "<group>";
@@ -282,9 +334,10 @@
 		DADF4C7C295E6DB9006CA792 /* KubeViewerApp */ = {
 			isa = PBXGroup;
 			children = (
+				ACFA988229F8CF30009C2A32 /* Info.plist */,
+				AC71A3162A83F70F0064481F /* Deployment */,
 				AC0EA4922A7DF19E001933C6 /* Protocols */,
 				ACD5D6A52A7371F2002E2F05 /* Pod */,
-				ACFA988229F8CF30009C2A32 /* Info.plist */,
 				AC95349F29F4B8490082155D /* Window */,
 				AC95349C29F4B8100082155D /* Node */,
 				ACE6E01D299D45350094C1DC /* FFIHelpers */,
@@ -345,7 +398,6 @@
 			packageProductDependencies = (
 				AC65E77729A7DE3F00F3A7CE /* KeyboardShortcuts */,
 				AC9B6E6A2A1AB763007BD015 /* AlertToast */,
-				AC29BCDE2A3175B1009CC33C /* SwiftUITooltip */,
 			);
 			productName = KubeViewerApp;
 			productReference = DADF4C7A295E6DB9006CA792 /* KubeViewerApp.app */;
@@ -359,7 +411,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					DADF4C79295E6DB9006CA792 = {
 						CreatedOnToolsVersion = 14.2;
@@ -379,7 +431,6 @@
 			packageReferences = (
 				AC65E77629A7DE3E00F3A7CE /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
 				AC9B6E692A1AB763007BD015 /* XCRemoteSwiftPackageReference "AlertToast" */,
-				AC29BCDD2A3175B1009CC33C /* XCRemoteSwiftPackageReference "SwiftUI-Tooltip" */,
 			);
 			productRefGroup = DADF4C7B295E6DB9006CA792 /* Products */;
 			projectDirPath = "";
@@ -431,9 +482,13 @@
 				AC95349E29F4B8200082155D /* NodeViewModel.swift in Sources */,
 				ACFE71B82A30E8C400A767EE /* Node.swift in Sources */,
 				AC3F4D6D299C981D00429CDB /* OptionalBinding.swift in Sources */,
+				AC44BC452AC750FF000B3264 /* NamespacePicker.swift in Sources */,
 				AC186F932A40FD1F00AC20A9 /* NodeDetailView.swift in Sources */,
+				AC2E0EFE2AA2821A00ED92C3 /* ContainerStatePopoverView.swift in Sources */,
+				AC59E5CF2A9908D5005458C5 /* PopoverWithDelayView.swift in Sources */,
 				AC9534A129F4BB0F0082155D /* NodeView.swift in Sources */,
 				ACBEA25929A00BD300ACB131 /* readSize.swift in Sources */,
+				AC59E5CD2A99066C005458C5 /* Task.swift in Sources */,
 				AC0EA48F2A7C1BD5001933C6 /* AgeView.swift in Sources */,
 				ACC45D552995EFA00063B358 /* whenHovered.swift in Sources */,
 				AC16FF5129C3FE9D00AAEBD7 /* GlobalViewModel.swift in Sources */,
@@ -441,28 +496,37 @@
 				ACC45D532995AE480063B358 /* if.swift in Sources */,
 				ACAAAA01299ECADA00FABEF5 /* Searchbar.swift in Sources */,
 				AC3F4D67299B325000429CDB /* RustPublished.swift in Sources */,
+				ACB9336F2A992E3D00039659 /* ContainerStatusView.swift in Sources */,
 				ACD621E729803DFB00FE2CE2 /* MainView.swift in Sources */,
 				AC8ABA0429A01BF300C7F6D5 /* SidebarButton.swift in Sources */,
 				ACD621EB2980415E00FE2CE2 /* TabContentView.swift in Sources */,
 				ACCE0D4F2A7B0FE70043F41F /* LoadStatus.swift in Sources */,
+				ACB933712A992E6400039659 /* ContainerView.swift in Sources */,
 				AC0EA4942A7DF1AA001933C6 /* TimestampAndAge.swift in Sources */,
 				ACBEA257299FEBEA00ACB131 /* SidebarDisclosureGroupStyle.swift in Sources */,
 				DADF4C7E295E6DB9006CA792 /* KubeViewerApp.swift in Sources */,
 				AC65E77D29A9278600F3A7CE /* StandardFocusRing.swift in Sources */,
 				AC4CF6F72A698FFC0098E879 /* Pill.swift in Sources */,
+				AC542E222A9FE96600CFB02E /* PodPhaseView.swift in Sources */,
+				AC59E5D12A990BE7005458C5 /* NameView.swift in Sources */,
 				AC9CFCEF2991F4C00095F6FB /* BlurWindow.swift in Sources */,
 				AC0EA48D2A7C099B001933C6 /* Pod.swift in Sources */,
 				AC0EA4912A7C2C49001933C6 /* PodDetailView.swift in Sources */,
+				AC88F81C2AABC8A000F910A2 /* Clipboard.swift in Sources */,
 				ACD5D6A82A737255002E2F05 /* PodViewModel.swift in Sources */,
 				AC1651B829874DB000CBC220 /* Theme.swift in Sources */,
 				ACB49CB12A32694100488B72 /* GeneralComparators.swift in Sources */,
 				AC0EA48B2A7BFC0C001933C6 /* PodView.swift in Sources */,
 				ACB49CB32A32715200488B72 /* NodeComparators.swift in Sources */,
 				ACBEA25C29A00D4F00ACB131 /* SlideUpDown.swift in Sources */,
+				AC4ED31E2A859B98000BB612 /* PodComparators.swift in Sources */,
 				AC8ABA0729A01C9700C7F6D5 /* SidebarTitle.swift in Sources */,
+				AC2E0EFC2AA12B0400ED92C3 /* PodDeleteConfirmMessageView.swift in Sources */,
 				ACD621F2298057D400FE2CE2 /* TabViewModel.swift in Sources */,
+				AC71A3182A83F7270064481F /* DeploymentView.swift in Sources */,
 				ACAAA9FF299EA74500FABEF5 /* CollapsibleList.swift in Sources */,
 				AC65E77529A7DCC200F3A7CE /* KeyAware.swift in Sources */,
+				AC59E5CB2A98FBBF005458C5 /* TaintView.swift in Sources */,
 				ACD621EE2980569500FE2CE2 /* MainViewModel.swift in Sources */,
 				AC16FF4F29C3FE6C00AAEBD7 /* kube_viewer.udl in Sources */,
 			);
@@ -475,6 +539,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -536,6 +601,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -611,7 +677,7 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/core/target/universal";
-				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.infraopssolutions.kube-viewer-app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -646,7 +712,7 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/core/target/universal";
-				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.infraopssolutions.kube-viewer-app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -680,20 +746,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AC29BCDD2A3175B1009CC33C /* XCRemoteSwiftPackageReference "SwiftUI-Tooltip" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/quassum/SwiftUI-Tooltip.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		AC65E77629A7DE3E00F3A7CE /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.12.0;
 			};
 		};
 		AC9B6E692A1AB763007BD015 /* XCRemoteSwiftPackageReference "AlertToast" */ = {
@@ -707,11 +765,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AC29BCDE2A3175B1009CC33C /* SwiftUITooltip */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AC29BCDD2A3175B1009CC33C /* XCRemoteSwiftPackageReference "SwiftUI-Tooltip" */;
-			productName = SwiftUITooltip;
-		};
 		AC65E77729A7DE3F00F3A7CE /* KeyboardShortcuts */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AC65E77629A7DE3E00F3A7CE /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;

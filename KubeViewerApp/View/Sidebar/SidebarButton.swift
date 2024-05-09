@@ -32,8 +32,8 @@ struct SidebarButton: View {
                 }.animation(.default, value: isHover)
             Spacer()
         }
-        .padding([.top, .bottom], 5)
-        .padding(.trailing, 15)
+        .padding([.top, .bottom], 6)
+        .padding(.trailing, 16)
         .frame(maxWidth: .infinity)
         .if(tabIsSelected) { view in
             view.background(Color.accentColor.opacity(0.90))

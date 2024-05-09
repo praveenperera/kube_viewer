@@ -32,7 +32,7 @@ typedef struct RustBuffer
 typedef int32_t (*ForeignCallback)(uint64_t, int32_t, const uint8_t *_Nonnull, int32_t, RustBuffer *_Nonnull);
 
 // Task defined in Rust that Swift executes
-typedef void (*UniFfiRustTaskCallback)(const void * _Nullable);
+typedef void (*UniFfiRustTaskCallback)(const void * _Nullable, int8_t);
 
 // Callback to execute Rust tasks using a Swift Task
 //
@@ -41,7 +41,7 @@ typedef void (*UniFfiRustTaskCallback)(const void * _Nullable);
 //   delay: Delay in MS
 //   task: UniFfiRustTaskCallback to call
 //   task_data: data to pass the task callback
-typedef void (*UniFfiForeignExecutorCallback)(size_t, uint32_t, UniFfiRustTaskCallback _Nullable, const void * _Nullable);
+typedef int8_t (*UniFfiForeignExecutorCallback)(size_t, uint32_t, UniFfiRustTaskCallback _Nullable, const void * _Nullable);
 
 typedef struct ForeignBytes
 {
@@ -147,11 +147,17 @@ void*_Nonnull uniffi_kube_viewer_fn_constructor_rustpodviewmodel_new(RustCallSta
 void*_Nonnull uniffi_kube_viewer_fn_constructor_rustpodviewmodel_preview(RustCallStatus *_Nonnull out_status
     
 );
-void uniffi_kube_viewer_fn_method_rustpodviewmodel_add_callback_listener(void*_Nonnull ptr, uint64_t responder, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
+void uniffi_kube_viewer_fn_method_rustpodviewmodel_delete_pod(void*_Nonnull ptr, RustBuffer selected_cluster, RustBuffer pod_id, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
+);
+void uniffi_kube_viewer_fn_method_rustpodviewmodel_delete_pods(void*_Nonnull ptr, RustBuffer selected_cluster, RustBuffer pod_ids, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
 );
 void uniffi_kube_viewer_fn_method_rustpodviewmodel_fetch_pods(void*_Nonnull ptr, RustBuffer selected_cluster, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
 );
+void uniffi_kube_viewer_fn_method_rustpodviewmodel_initialize_model_with_responder(void*_Nonnull ptr, uint64_t responder, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
+);
 RustBuffer uniffi_kube_viewer_fn_method_rustpodviewmodel_pods(void*_Nonnull ptr, RustCallStatus *_Nonnull out_status
+);
+void uniffi_kube_viewer_fn_method_rustpodviewmodel_set_search(void*_Nonnull ptr, RustBuffer search, RustCallStatus *_Nonnull out_status
 );
 void uniffi_kube_viewer_fn_method_rustpodviewmodel_start_watcher(void*_Nonnull ptr, RustBuffer selected_cluster, size_t uniffi_executor, UniFfiFutureCallbackUInt8 _Nonnull uniffi_callback, void* _Nonnull uniffi_callback_data, RustCallStatus *_Nonnull out_status
 );
@@ -165,11 +171,32 @@ void uniffi_kube_viewer_fn_init_callback_nodeviewmodelcallback(ForeignCallback _
 );
 void uniffi_kube_viewer_fn_init_callback_podviewmodelcallback(ForeignCallback _Nonnull callback_stub, RustCallStatus *_Nonnull out_status
 );
+RustBuffer uniffi_kube_viewer_fn_func_container_preview(RustCallStatus *_Nonnull out_status
+    
+);
+RustBuffer uniffi_kube_viewer_fn_func_containers_preview(RustCallStatus *_Nonnull out_status
+    
+);
 RustBuffer uniffi_kube_viewer_fn_func_node_preview(RustCallStatus *_Nonnull out_status
     
 );
+RustBuffer uniffi_kube_viewer_fn_func_pod_container_state_running(RustCallStatus *_Nonnull out_status
+    
+);
+RustBuffer uniffi_kube_viewer_fn_func_pod_container_state_terminated(RustCallStatus *_Nonnull out_status
+    
+);
+RustBuffer uniffi_kube_viewer_fn_func_pod_container_state_waiting(RustCallStatus *_Nonnull out_status
+    
+);
+RustBuffer uniffi_kube_viewer_fn_func_pod_exec_cmd(RustBuffer namespace, RustBuffer pod_id, RustCallStatus *_Nonnull out_status
+);
+RustBuffer uniffi_kube_viewer_fn_func_pod_log_cmd(RustBuffer namespace, RustBuffer pod_id, RustCallStatus *_Nonnull out_status
+);
 RustBuffer uniffi_kube_viewer_fn_func_pod_preview(RustCallStatus *_Nonnull out_status
     
+);
+RustBuffer uniffi_kube_viewer_fn_func_unix_to_utc_string(int64_t unix, RustCallStatus *_Nonnull out_status
 );
 RustBuffer ffi_kube_viewer_rustbuffer_alloc(int32_t size, RustCallStatus *_Nonnull out_status
 );
@@ -179,10 +206,34 @@ void ffi_kube_viewer_rustbuffer_free(RustBuffer buf, RustCallStatus *_Nonnull ou
 );
 RustBuffer ffi_kube_viewer_rustbuffer_reserve(RustBuffer buf, int32_t additional, RustCallStatus *_Nonnull out_status
 );
+uint16_t uniffi_kube_viewer_checksum_func_container_preview(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_containers_preview(void
+    
+);
 uint16_t uniffi_kube_viewer_checksum_func_node_preview(void
     
 );
+uint16_t uniffi_kube_viewer_checksum_func_pod_container_state_running(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_pod_container_state_terminated(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_pod_container_state_waiting(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_pod_exec_cmd(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_pod_log_cmd(void
+    
+);
 uint16_t uniffi_kube_viewer_checksum_func_pod_preview(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_func_unix_to_utc_string(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_focusregionhasher_hash(void
@@ -257,13 +308,22 @@ uint16_t uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs(void
 uint16_t uniffi_kube_viewer_checksum_method_rustmainviewmodel_tabs_map(void
     
 );
-uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_add_callback_listener(void
+uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_delete_pod(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_delete_pods(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_fetch_pods(void
     
 );
+uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_initialize_model_with_responder(void
+    
+);
 uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_pods(void
+    
+);
+uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_set_search(void
     
 );
 uint16_t uniffi_kube_viewer_checksum_method_rustpodviewmodel_start_watcher(void
@@ -305,7 +365,7 @@ uint16_t uniffi_kube_viewer_checksum_method_nodeviewmodelcallback_callback(void
 uint16_t uniffi_kube_viewer_checksum_method_podviewmodelcallback_callback(void
     
 );
-void uniffi_foreign_executor_callback_set(UniFfiForeignExecutorCallback _Nonnull callback
+void ffi_kube_viewer_foreign_executor_callback_set(UniFfiForeignExecutorCallback _Nonnull callback
 );
 uint32_t ffi_kube_viewer_uniffi_contract_version(void
     

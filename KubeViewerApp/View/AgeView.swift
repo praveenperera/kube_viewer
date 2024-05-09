@@ -12,6 +12,26 @@ struct AgeView: View {
     let age: () -> String?
 
     var body: some View {
+        if let timestamp = createdAt,
+           let utc = unixToUtcString(unix: timestamp)
+        {
+            PopoverWithDelayView(
+                content: {
+                    RelativeTimeView
+                },
+                popover: {
+                    Text(utc)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                }
+            )
+        } else {
+            RelativeTimeView
+        }
+    }
+
+    @ViewBuilder
+    var RelativeTimeView: some View {
         switch Date().timeIntervalSince1970 - Double(createdAt ?? 0) {
         case 0 ... 60:
             TimelineView(.periodic(from: Date(), by: 1)) { _ in

@@ -104,13 +104,26 @@ impl RustGlobalViewModel {
     }
 }
 
+fn init_logging() {
+    use env_logger::Builder;
+    use log::LevelFilter;
+
+    let mut builder = Builder::new();
+    builder
+        .parse_env("RUST_LOG")
+        .filter_module("kube_viewer::timestamps", LevelFilter::Info)
+        .filter_module("kube_viewer::kubernetes::pod_uniffi", LevelFilter::Info);
+
+    builder.init()
+}
+
 impl GlobalViewModel {
     pub fn new() -> Self {
         //TODO: set manually in code for now
         std::env::set_var("RUST_LOG", "kube_viewer=debug");
 
         // one time init
-        env_logger::init();
+        init_logging();
 
         // init env
         let _ = Env::global();

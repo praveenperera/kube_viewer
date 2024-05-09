@@ -22,8 +22,8 @@ struct SearchBar: View {
             TextField("Search", text: $text)
                 .textFieldStyle(PlainTextFieldStyle())
                 .focused($isFocused)
-                .padding(.vertical, 7)
-                .padding(.horizontal, 35)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 36)
                 .background(Color.gray.opacity(0.12))
                 .cornerRadius(4)
                 .overlay {
@@ -36,7 +36,7 @@ struct SearchBar: View {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(Color.primary)
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, 11)
+                            .padding(.leading, 12)
                             .opacity(0.9)
 
                         // x button shown if editing
@@ -57,14 +57,14 @@ struct SearchBar: View {
                         if mainViewModel.currentFocusRegion != FocusRegion.sidebarSearch {
                             HStack(spacing: 2) {
                                 Text("⌥")
-                                    .padding(.vertical, 1)
+                                    .padding(.vertical, 2)
                                     .padding(.horizontal, 4)
                                     .foregroundColor(Color.primary.opacity(0.75))
                                     .background(Color.black.opacity(0.1))
                                     .clipShape(RoundedRectangle(cornerRadius: 4))
                                     .font(.subheadline)
                                 Text("F")
-                                    .padding(.vertical, 1)
+                                    .padding(.vertical, 2)
                                     .padding(.horizontal, 6)
                                     .foregroundColor(Color.primary.opacity(0.75))
                                     .background(Color.black.opacity(0.1))
@@ -74,12 +74,12 @@ struct SearchBar: View {
                         }
                     }
                 }
-                .onChange(of: mainViewModel.currentFocusRegion) { newFocus in
+                .onChange(of: mainViewModel.currentFocusRegion) { newFocus, _ in
                     if newFocus == .sidebarSearch {
                         isFocused = true
                     }
                 }
-                .onChange(of: isFocused) { newFocus in
+                .onChange(of: isFocused) { newFocus, _ in
                     if newFocus && mainViewModel.currentFocusRegion != .sidebarSearch {
                         mainViewModel.currentFocusRegion = .sidebarSearch
                     }

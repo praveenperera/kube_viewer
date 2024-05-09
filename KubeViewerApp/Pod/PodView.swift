@@ -13,17 +13,26 @@ struct PodView: View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var globalModel: GlobalModel
     @ObservedObject var mainViewModel: MainViewModel
-    @ObservedObject var model: PodViewModel
 
-    @State var isLoading: Bool = false
-    @State var pods: [Pod] = []
+    var model: PodViewModel
+
+    @State private var isLoading: Bool = false
+    @State private var pods: [Pod] = []
 
     @State private var sortOrder = [KeyPathComparator(\Pod.name)]
     @State private var selectedPods = Set<Pod.ID>()
 
-    @State var detailsWidth: CGFloat = 300
-    @State var detailsResized: Bool = false
-    @State var isDetailsHover = false
+    @State private var detailsWidth: CGFloat = 300
+    @State private var detailsResized: Bool = false
+    @State private var isDetailsHover = false
+
+    @State private var isConfirmingDeletePod: Bool = false
+    @State private var podIdsToDelete: Set<Pod.ID> = []
+
+    @State private var toastWarningIsShowing: Bool = false
+    @State private var toastErrorIsShowing: Bool = false
+
+    @State private var searchText = ""
 
     var podIsSelected: Bool {
         self.selectedPods.count == 1
@@ -56,29 +65,65 @@ struct PodView: View {
     var body: some View {
         VStack {
             self.innerBody
-                .onChange(of: self.model.pods, perform: self.setLoading)
+                .onChange(of: self.model.pods, self.setLoading)
         }
-        .frame(minWidth: 100)
+        .frame(minWidth: 150)
         .toast(isPresenting: self.$isLoading) {
             AlertToast(displayMode: .alert, type: .loading, title: "Loading")
         }
+        .toast(isPresenting: self.$toastErrorIsShowing, duration: 10,
+               alert: {
+                   AlertToast(
+                       displayMode: .hud,
+                       type: .error(Color.red),
+                       title: self.model.toastError ?? "Unknown erorr"
+                   )
+               },
+               onTap: {
+                   self.toastErrorIsShowing = false
+                   self.model.toastError = nil
+               },
+               completion: {
+                   self.toastErrorIsShowing = false
+                   self.model.toastError = nil
+               })
+        .toast(isPresenting: self.$toastWarningIsShowing,
+               alert: {
+                   AlertToast(
+                       displayMode: .hud,
+                       type: .systemImage("exclamationmark.triangle.fill", Color.yellow),
+                       title: self.model.toastError ?? "Unknown erorr"
+                   )
+               },
+               onTap: {
+                   self.toastWarningIsShowing = false
+                   self.model.toastWarning = nil
+               },
+               completion: {
+                   self.toastWarningIsShowing = false
+                   self.model.toastWarning = nil
+               })
         .onDisappear {
             Task {
                 await self.model.data.stopWatcher()
             }
         }
-        .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
+        .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster, _ in
             if let selectedCluster = newSelectedCluster {
                 Task {
-                    await self.model.data.fetchPods(selectedCluster: selectedCluster.id)
-                    await self.model.data.startWatcher(selectedCluster: selectedCluster.id)
+                    await self.model.getDataAndSetupWatcher(selectedCluster.id)
                 }
             }
         }
+        .onChange(of: self.model.toastError) { toastError, _ in
+            self.toastErrorIsShowing = toastError != nil
+        }
+        .onChange(of: self.model.toastWarning) { toastWarning, _ in
+            self.toastWarningIsShowing = toastWarning != nil
+        }
         .task {
             if let selectedCluster = self.mainViewModel.selectedCluster {
-                await self.model.data.fetchPods(selectedCluster: selectedCluster.id)
-                await self.model.data.startWatcher(selectedCluster: selectedCluster.id)
+                await self.model.getDataAndSetupWatcher(selectedCluster.id)
             }
         }
         .background(KeyAwareView(onEvent: self.mainViewModel.data.handleKeyInput))
@@ -87,7 +132,7 @@ struct PodView: View {
     @ViewBuilder
     var innerBody: some View {
         switch self.model.pods {
-        case .loaded: self.DisplayPods(self.pods)
+        case .loaded: self.DisplayPods()
         case .loading, .initial:
             HStack {}
 
@@ -96,31 +141,117 @@ struct PodView: View {
         }
     }
 
-    func DisplayPods(_ pods: [Pod]) -> some View {
+    func DisplayPods() -> some View {
         GeometryReader { geo in
             HStack(alignment: .top, spacing: 0) {
-                Table(pods, selection: self.$selectedPods, sortOrder: self.$sortOrder) {
-                    TableColumn("Name", value: \.name)
-                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) { pod in
-                        AgeView(createdAt: pod.createdAt, age: pod.age)
+                Table(of: Pod.self, selection: self.$selectedPods, sortOrder: self.$sortOrder) {
+                    TableColumn("Name", value: \.name) {
+                        NameView(name: $0.name)
+                    }
+                    TableColumn("Namespace", value: \.namespace)
+                    TableColumn("Containers", value: \.containers, comparator: CountComparator()) { pod in
+                        ContainerView(containers: pod.containers)
+                    }
+                    TableColumn("Restarts", value: \.containers, comparator: RestartComparator()) { pod in
+                        Text(String(pod.totalRestarts()))
+                    }
+                    TableColumn("QoS", value: \.qosClass, comparator: OptionalStringComparator()) { pod in
+                        Text(pod.qosClass ?? "Unknown")
+                    }
+                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) {
+                        AgeView(createdAt: $0.createdAt, age: $0.age)
                     }
                     TableColumn("Status", value: \.phase, comparator: RawValueComparator()) { pod in
-                        self.DisplayStatus(phase: pod.phase)
+                        PodPhaseView(phase: pod.phase, isSelected: self.selectedPods.contains(pod.id))
+                    }
+                } rows: {
+                    ForEach(self.pods) { pod in
+                        TableRow(pod)
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    self.isConfirmingDeletePod = true
+                                    if self.selectedPods.contains(pod.id) {
+                                        self.podIdsToDelete = self.selectedPods
+                                    } else {
+                                        self.podIdsToDelete = [pod.id]
+                                    }
+                                } label: {
+                                    Text("Delete")
+                                }
+
+                                Divider()
+
+                                if self.selectedPods.count == 1 {
+                                    Button {
+                                        Clipboard.general.copyText(pod.id)
+                                    } label: {
+                                        Text("Copy Pod Name")
+                                    }
+
+                                    Divider()
+
+                                    Button {
+                                        Clipboard.general.copyText(pod.logCmd)
+                                    } label: {
+                                        Text("Copy Logs Command")
+                                    }
+
+                                    Button {
+                                        Clipboard.general.copyText(pod.containerExecCmd)
+                                    } label: {
+                                        Text("Copy Exec Command")
+                                    }
+                                }
+
+                                if self.selectedPods.count > 1 {
+                                    Button {
+                                        self.selectedPods.insert(pod.id)
+                                        Clipboard.general.copyText(self.selectedPods.joined(separator: ", "))
+                                    } label: {
+                                        Text("Copy Pod Names")
+                                    }
+                                }
+                            }
                     }
                 }
-                .onChange(of: self.sortOrder) { sortOrder in
+                .onChange(of: self.pods) {
+                    self.pods.sort(using: self.sortOrder)
+                }
+                .onChange(of: self.sortOrder) { sortOrder, _ in
                     self.pods.sort(using: sortOrder)
                 }
                 .toolbar {
                     ToolbarItem(placement: .navigation) {
                         VStack {
                             Text("Pods").font(.headline)
+
+                            if self.selectedPods.count <= 1 {
+                                Text("^[\(self.pods.count) pod](inflect: true)")
+                                    .font(.caption)
+                                    .foregroundColor(Color.gray)
+                            }
+
+                            if self.selectedPods.count > 1 {
+                                Text("^[\(self.selectedPods.count) pod](inflect: true) selected")
+                                    .font(.caption)
+                                    .foregroundColor(Color.gray)
+                            }
                         }
                     }
+
+                    ToolbarItem(placement: .secondaryAction) {
+                        Text("")
+                    }
+
+                    ToolbarItem(placement: .status) {
+                        Text("")
+                    }
+
+                    ToolbarItem(placement: .primaryAction) {
+                        Text("")
+                    }
                 }
-                .if(self.podIsSelected) { view in
-                    view.frame(minWidth: 0, maxWidth: max(200, geo.size.width - self.detailsWidth))
-                }
+                .searchable(text: self.$searchText)
 
                 PodDetailView(geo: geo,
                               selectedPod: self.selectedPod,
@@ -128,7 +259,10 @@ struct PodView: View {
                               detailsResized: self.$detailsResized,
                               isDetailsHover: self.$isDetailsHover)
             }
-            .onChange(of: geo.size) { _ in
+            .onChange(of: self.searchText) {
+                self.model.data.setSearch(search: self.searchText)
+            }
+            .onChange(of: geo.size) {
                 if !self.detailsResized {
                     self.detailsWidth = geo.size.width / 3.5
                 }
@@ -136,65 +270,60 @@ struct PodView: View {
             .onAppear {
                 self.detailsWidth = geo.size.width / 3.5
             }
+            .confirmationDialog(
+                self.podIdsToDelete.count > 1 ? "Are you sure you want to delete these \(self.podIdsToDelete.count) pods?" : "Are you sure you want to delete this pod?",
+                isPresented: self.$isConfirmingDeletePod, presenting: self.podIdsToDelete
+            ) { _ in
+                Button(role: .destructive) {
+                    if let selectedCluster = self.mainViewModel.selectedCluster {
+                        let podIds = self.podIdsToDelete
+                        Task {
+                            print("[swift] Deleting pods", podIds)
+                            await self.model.deletePods(selectedCluster: selectedCluster.id, podIds: podIds)
+                        }
+                    }
+                } label: {
+                    Text("Delete")
+                }
+                Button("Cancel", role: .cancel) {
+                    self.podIdsToDelete = []
+                }
+            } message: { _ in
+                VStack {
+                    PodDeleteConfirmMessage(podIds: self.podIdsToDelete)
+                }
+            }
         }
     }
 
-    func setLoading(_ loading: LoadStatus<[Pod]>) {
+    func setLoading(_ loading: LoadStatus<[Pod]>, _ _old: LoadStatus<[Pod]>) {
         switch loading {
         case .loaded, .error:
             self.isLoading = false
-            if case .loaded(let pods) = self.model.pods {
+            if case .loaded(var pods) = self.model.pods {
+                pods.sort(using: self.sortOrder)
                 self.pods = pods
-                self.pods.sort(using: self.sortOrder)
             }
-        case .loading, .initial:
+        case .initial:
             self.selectedPods = .init()
+            self.isLoading = true
+
+        case .loading:
             self.isLoading = true
         }
     }
-
-    @ViewBuilder
-    func DisplayStatus(phase: Phase) -> some View {
-        switch phase {
-        case .failed:
-            Text("Failed").foregroundColor(Color.red)
-        case .succeeded:
-            Text("Succeeded").foregroundColor(Color.green)
-                .if(self.colorScheme == .light) { view in
-                    view.brightness(-0.10)
-                }
-        case .pending: Text("Pending")
-        case .running:
-            Text("Running").foregroundColor(Color.green)
-                .if(self.colorScheme == .light) { view in
-                    view.brightness(-0.15)
-                }
-        case .unknown(rawValue: let rawValue):
-            Text(rawValue)
-        }
-    }
 }
 
-struct PodView_Previews: PreviewProvider {
-    static var windowId = UUID()
-    static var globalModel = GlobalModel()
-    static var mainViewModel = MainViewModel(windowId: windowId)
-    static var model: PodViewModel = .init(windowId: windowId)
+#Preview("PodView") {
+    let windowId = UUID()
+    let globalModel = GlobalModel()
+    let mainViewModel = MainViewModel(windowId: windowId)
+    let model: PodViewModel = .init(windowId: windowId)
 
-    static var previews: some View {
+    let view = HStack {
         PodView(windowId: windowId, globalModel: globalModel, mainViewModel: mainViewModel, model: model)
     }
-}
+    .frame(width: 1000, height: 1000)
 
-extension Phase: RawValue {
-    func rawValue() -> String {
-        switch self {
-        case .failed: return "Failed"
-        case .succeeded: return "Succeeded"
-        case .pending: return "Pending"
-        case .running: return "Running"
-        case .unknown(rawValue: let rawValue):
-            return rawValue
-        }
-    }
+    return view
 }

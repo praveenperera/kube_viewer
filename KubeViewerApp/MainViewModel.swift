@@ -10,15 +10,16 @@ import Foundation
 import SwiftUI
 
 class MainViewModel: ObservableObject {
-    var windowId: UUID
-    var listener: Listener?
-    var data: RustMainViewModel
-    var tabs: [Tab]
-    var tabsMap: [TabId: Tab]
+    let windowId: UUID
+    private var listener: Listener?
+    let data: RustMainViewModel
+    let tabs: [Tab]
+    let tabsMap: [TabId: Tab]
 
     @Published var selectedMainTab: NSWindow?
     @Published var tabContentViews: [TabId: TabContentView]
     @Published var tabViewModels: [TabId: TabViewModel]
+    @Published var search: String
 
     @RustPublished var tabGroupExpansions: [TabGroupId: Bool]
     @RustPublished var selectedTab: TabId
@@ -30,6 +31,8 @@ class MainViewModel: ObservableObject {
         self.data = RustMainViewModel(windowId: windowId.uuidString)
         self.tabs = self.data.tabs()
         self.tabsMap = self.data.tabsMap()
+        self.search = ""
+        self.listener = nil
 
         self.tabContentViews = self.tabsMap.mapValues { tab in TabContentView(text: tab.name) }
         self.tabViewModels = self.tabsMap.mapValues { _ in TabViewModel() }
@@ -55,6 +58,10 @@ class MainViewModel: ObservableObject {
         }
 
         DispatchQueue.main.async { self.setupListener() }
+    }
+
+    var filteredTabGroups: [TabGroup] {
+        self.data.tabGroupsFiltered(search: self.search)
     }
 
     private func setupListener() {

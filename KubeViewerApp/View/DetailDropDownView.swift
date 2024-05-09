@@ -22,7 +22,7 @@ struct DetailDropDown<Content: View>: View {
                 HStack {
                     Text(title)
                         .font(.title)
-                        .padding([.horizontal], 15)
+                        .padding([.horizontal], 16)
                         .foregroundColor(Color.primary.opacity(0.8))
                         .matchedGeometryEffect(id: title, in: namespace)
 
@@ -31,9 +31,9 @@ struct DetailDropDown<Content: View>: View {
                     Image(systemName: "chevron.down")
                         .font(.caption)
                         .transition(.opacity)
-                        .padding(.trailing, 10)
+                        .padding(.trailing, 12)
                 }
-                .padding(.top, 15)
+                .padding(.top, 16)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     withAnimation {
@@ -57,14 +57,14 @@ struct DetailDropDown<Content: View>: View {
                     if !isExpanded {
                         Text(title)
                             .font(.title)
-                            .padding(.horizontal, 15)
+                            .padding(.horizontal, 16)
                             .foregroundColor(Color.primary.opacity(0.8))
                             .matchedGeometryEffect(id: title, in: namespace)
                     }
                 }
             )
             // padding between card and content
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .if(self.colorScheme == .light) { view in
                 view.background(Color.white.opacity(0.6))
             }

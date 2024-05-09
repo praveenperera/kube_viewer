@@ -58,7 +58,7 @@ struct NodeView: View {
     var body: some View {
         VStack {
             self.innerBody
-                .onChange(of: self.model.nodes, perform: self.setLoading)
+                .onChange(of: self.model.nodes, self.setLoading)
         }
         .frame(minWidth: 100)
         .toast(isPresenting: self.$isLoading) {
@@ -69,7 +69,7 @@ struct NodeView: View {
                 await self.model.data.stopWatcher()
             }
         }
-        .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster in
+        .onChange(of: self.mainViewModel.selectedCluster) { newSelectedCluster, _ in
             if let selectedCluster = newSelectedCluster {
                 Task {
                     await self.model.data.fetchNodes(selectedCluster: selectedCluster.id)
@@ -87,7 +87,7 @@ struct NodeView: View {
     @ViewBuilder
     var innerBody: some View {
         switch self.model.nodes {
-        case .loaded: self.DisplayNodes(self.nodes)
+        case .loaded: self.DisplayNodes()
         case .loading, .initial:
             HStack {}
 
@@ -96,21 +96,24 @@ struct NodeView: View {
         }
     }
 
-    func DisplayNodes(_ nodes: [Node]) -> some View {
+    func DisplayNodes() -> some View {
         GeometryReader { geo in
             HStack(alignment: .top, spacing: 0) {
-                Table(nodes, selection: self.$selectedNodes, sortOrder: self.$sortOrder) {
-                    TableColumn("Name", value: \.name)
+                Table(self.nodes, selection: self.$selectedNodes, sortOrder: self.$sortOrder) {
+                    TableColumn("Name", value: \.name) {
+                        NameView(name: $0.name)
+                    }
                     TableColumn("Version", value: \.kubeletVersion, comparator: OptionalStringComparator())
                         { Text($0.kubeletVersion ?? "") }
                     TableColumn("Taints", value: \.taints, comparator: CountComparator())
-                        { Text(String($0.taints.count)) }
-                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator())
-                        { AgeView(createdAt: $0.createdAt, age: $0.age) }
+                        { TaintView(taints: $0.taints) }
+                    TableColumn("Age", value: \.createdAt, comparator: OptionalAgeComparator()) {
+                        AgeView(createdAt: $0.createdAt, age: $0.age)
+                    }
                     TableColumn("Conditions", value: \.conditions, comparator: ConditionsComparator())
                         { self.ConditionsColumnContent($0) }
                 }
-                .onChange(of: self.sortOrder) { sortOrder in
+                .onChange(of: self.sortOrder) { sortOrder, _ in
                     switch sortOrder {
                     case [KeyPathComparator(\Node.name)]: ()
                     case [KeyPathComparator(\Node.createdAt)]: ()
@@ -124,9 +127,7 @@ struct NodeView: View {
                         }
                     }
                 }
-                .if(self.nodeIsSelected) { view in
-                    view.frame(minWidth: 0, maxWidth: max(200, geo.size.width - self.detailsWidth))
-                }
+                .frame(minWidth: self.nodeIsSelected ? 0 : nil, maxWidth: self.nodeIsSelected ? max(200, geo.size.width - self.detailsWidth) : .infinity)
 
                 NodeDetailView(geo: geo,
                                selectedNode: self.selectedNode,
@@ -134,7 +135,7 @@ struct NodeView: View {
                                detailsResized: self.$detailsResized,
                                isDetailsHover: self.$isDetailsHover)
             }
-            .onChange(of: geo.size) { _ in
+            .onChange(of: geo.size) {
                 if !self.detailsResized {
                     self.detailsWidth = geo.size.width / 3.5
                 }
@@ -155,7 +156,7 @@ struct NodeView: View {
         }
     }
 
-    func setLoading(_ loading: LoadStatus<[Node]>) {
+    func setLoading(_ loading: LoadStatus<[Node]>, _ _old: LoadStatus<[Node]>) {
         switch loading {
         case .loaded, .error:
             self.isLoading = false

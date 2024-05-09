@@ -1,13 +1,14 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
-use crate::{cluster::ClusterId, view_models::pod::PodViewModel, UniffiCustomTypeConverter};
+use crate::{cluster::ClusterId, view_models::pod::PodViewModel};
 use act_zero::{call, Addr};
-use derive_more::From;
+use derive_more::{AsRef, Display, From};
+use either::Either;
 use eyre::Result;
 use fake::{Dummy, Fake, Faker};
-use futures::{StreamExt, TryStreamExt};
+use futures::{stream::FuturesUnordered, StreamExt, TryStreamExt};
 use k8s_openapi::api::core::v1::Pod as K8sPod;
-use kube::{Api, Client};
+use kube::{api::DeleteParams, core::Status, Api, Client};
 use log::debug;
 use rand::{distributions::Alphanumeric, Rng};
 use serde::{Deserialize, Serialize};
@@ -20,15 +21,44 @@ use k8s_openapi::api::core::v1::{
 
 use super::{core::OwnerReference, core::Toleration};
 
-#[derive(uniffi::CustomType)]
-#[uniffi(newtype=String)]
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("Unable to delete pod {0}: {1}")]
+    DeleteError(PodId, kube::Error),
+}
+
+uniffi::custom_newtype!(PodId, String);
 #[derive(
-    Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, From, Hash, Serialize, Deserialize, Dummy,
+    Debug,
+    Clone,
+    Default,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    From,
+    Hash,
+    Serialize,
+    Deserialize,
+    Dummy,
+    Display,
+    AsRef,
 )]
 pub struct PodId(String);
 
-#[derive(uniffi::CustomType)]
-#[uniffi(newtype=String)]
+impl From<PodId> for Cow<'_, PodId> {
+    fn from(pod_id: PodId) -> Self {
+        Cow::Owned(pod_id)
+    }
+}
+
+impl<'a> From<&'a PodId> for Cow<'a, PodId> {
+    fn from(pod_id: &'a PodId) -> Self {
+        Cow::Borrowed(pod_id)
+    }
+}
+
+uniffi::custom_newtype!(ContainerId, String);
 #[derive(
     Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, From, Hash, Serialize, Deserialize, Dummy,
 )]
@@ -61,7 +91,7 @@ pub struct Pod {
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct Container {
-    container_id: ContainerId,
+    id: ContainerId,
     name: String,
     image: String,
     image_id: Option<String>,
@@ -102,23 +132,23 @@ pub enum Phase {
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct ContainerStateRunning {
-    started_at: i64,
+    pub started_at: i64,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct ContainerStateTerminated {
-    started_at: i64,
-    finished_at: i64,
-    exit_code: i32,
-    message: Option<String>,
-    reason: Option<String>,
-    signal: Option<i32>,
+    pub started_at: i64,
+    pub finished_at: i64,
+    pub exit_code: i32,
+    pub message: Option<String>,
+    pub reason: Option<String>,
+    pub signal: Option<i32>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
 pub struct ContainerStateWaiting {
-    message: Option<String>,
-    reason: Option<String>,
+    pub message: Option<String>,
+    pub reason: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Record, Dummy)]
@@ -230,7 +260,7 @@ impl Container {
         let status = statuses.get(&container_id);
 
         Self {
-            container_id,
+            id: container_id,
             name: container.name,
             image: container.image.unwrap_or_default(),
             image_id: status.map(|s| s.image_id.clone()),
@@ -347,11 +377,10 @@ impl Pod {
     pub fn preview() -> Self {
         Faker.fake()
     }
-}
 
-#[uniffi::export]
-pub fn pod_preview() -> Pod {
-    Pod::preview()
+    pub fn total_restart_count(&self) -> i32 {
+        self.containers.iter().map(|c| c.restart_count).sum()
+    }
 }
 
 pub async fn get_all(client: Client) -> Result<HashMap<PodId, Pod>> {
@@ -365,6 +394,41 @@ pub async fn get_all(client: Client) -> Result<HashMap<PodId, Pod>> {
         .collect();
 
     Ok(pods_hash_map)
+}
+
+pub async fn delete(client: Client, pod: &Pod) -> Result<Either<K8sPod, Status>, Error> {
+    let pods_api: Api<K8sPod> = Api::namespaced(client, &pod.namespace);
+
+    pods_api
+        .delete(pod.id.as_ref(), &DeleteParams::default())
+        .await
+        .map_err(|error| Error::DeleteError(pod.id.clone(), error))
+}
+
+pub async fn delete_list_in_namespace(
+    client: Client,
+    namespace: &str,
+    pod_ids: Vec<PodId>,
+) -> Vec<Result<Either<K8sPod, Status>, Error>> {
+    let pods_api: Api<K8sPod> = Api::namespaced(client, namespace);
+
+    pod_ids
+        .into_iter()
+        .map(|pod_id| {
+            let pods_api = pods_api.clone();
+            tokio::spawn(async move {
+                pods_api
+                    .delete(pod_id.clone().as_ref(), &DeleteParams::default())
+                    .await
+                    .map_err(|error| Error::DeleteError(pod_id.clone(), error))
+            })
+        })
+        .collect::<FuturesUnordered<_>>()
+        .collect::<Vec<_>>()
+        .await
+        .into_iter()
+        .filter_map(Result::ok)
+        .collect()
 }
 
 pub async fn watch(

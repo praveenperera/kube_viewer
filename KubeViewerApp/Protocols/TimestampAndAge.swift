@@ -14,6 +14,7 @@ protocol CreatedAt {
 protocol AgeTimestamp: CreatedAt {
     func age() -> String?
     func createdAtTimestamp() -> String?
+    func createdAtUtc() -> String?
 }
 
 extension AgeTimestamp {
@@ -37,5 +38,13 @@ extension AgeTimestamp {
 
         let createdAt = Date(timeIntervalSince1970: Double(timestamp))
         return createdAt.formatted()
+    }
+
+    func createdAtUtc() -> String? {
+        guard let timestamp = createdAt else {
+            return nil
+        }
+
+        return unixToUtcString(unix: timestamp)
     }
 }
